@@ -1,16 +1,16 @@
-Pinyin Toolkit
-==============
+## Pinyin Toolkit
 
 An addon for Mandarin Chinese pinyin in the Anki Spaced Repetition System (http://ankisrs.net/)
 
-Addon page at https://ankiweb.net/shared/info/2554990764<br>
-Documentation at http://batterseapower.github.io/pinyin-toolkit/<br> 
-Google Discussion Group at http://is.gd/LK9v2g<br>
-List of issues at https://github.com/chatch/pinyin-toolkit/issues<br>
+Addon page at https://ankiweb.net/shared/info/2554990764
+Documentation at http://batterseapower.github.io/pinyin-toolkit/ 
+Google Discussion Group at http://is.gd/LK9v2g
+List of issues at https://github.com/chatch/pinyin-toolkit/issues
 
-<h4>Building the plugin</h4>
+### Building the plugin
+
 ```
-git clone https://github.com/chatch/pinyin-toolkit.git
+git clone https://github.com/chanind/pinyin-toolkit.git
 git submodule init
 git submodule update
 python pinyin/db/builder.py
