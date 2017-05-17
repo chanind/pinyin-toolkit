@@ -176,7 +176,7 @@ class AbstractType(Visitable):
         # Py3K
         #return unicode(self.compile())
         # Py2K
-        return unicode(self.compile()).\
+        return str(self.compile()).\
                         encode('ascii', 'backslashreplace')
         # end Py2K
 
@@ -531,8 +531,8 @@ class TypeDecorator(AbstractType):
         the processing provided by ``self.impl`` is maintained.
         
         """
-        if self.__class__.process_bind_param.func_code \
-            is not TypeDecorator.process_bind_param.func_code:
+        if self.__class__.process_bind_param.__code__ \
+            is not TypeDecorator.process_bind_param.__code__:
             process_param = self.process_bind_param
             impl_processor = self.impl.bind_processor(dialect)
             if impl_processor:
@@ -560,8 +560,8 @@ class TypeDecorator(AbstractType):
         the processing provided by ``self.impl`` is maintained.
         
         """
-        if self.__class__.process_result_value.func_code \
-            is not TypeDecorator.process_result_value.func_code:
+        if self.__class__.process_result_value.__code__ \
+            is not TypeDecorator.process_result_value.__code__:
             process_value = self.process_result_value
             impl_processor = self.impl.result_processor(dialect,
                     coltype)
@@ -970,7 +970,7 @@ class String(Concatenable, TypeEngine):
                 encoder = codecs.getencoder(dialect.encoding)
                 warn_on_bytestring = self._warn_on_bytestring
                 def process(value):
-                    if isinstance(value, unicode):
+                    if isinstance(value, str):
                         return encoder(value, self.unicode_error)[0]
                     elif warn_on_bytestring and value is not None:
                         util.warn("Unicode type received non-unicode bind "
@@ -996,7 +996,7 @@ class String(Concatenable, TypeEngine):
                 # habits.  since we will be getting back unicode
                 # in most cases, we check for it (decode will fail).
                 def process(value):
-                    if isinstance(value, unicode):
+                    if isinstance(value, str):
                         return value
                     else:
                         return to_unicode(value)
@@ -1475,7 +1475,7 @@ class _Binary(TypeEngine):
     def _coerce_compared_value(self, op, value):
         """See :meth:`.AbstractType._coerce_compared_value` for a description."""
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             return self
         else:
             return super(_Binary, self)._coerce_compared_value(op, value)
@@ -1660,7 +1660,7 @@ class Enum(String, SchemaType):
         convert_unicode= kw.pop('convert_unicode', None)
         if convert_unicode is None:
             for e in enums:
-                if isinstance(e, unicode):
+                if isinstance(e, str):
                     convert_unicode = True
                     break
             else:
@@ -2102,7 +2102,7 @@ type_map = {
     # Py3K
     #bytes : LargeBinary(),
     # Py2K
-    unicode : Unicode(),
+    str : Unicode(),
     # end Py2K
     int : Integer(),
     float : Numeric(),

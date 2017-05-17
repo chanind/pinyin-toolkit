@@ -587,7 +587,7 @@ class CollectionAdapter(object):
         """Count entities in the collection."""
         return len(list(getattr(self._data(), '_sa_iterator')()))
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     def fire_append_event(self, item, initiator=None):
@@ -808,7 +808,7 @@ def _instrument_class(cls):
             methods[name] = None, None, after
 
     # apply ABC auto-decoration to methods that need it
-    for method, decorator in decorators.items():
+    for method, decorator in list(decorators.items()):
         fn = getattr(cls, method, None)
         if (fn and method not in methods and
             not hasattr(fn, '_sa_instrumented')):
@@ -839,12 +839,12 @@ def _instrument_class(cls):
 
     # apply ad-hoc instrumentation from decorators, class-level defaults
     # and implicit role declarations
-    for method, (before, argument, after) in methods.items():
+    for method, (before, argument, after) in list(methods.items()):
         setattr(cls, method,
                 _instrument_membership_mutator(getattr(cls, method),
                                                before, argument, after))
     # intern the role map
-    for role, method in roles.items():
+    for role, method in list(roles.items()):
         setattr(cls, '_sa_%s' % role, getattr(cls, method))
 
     setattr(cls, '_sa_instrumented', id(cls))
@@ -976,14 +976,14 @@ def _list_decorators():
                     stop += len(self)
 
                 if step == 1:
-                    for i in xrange(start, stop, step):
+                    for i in range(start, stop, step):
                         if len(self) > start:
                             del self[start]
 
                     for i, item in enumerate(value):
                         self.insert(i + start, item)
                 else:
-                    rng = range(start, stop, step)
+                    rng = list(range(start, stop, step))
                     if len(value) != len(rng):
                         raise ValueError(
                             "attempt to assign sequence of size %s to "
@@ -1131,7 +1131,7 @@ def _dict_decorators():
     if sys.version_info < (2, 4):
         def update(fn):
             def update(self, other):
-                for key in other.keys():
+                for key in list(other.keys()):
                     if key not in self or self[key] is not other[key]:
                         self[key] = other[key]
             _tidy(update)
@@ -1141,7 +1141,7 @@ def _dict_decorators():
             def update(self, __other=Unspecified, **kw):
                 if __other is not Unspecified:
                     if hasattr(__other, 'keys'):
-                        for key in __other.keys():
+                        for key in list(__other.keys()):
                             if (key not in self or
                                 self[key] is not __other[key]):
                                 self[key] = __other[key]

@@ -1,6 +1,6 @@
 from sqlalchemy.test.testing import assert_raises, assert_raises_message, eq_
-import ConfigParser
-import StringIO
+import configparser
+import io
 import sqlalchemy.engine.url as url
 from sqlalchemy import create_engine, engine_from_config
 from sqlalchemy.engine import _coerce_config
@@ -102,8 +102,8 @@ pool_size=2
 pool_threadlocal=1
 pool_timeout=10
 """
-        ini = ConfigParser.ConfigParser()
-        ini.readfp(StringIO.StringIO(raw))
+        ini = configparser.ConfigParser()
+        ini.readfp(io.StringIO(raw))
 
         expected = {
             'url': 'postgresql://scott:tiger@somehost/test?fooz=somevalue',
@@ -118,11 +118,11 @@ pool_timeout=10
             }
 
         prefixed = dict(ini.items('prefixed'))
-        self.assert_(tsa.engine._coerce_config(prefixed, 'sqlalchemy.')
+        self.assertTrue(tsa.engine._coerce_config(prefixed, 'sqlalchemy.')
                      == expected)
 
         plain = dict(ini.items('plain'))
-        self.assert_(tsa.engine._coerce_config(plain, '') == expected)
+        self.assertTrue(tsa.engine._coerce_config(plain, '') == expected)
 
     def test_engine_from_config(self):
         dbapi = mock_dbapi

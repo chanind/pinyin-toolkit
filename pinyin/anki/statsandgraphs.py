@@ -17,7 +17,7 @@ import time
 
 from anki.hooks import wrap
 
-import hooks
+from . import hooks
 
 from pinyin.logger import log
 import pinyin.statistics
@@ -27,11 +27,11 @@ import pinyin.utils
 class HanziGraphHook(hooks.Hook):
     # Color Gradient for HSK score: http://gotomy.com/color.html to find a smooth gradient
     gradeColorsShortNames = {
-        u'HSK Basic'        : (u'#FF0033', "Basic"),
-        u'HSK Elementary'   : (u'#CC0066', "Element."),
-        u'HSK Intermediate' : (u'#990099', "Intermed."),
-        u'HSK Advanced'     : ('#6600CC', "Advanced"),
-        u'Non-HSK'          : (u'#3300FF', "Non-HSK")        
+        'HSK Basic'        : ('#FF0033', "Basic"),
+        'HSK Elementary'   : ('#CC0066', "Element."),
+        'HSK Intermediate' : ('#990099', "Intermed."),
+        'HSK Advanced'     : ('#6600CC', "Advanced"),
+        'Non-HSK'          : ('#3300FF', "Non-HSK")        
       }
     
     def __init__(self, *args, **kwargs):
@@ -161,11 +161,11 @@ class HanziGraphHook(hooks.Hook):
     def toSqlLiteral(self, thing):
         if isinstance(thing, list):
             return "(" + ",".join([self.toSqlLiteral(item) for item in thing]) + ")"
-        elif isinstance(thing, basestring):
+        elif isinstance(thing, str):
             # TODO: SQL escape??
-            return u'"%s"' % thing
-        elif isinstance(thing, int) or isinstance(thing, long):
-            return unicode(thing)
+            return '"%s"' % thing
+        elif isinstance(thing, int) or isinstance(thing, int):
+            return str(thing)
         else:
             raise ValueError("Unsupported thing %s in SQL call", thing)
 
@@ -203,7 +203,7 @@ class HanziGraphHook(hooks.Hook):
         try:
             from ankiqt.ui.graphs import GraphWindow
             GraphWindow.setupGraphs = wrap(GraphWindow.setupGraphs, self.setupHanziGraph, "after")
-        except ImportError, e:
+        except ImportError as e:
             self.notifier.exception("There was a problem setting up the Hanzi Graph! If you are using Linux, " +
                                     "you may need to install the package providing matplotlib to Python. On Ubuntu " +
                                     "you can do that by running 'sudo apt-get install python-matplotlib' in the Terminal.")

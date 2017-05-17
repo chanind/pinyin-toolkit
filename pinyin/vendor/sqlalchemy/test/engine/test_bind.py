@@ -38,7 +38,7 @@ class BindTest(testing.TestBase):
             try:
                 meth()
                 assert False
-            except exc.UnboundExecutionError, e:
+            except exc.UnboundExecutionError as e:
                 eq_(str(e),
                     "The MetaData is not bound to an Engine or "
                     "Connection.  Execution can not proceed without a "
@@ -59,7 +59,7 @@ class BindTest(testing.TestBase):
             try:
                 meth()
                 assert False
-            except exc.UnboundExecutionError, e:
+            except exc.UnboundExecutionError as e:
                 eq_(
                     str(e),
                     "The Table 'test_table' "
@@ -182,7 +182,7 @@ class BindTest(testing.TestBase):
                     assert e.bind is None
                     e.execute()
                     assert False
-                except exc.UnboundExecutionError, e:
+                except exc.UnboundExecutionError as e:
                     assert str(e).endswith('is not bound and does not '
                             'support direct execution. Supply this '
                             'statement to a Connection or Engine for '

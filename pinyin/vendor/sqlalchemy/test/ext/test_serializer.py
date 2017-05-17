@@ -48,12 +48,12 @@ class SerializeTest(MappedTest):
 
     @classmethod
     def insert_data(cls):
-        params = [dict(zip(('id', 'name'), column_values))
+        params = [dict(list(zip(('id', 'name'), column_values)))
                   for column_values in [(7, 'jack'), (8, 'ed'), (9,
                   'fred'), (10, 'chuck')]]
         users.insert().execute(params)
-        addresses.insert().execute([dict(zip(('id', 'user_id', 'email'
-                                   ), column_values))
+        addresses.insert().execute([dict(list(zip(('id', 'user_id', 'email'
+                                   ), column_values)))
                                    for column_values in [(1, 7,
                                    'jack@bean.com'), (2, 8,
                                    'ed@wood.com'), (3, 8,
@@ -85,8 +85,8 @@ class SerializeTest(MappedTest):
                                    users.metadata, None)
         eq_(str(expr), str(re_expr))
         assert re_expr.bind is testing.db
-        eq_(re_expr.execute().fetchall(), [(7, u'jack'), (8, u'ed'),
-            (8, u'ed'), (8, u'ed'), (9, u'fred')])
+        eq_(re_expr.execute().fetchall(), [(7, 'jack'), (8, 'ed'),
+            (8, 'ed'), (8, 'ed'), (9, 'fred')])
 
     def test_query(self):
         q = Session.query(User).filter(User.name == 'ed'
@@ -117,7 +117,7 @@ class SerializeTest(MappedTest):
         q2 = serializer.loads(serializer.dumps(q, -1), users.metadata,
                               Session)
         eq_(q2.all(), [User(name='fred')])
-        eq_(list(q2.values(User.id, User.name)), [(9, u'fred')])
+        eq_(list(q2.values(User.id, User.name)), [(9, 'fred')])
 
     @testing.exclude('sqlite', '<=', (3, 5, 9),
                      'id comparison failing on the buildbot')

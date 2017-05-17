@@ -86,18 +86,18 @@ session.commit()
 # query the order, print items
 order = session.query(Order).filter_by(customer_name='john smith').one()
 
-print "Order #%s:\n%s\n%s\n%s items.\n" % (
-    order.order_id, order.customer_name, order.order_date, len(order.items))
+print("Order #%s:\n%s\n%s\n%s items.\n" % (
+    order.order_id, order.customer_name, order.order_date, len(order.items)))
 
 # print items based on the OrderItem collection directly
-print [(assoc.item.description, assoc.price, assoc.item.price)
-       for assoc in order.itemassociations]
+print([(assoc.item.description, assoc.price, assoc.item.price)
+       for assoc in order.itemassociations])
 
 # print items based on the "proxied" items collection
-print [(item.description, item.price)
-       for item in order.items]
+print([(item.description, item.price)
+       for item in order.items])
 
 # print customers who bought 'MySQL Crowbar' on sale
 orders = session.query(Order).join('itemassociations', 'item').filter(
     and_(Item.description=='MySQL Crowbar', Item.price > OrderItem.price))
-print [order.customer_name for order in orders]
+print([order.customer_name for order in orders])

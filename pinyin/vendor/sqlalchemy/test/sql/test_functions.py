@@ -270,7 +270,7 @@ class ExecuteTest(TestBase):
             assert t.select(t.c.id==id).execute().first()['value'] == 9
             t.update(values={t.c.value:func.length("asdf")}).execute()
             assert t.select().execute().first()['value'] == 4
-            print "--------------------------"
+            print("--------------------------")
             t2.insert().execute()
             t2.insert(values=dict(value=func.length("one"))).execute()
             t2.insert(values=dict(value=func.length("asfda") + -19)).execute(stuff="hi")
@@ -291,7 +291,7 @@ class ExecuteTest(TestBase):
             assert select([t2.c.value, t2.c.stuff]).execute().first() == (5, "thisisstuff")
 
             t2.update(values={t2.c.value:func.length("asfdaasdf"), t2.c.stuff:"foo"}).execute()
-            print "HI", select([t2.c.value, t2.c.stuff]).execute().first()
+            print("HI", select([t2.c.value, t2.c.stuff]).execute().first())
             assert select([t2.c.value, t2.c.stuff]).execute().first() == (9, "foo")
         finally:
             meta.drop_all()

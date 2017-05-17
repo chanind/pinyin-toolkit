@@ -19,10 +19,10 @@ class ResultSetTest(TestBase, AssertsExecutionResults):
 
     def setup(self):
         metadata.create_all()
-        t.insert().execute([dict(('field%d' % fnum, u'value%d' % fnum)
+        t.insert().execute([dict(('field%d' % fnum, 'value%d' % fnum)
                            for fnum in range(NUM_FIELDS)) for r_num in
                            range(NUM_RECORDS)])
-        t2.insert().execute([dict(('field%d' % fnum, u'value%d' % fnum)
+        t2.insert().execute([dict(('field%d' % fnum, 'value%d' % fnum)
                             for fnum in range(NUM_FIELDS)) for r_num in
                             range(NUM_RECORDS)])
 

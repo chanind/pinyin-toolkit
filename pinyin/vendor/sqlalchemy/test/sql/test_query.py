@@ -227,7 +227,7 @@ class QueryTest(TestBase):
         l = []
         for row in r:
             l.append(row)
-        self.assert_(len(l) == 3)
+        self.assertTrue(len(l) == 3)
 
     @testing.fails_on('firebird', "kinterbasdb doesn't send full type information")
     @testing.requires.subqueries
@@ -259,7 +259,7 @@ class QueryTest(TestBase):
         )
 
         concat = ("test: " + users.c.user_name).label('thedata')
-        print select([concat]).order_by("thedata")
+        print(select([concat]).order_by("thedata"))
         eq_(
             select([concat]).order_by("thedata").execute().fetchall(),
             [("test: ed",), ("test: fred",), ("test: jack",)]
@@ -292,15 +292,15 @@ class QueryTest(TestBase):
         users.insert().execute(user_id = 7, user_name = 'jack')
         rp = users.select().execute().first()
 
-        self.assert_(rp == rp)
-        self.assert_(not(rp != rp))
+        self.assertTrue(rp == rp)
+        self.assertTrue(not(rp != rp))
 
         equal = (7, 'jack')
 
-        self.assert_(rp == equal)
-        self.assert_(equal == rp)
-        self.assert_(not (rp != equal))
-        self.assert_(not (equal != equal))
+        self.assertTrue(rp == equal)
+        self.assertTrue(equal == rp)
+        self.assertTrue(not (rp != equal))
+        self.assertTrue(not (equal != equal))
 
     def test_pickled_rows(self):
         users.insert().execute(
@@ -322,10 +322,10 @@ class QueryTest(TestBase):
                 )
                 if use_labels:
                     eq_(result[0]['query_users_user_id'], 7)
-                    eq_(result[0].keys(), ["query_users_user_id", "query_users_user_name"])
+                    eq_(list(result[0].keys()), ["query_users_user_id", "query_users_user_name"])
                 else:
                     eq_(result[0]['user_id'], 7)
-                    eq_(result[0].keys(), ["user_id", "user_name"])
+                    eq_(list(result[0].keys()), ["user_id", "user_name"])
 
                 eq_(result[0][0], 7)
                 eq_(result[0][users.c.user_id], 7)
@@ -388,7 +388,7 @@ class QueryTest(TestBase):
         l = []
         for row in r.fetchmany(size=2):
             l.append(row)
-        self.assert_(len(l) == 2, "fetchmany(size=2) got %s rows" % len(l))
+        self.assertTrue(len(l) == 2, "fetchmany(size=2) got %s rows" % len(l))
 
     def test_like_ops(self):
         users.insert().execute(
@@ -480,13 +480,13 @@ class QueryTest(TestBase):
 
         def a_eq(got, wanted):
             if got != wanted:
-                print "Wanted %s" % wanted
-                print "Received %s" % got
-            self.assert_(got == wanted, got)
+                print("Wanted %s" % wanted)
+                print("Received %s" % got)
+            self.assertTrue(got == wanted, got)
 
         a_eq(prep('select foo'), 'select foo')
         a_eq(prep("time='12:30:00'"), "time='12:30:00'")
-        a_eq(prep(u"time='12:30:00'"), u"time='12:30:00'")
+        a_eq(prep("time='12:30:00'"), "time='12:30:00'")
         a_eq(prep(":this:that"), ":this:that")
         a_eq(prep(":this :that"), "? ?")
         a_eq(prep("(:this),(:that :other)"), "(?),(? ?)")
@@ -508,11 +508,11 @@ class QueryTest(TestBase):
     def test_delete(self):
         users.insert().execute(user_id = 7, user_name = 'jack')
         users.insert().execute(user_id = 8, user_name = 'fred')
-        print repr(users.select().execute().fetchall())
+        print(repr(users.select().execute().fetchall()))
 
         users.delete(users.c.user_name == 'fred').execute()
 
-        print repr(users.select().execute().fetchall())
+        print(repr(users.select().execute().fetchall()))
 
 
 
@@ -603,9 +603,9 @@ class QueryTest(TestBase):
         addresses.insert().execute(address_id=1, user_id=2, address='foo@bar.com')
 
         r = text("select * from query_addresses", bind=testing.db).execute().first()
-        self.assert_(r[0:1] == (1,))
-        self.assert_(r[1:] == (2, 'foo@bar.com'))
-        self.assert_(r[:-1] == (1, 2))
+        self.assertTrue(r[0:1] == (1,))
+        self.assertTrue(r[1:] == (2, 'foo@bar.com'))
+        self.assertTrue(r[:-1] == (1, 2))
 
     def test_column_accessor(self):
         users.insert().execute(user_id=1, user_name='john')
@@ -613,27 +613,27 @@ class QueryTest(TestBase):
         addresses.insert().execute(address_id=1, user_id=2, address='foo@bar.com')
 
         r = users.select(users.c.user_id==2).execute().first()
-        self.assert_(r.user_id == r['user_id'] == r[users.c.user_id] == 2)
-        self.assert_(r.user_name == r['user_name'] == r[users.c.user_name] == 'jack')
+        self.assertTrue(r.user_id == r['user_id'] == r[users.c.user_id] == 2)
+        self.assertTrue(r.user_name == r['user_name'] == r[users.c.user_name] == 'jack')
 
         r = text("select * from query_users where user_id=2", bind=testing.db).execute().first()
-        self.assert_(r.user_id == r['user_id'] == r[users.c.user_id] == 2)
-        self.assert_(r.user_name == r['user_name'] == r[users.c.user_name] == 'jack')
+        self.assertTrue(r.user_id == r['user_id'] == r[users.c.user_id] == 2)
+        self.assertTrue(r.user_name == r['user_name'] == r[users.c.user_name] == 'jack')
 
         # test a little sqlite weirdness - with the UNION, 
         # cols come back as "query_users.user_id" in cursor.description
         r = text("select query_users.user_id, query_users.user_name from query_users "
             "UNION select query_users.user_id, query_users.user_name from query_users",
             bind=testing.db).execute().first()
-        self.assert_(r['user_id']) == 1
-        self.assert_(r['user_name']) == "john"
+        self.assertTrue(r['user_id']) == 1
+        self.assertTrue(r['user_name']) == "john"
 
         # test using literal tablename.colname
         r = text('select query_users.user_id AS "query_users.user_id", '
                 'query_users.user_name AS "query_users.user_name" from query_users', 
                 bind=testing.db).execute().first()
-        self.assert_(r['query_users.user_id']) == 1
-        self.assert_(r['query_users.user_name']) == "john"
+        self.assertTrue(r['query_users.user_id']) == 1
+        self.assertTrue(r['query_users.user_name']) == "john"
 
         # unary experssions
         r = select([users.c.user_name.distinct()]).order_by(users.c.user_name).execute().first()
@@ -723,7 +723,7 @@ class QueryTest(TestBase):
             ])
         ).first()
 
-        assert row.keys() == ["case_insensitive", "CaseSensitive"]
+        assert list(row.keys()) == ["case_insensitive", "CaseSensitive"]
 
 
     def test_row_as_args(self):
@@ -785,14 +785,14 @@ class QueryTest(TestBase):
     def test_keys(self):
         users.insert().execute(user_id=1, user_name='foo')
         r = users.select().execute()
-        eq_([x.lower() for x in r.keys()], ['user_id', 'user_name'])
+        eq_([x.lower() for x in list(r.keys())], ['user_id', 'user_name'])
         r = r.first()
-        eq_([x.lower() for x in r.keys()], ['user_id', 'user_name'])
+        eq_([x.lower() for x in list(r.keys())], ['user_id', 'user_name'])
 
     def test_items(self):
         users.insert().execute(user_id=1, user_name='foo')
         r = users.select().execute().first()
-        eq_([(x[0].lower(), x[1]) for x in r.items()], [('user_id', 1), ('user_name', 'foo')])
+        eq_([(x[0].lower(), x[1]) for x in list(r.items())], [('user_id', 1), ('user_name', 'foo')])
 
     def test_len(self):
         users.insert().execute(user_id=1, user_name='foo')
@@ -808,7 +808,7 @@ class QueryTest(TestBase):
     def test_cant_execute_join(self):
         try:
             users.join(addresses).execute()
-        except exc.ArgumentError, e:
+        except exc.ArgumentError as e:
             assert str(e).startswith('Not an executable clause: ')
 
 
@@ -819,8 +819,8 @@ class QueryTest(TestBase):
         r = users.select(users.c.user_id==1).execute().first()
         eq_(r[0], 1)
         eq_(r[1], 'foo')
-        eq_([x.lower() for x in r.keys()], ['user_id', 'user_name'])
-        eq_(r.values(), [1, 'foo'])
+        eq_([x.lower() for x in list(r.keys())], ['user_id', 'user_name'])
+        eq_(list(r.values()), [1, 'foo'])
 
     def test_column_order_with_text_query(self):
         # should return values in query order
@@ -828,8 +828,8 @@ class QueryTest(TestBase):
         r = testing.db.execute('select user_name, user_id from query_users').first()
         eq_(r[0], 'foo')
         eq_(r[1], 1)
-        eq_([x.lower() for x in r.keys()], ['user_name', 'user_id'])
-        eq_(r.values(), ['foo', 1])
+        eq_([x.lower() for x in list(r.keys())], ['user_name', 'user_id'])
+        eq_(list(r.values()), ['foo', 1])
 
     @testing.crashes('oracle', 'FIXME: unknown, varify not fails_on()')
     @testing.crashes('firebird', 'An identifier must begin with a letter')
@@ -851,14 +851,14 @@ class QueryTest(TestBase):
                                             _parent='Hidden parent', 
                                             _row='Hidden row')
             r = shadowed.select(shadowed.c.shadow_id==1).execute().first()
-            self.assert_(r.shadow_id == r['shadow_id'] == r[shadowed.c.shadow_id] == 1)
-            self.assert_(r.shadow_name == r['shadow_name'] == r[shadowed.c.shadow_name] == 'The Shadow')
-            self.assert_(r.parent == r['parent'] == r[shadowed.c.parent] == 'The Light')
-            self.assert_(r.row == r['row'] == r[shadowed.c.row] == 'Without light there is no shadow')
-            self.assert_(r['_parent'] == 'Hidden parent')
-            self.assert_(r['_row'] == 'Hidden row')
+            self.assertTrue(r.shadow_id == r['shadow_id'] == r[shadowed.c.shadow_id] == 1)
+            self.assertTrue(r.shadow_name == r['shadow_name'] == r[shadowed.c.shadow_name] == 'The Shadow')
+            self.assertTrue(r.parent == r['parent'] == r[shadowed.c.parent] == 'The Light')
+            self.assertTrue(r.row == r['row'] == r[shadowed.c.row] == 'Without light there is no shadow')
+            self.assertTrue(r['_parent'] == 'Hidden parent')
+            self.assertTrue(r['_row'] == 'Hidden row')
             try:
-                print r._parent, r._row
+                print(r._parent, r._row)
                 self.fail('Should not allow access to private attributes')
             except AttributeError:
                 pass # expected
@@ -1092,7 +1092,7 @@ class LimitTest(TestBase):
 
     def test_select_limit(self):
         r = users.select(limit=3, order_by=[users.c.user_id]).execute().fetchall()
-        self.assert_(r == [(1, 'john'), (2, 'jack'), (3, 'ed')], repr(r))
+        self.assertTrue(r == [(1, 'john'), (2, 'jack'), (3, 'ed')], repr(r))
 
     @testing.requires.offset
     @testing.fails_on('maxdb', 'FIXME: unknown')
@@ -1100,16 +1100,16 @@ class LimitTest(TestBase):
         """Test the interaction between limit and offset"""
 
         r = users.select(limit=3, offset=2, order_by=[users.c.user_id]).execute().fetchall()
-        self.assert_(r==[(3, 'ed'), (4, 'wendy'), (5, 'laura')])
+        self.assertTrue(r==[(3, 'ed'), (4, 'wendy'), (5, 'laura')])
         r = users.select(offset=5, order_by=[users.c.user_id]).execute().fetchall()
-        self.assert_(r==[(6, 'ralph'), (7, 'fido')])
+        self.assertTrue(r==[(6, 'ralph'), (7, 'fido')])
 
     def test_select_distinct_limit(self):
         """Test the interaction between limit and distinct"""
 
         r = sorted([x[0] for x in select([addresses.c.address]).distinct().limit(3).order_by(addresses.c.address).execute().fetchall()])
-        self.assert_(len(r) == 3, repr(r))
-        self.assert_(r[0] != r[1] and r[1] != r[2], repr(r))
+        self.assertTrue(len(r) == 3, repr(r))
+        self.assertTrue(r[0] != r[1] and r[1] != r[2], repr(r))
 
     @testing.requires.offset
     @testing.fails_on('mssql', 'FIXME: unknown')
@@ -1117,16 +1117,16 @@ class LimitTest(TestBase):
         """Test the interaction between distinct and offset"""
 
         r = sorted([x[0] for x in select([addresses.c.address]).distinct().offset(1).order_by(addresses.c.address).execute().fetchall()])
-        self.assert_(len(r) == 4, repr(r))
-        self.assert_(r[0] != r[1] and r[1] != r[2] and r[2] != [3], repr(r))
+        self.assertTrue(len(r) == 4, repr(r))
+        self.assertTrue(r[0] != r[1] and r[1] != r[2] and r[2] != [3], repr(r))
 
     @testing.requires.offset
     def test_select_distinct_limit_offset(self):
         """Test the interaction between limit and limit/offset"""
 
         r = select([addresses.c.address]).order_by(addresses.c.address).distinct().offset(2).limit(3).execute().fetchall()
-        self.assert_(len(r) == 3, repr(r))
-        self.assert_(r[0] != r[1] and r[1] != r[2], repr(r))
+        self.assertTrue(len(r) == 3, repr(r))
+        self.assertTrue(r[0] != r[1] and r[1] != r[2], repr(r))
 
 class CompoundTest(TestBase):
     """test compound statements like UNION, INTERSECT, particularly their ability to nest on
@@ -1646,7 +1646,7 @@ class JoinTest(TestBase):
             expr = select(
                 [t1.c.t1_id, t2.c.t2_id, t3.c.t3_id],
                 from_obj=[(t1.join(t2).outerjoin(t3, criteria))])
-            print expr
+            print(expr)
             self.assertRows(expr, [(10, 20, 30), (11, 21, None)])
 
     def test_mixed_where(self):

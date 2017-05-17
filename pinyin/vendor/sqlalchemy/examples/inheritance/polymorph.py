@@ -39,7 +39,7 @@ managers = Table('managers', metadata,
 # create our classes.  The Engineer and Manager classes extend from Person.
 class Person(object):
     def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
     def __repr__(self):
         return "Ordinary person %s" % self.name
@@ -55,7 +55,7 @@ class Manager(Person):
                     (self.name, self.status, self.manager_name)
 class Company(object):
     def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
     def __repr__(self):
         return "Company %s" % self.name
@@ -95,10 +95,10 @@ session.commit()
 
 c = session.query(Company).get(1)
 for e in c.employees:
-    print e, e._sa_instance_state.key, e.company
+    print(e, e._sa_instance_state.key, e.company)
 assert set([e.name for e in c.employees]) == set(['pointy haired boss',
         'dilbert', 'joesmith', 'wally', 'jsmith'])
-print "\n"
+print("\n")
 
 dilbert = session.query(Person).filter_by(name='dilbert').one()
 dilbert2 = session.query(Engineer).filter_by(name='dilbert').one()
@@ -110,14 +110,14 @@ session.commit()
 
 c = session.query(Company).get(1)
 for e in c.employees:
-    print e
+    print(e)
 
 # illustrate querying using direct table access:
 
-print session.query(Engineer.engineer_name).\
+print(session.query(Engineer.engineer_name).\
             select_from(engineers).\
             filter(Engineer.primary_language=='python').\
-            all()
+            all())
 
 
 session.delete(c)

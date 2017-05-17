@@ -52,9 +52,9 @@ class PoolTest(PoolTestBase):
         connection2 = manager.connect('foo.db')
         connection3 = manager.connect('bar.db')
 
-        self.assert_(connection.cursor() is not None)
-        self.assert_(connection is connection2)
-        self.assert_(connection2 is not connection3)
+        self.assertTrue(connection.cursor() is not None)
+        self.assertTrue(connection is connection2)
+        self.assertTrue(connection2 is not connection3)
 
     def testbadargs(self):
         manager = pool.manage(mock_dbapi)
@@ -70,8 +70,8 @@ class PoolTest(PoolTestBase):
         connection = manager.connect('foo.db')
         connection2 = manager.connect('foo.db')
 
-        self.assert_(connection.cursor() is not None)
-        self.assert_(connection is not connection2)
+        self.assertTrue(connection.cursor() is not None)
+        self.assertTrue(connection is not connection2)
 
     @testing.fails_on('+pyodbc',
                       "pyodbc cursor doesn't implement tuple __eq__")
@@ -116,16 +116,16 @@ class PoolTest(PoolTestBase):
                 use_threadlocal=True):
             c1 = p.connect()
             c2 = p.connect()
-            self.assert_(c1 is c2)
+            self.assertTrue(c1 is c2)
             c3 = p.unique_connection()
-            self.assert_(c3 is not c1)
+            self.assertTrue(c3 is not c1)
             if useclose:
                 c2.close()
             else:
                 c2 = None
             c2 = p.connect()
-            self.assert_(c1 is c2)
-            self.assert_(c3 is not c1)
+            self.assertTrue(c1 is c2)
+            self.assertTrue(c3 is not c1)
             if useclose:
                 c2.close()
             else:
@@ -137,7 +137,7 @@ class PoolTest(PoolTestBase):
                 c3 = p.connect()
                 c3.close()
                 c2.close()
-                self.assert_(c1.connection is not None)
+                self.assertTrue(c1.connection is not None)
                 c1.close()
             c1 = c2 = c3 = None
 
@@ -146,7 +146,7 @@ class PoolTest(PoolTestBase):
 
             if isinstance(p, pool.QueuePool):
                 lazy_gc()
-                self.assert_(p.checkedout() == 0)
+                self.assertTrue(p.checkedout() == 0)
                 c1 = p.connect()
                 c2 = p.connect()
                 if useclose:
@@ -156,7 +156,7 @@ class PoolTest(PoolTestBase):
                     c2 = None
                     c1 = None
                     lazy_gc()
-                self.assert_(p.checkedout() == 0)
+                self.assertTrue(p.checkedout() == 0)
 
     def test_properties(self):
         dbapi = MockDBAPI()
@@ -164,28 +164,28 @@ class PoolTest(PoolTestBase):
                            pool_size=1, max_overflow=0, use_threadlocal=False)
 
         c = p.connect()
-        self.assert_(not c.info)
-        self.assert_(c.info is c._connection_record.info)
+        self.assertTrue(not c.info)
+        self.assertTrue(c.info is c._connection_record.info)
 
         c.info['foo'] = 'bar'
         c.close()
         del c
 
         c = p.connect()
-        self.assert_('foo' in c.info)
+        self.assertTrue('foo' in c.info)
 
         c.invalidate()
         c = p.connect()
-        self.assert_('foo' not in c.info)
+        self.assertTrue('foo' not in c.info)
 
         c.info['foo2'] = 'bar2'
         c.detach()
-        self.assert_('foo2' in c.info)
+        self.assertTrue('foo2' in c.info)
 
         c2 = p.connect()
-        self.assert_(c.connection is not c2.connection)
-        self.assert_(not c2.info)
-        self.assert_('foo2' in c.info)
+        self.assertTrue(c.connection is not c2.connection)
+        self.assertTrue(not c2.info)
+        self.assertTrue('foo2' in c.info)
 
     def test_listeners(self):
         dbapi = MockDBAPI()
@@ -213,28 +213,28 @@ class PoolTest(PoolTestBase):
                 eq_(len(innerself.checked_in), cin)
             def assert_in(innerself, item, in_conn, in_fconn, 
                                                 in_cout, in_cin):
-                self.assert_((item in innerself.connected) == in_conn)
-                self.assert_((item in innerself.first_connected) == in_fconn)
-                self.assert_((item in innerself.checked_out) == in_cout)
-                self.assert_((item in innerself.checked_in) == in_cin)
+                self.assertTrue((item in innerself.connected) == in_conn)
+                self.assertTrue((item in innerself.first_connected) == in_fconn)
+                self.assertTrue((item in innerself.checked_out) == in_cout)
+                self.assertTrue((item in innerself.checked_in) == in_cin)
             def inst_connect(self, con, record):
-                print "connect(%s, %s)" % (con, record)
+                print("connect(%s, %s)" % (con, record))
                 assert con is not None
                 assert record is not None
                 self.connected.append(con)
             def inst_first_connect(self, con, record):
-                print "first_connect(%s, %s)" % (con, record)
+                print("first_connect(%s, %s)" % (con, record))
                 assert con is not None
                 assert record is not None
                 self.first_connected.append(con)
             def inst_checkout(self, con, record, proxy):
-                print "checkout(%s, %s, %s)" % (con, record, proxy)
+                print("checkout(%s, %s, %s)" % (con, record, proxy))
                 assert con is not None
                 assert record is not None
                 assert proxy is not None
                 self.checked_out.append(con)
             def inst_checkin(self, con, record):
-                print "checkin(%s, %s)" % (con, record)
+                print("checkin(%s, %s)" % (con, record))
                 # con can be None if invalidated
                 assert record is not None
                 self.checked_in.append(con)
@@ -260,11 +260,11 @@ class PoolTest(PoolTestBase):
 
         def assert_listeners(p, total, conn, fconn, cout, cin):
             for instance in (p, p.recreate()):
-                self.assert_(len(instance.listeners) == total)
-                self.assert_(len(instance._on_connect) == conn)
-                self.assert_(len(instance._on_first_connect) == fconn)
-                self.assert_(len(instance._on_checkout) == cout)
-                self.assert_(len(instance._on_checkin) == cin)
+                self.assertTrue(len(instance.listeners) == total)
+                self.assertTrue(len(instance._on_connect) == conn)
+                self.assertTrue(len(instance._on_first_connect) == fconn)
+                self.assertTrue(len(instance._on_checkout) == cout)
+                self.assertTrue(len(instance._on_checkin) == cin)
 
         p = _pool()
         assert_listeners(p, 0, 0, 0, 0, 0)
@@ -391,10 +391,10 @@ class PoolTest(PoolTestBase):
 
             def assert_listeners(p, total, conn, cout, cin):
                 for instance in (p, p.recreate()):
-                    self.assert_(len(instance.listeners) == total)
-                    self.assert_(len(instance._on_connect) == conn)
-                    self.assert_(len(instance._on_checkout) == cout)
-                    self.assert_(len(instance._on_checkin) == cin)
+                    self.assertTrue(len(instance.listeners) == total)
+                    self.assertTrue(len(instance._on_connect) == conn)
+                    self.assertTrue(len(instance._on_checkout) == cout)
+                    self.assertTrue(len(instance._on_checkin) == cin)
 
             p = _pool()
             assert_listeners(p, 0, 0, 0, 0)
@@ -453,22 +453,22 @@ class QueuePoolTest(PoolTestBase):
         def status(pool):
             tup = pool.size(), pool.checkedin(), pool.overflow(), \
                 pool.checkedout()
-            print 'Pool size: %d  Connections in pool: %d Current '\
-                'Overflow: %d Current Checked out connections: %d' % tup
+            print('Pool size: %d  Connections in pool: %d Current '\
+                'Overflow: %d Current Checked out connections: %d' % tup)
             return tup
 
         c1 = p.connect()
-        self.assert_(status(p) == (3, 0, -2, 1))
+        self.assertTrue(status(p) == (3, 0, -2, 1))
         c2 = p.connect()
-        self.assert_(status(p) == (3, 0, -1, 2))
+        self.assertTrue(status(p) == (3, 0, -1, 2))
         c3 = p.connect()
-        self.assert_(status(p) == (3, 0, 0, 3))
+        self.assertTrue(status(p) == (3, 0, 0, 3))
         c4 = p.connect()
-        self.assert_(status(p) == (3, 0, 1, 4))
+        self.assertTrue(status(p) == (3, 0, 1, 4))
         c5 = p.connect()
-        self.assert_(status(p) == (3, 0, 2, 5))
+        self.assertTrue(status(p) == (3, 0, 2, 5))
         c6 = p.connect()
-        self.assert_(status(p) == (3, 0, 3, 6))
+        self.assertTrue(status(p) == (3, 0, 3, 6))
         if useclose:
             c4.close()
             c3.close()
@@ -476,7 +476,7 @@ class QueuePoolTest(PoolTestBase):
         else:
             c4 = c3 = c2 = None
             lazy_gc()
-        self.assert_(status(p) == (3, 3, 3, 3))
+        self.assertTrue(status(p) == (3, 3, 3, 3))
         if useclose:
             c1.close()
             c5.close()
@@ -484,16 +484,16 @@ class QueuePoolTest(PoolTestBase):
         else:
             c1 = c5 = c6 = None
             lazy_gc()
-        self.assert_(status(p) == (3, 3, 0, 0))
+        self.assertTrue(status(p) == (3, 3, 0, 0))
         c1 = p.connect()
         c2 = p.connect()
-        self.assert_(status(p) == (3, 1, 0, 2), status(p))
+        self.assertTrue(status(p) == (3, 1, 0, 2), status(p))
         if useclose:
             c2.close()
         else:
             c2 = None
             lazy_gc()
-        self.assert_(status(p) == (3, 2, 0, 1))
+        self.assertTrue(status(p) == (3, 2, 0, 1))
         c1.close()
         lazy_gc()
         assert not pool._refs
@@ -509,7 +509,7 @@ class QueuePoolTest(PoolTestBase):
         try:
             c4 = p.connect()
             assert False
-        except tsa.exc.TimeoutError, e:
+        except tsa.exc.TimeoutError as e:
             assert int(time.time() - now) == 2
 
     def test_timeout_race(self):
@@ -526,18 +526,18 @@ class QueuePoolTest(PoolTestBase):
                 max_overflow = 1, use_threadlocal = False, timeout=3)
         timeouts = []
         def checkout():
-            for x in xrange(1):
+            for x in range(1):
                 now = time.time()
                 try:
                     c1 = p.connect()
-                except tsa.exc.TimeoutError, e:
+                except tsa.exc.TimeoutError as e:
                     timeouts.append(time.time() - now)
                     continue
                 time.sleep(4)
                 c1.close()
 
         threads = []
-        for i in xrange(10):
+        for i in range(10):
             th = threading.Thread(target=checkout)
             th.start()
             threads.append(th)
@@ -573,14 +573,14 @@ class QueuePoolTest(PoolTestBase):
                 except tsa.exc.TimeoutError:
                     pass
         threads = []
-        for i in xrange(thread_count):
+        for i in range(thread_count):
             th = threading.Thread(target=whammy)
             th.start()
             threads.append(th)
         for th in threads:
             th.join()
  
-        self.assert_(max(peaks) <= max_overflow)
+        self.assertTrue(max(peaks) <= max_overflow)
 
         lazy_gc()
         assert not pool._refs
@@ -624,8 +624,8 @@ class QueuePoolTest(PoolTestBase):
             strong_refs.add(c.connection)
             return c
 
-        for j in xrange(5):
-            conns = [_conn() for i in xrange(4)]
+        for j in range(5):
+            conns = [_conn() for i in range(4)]
             for c in conns:
                 c.close()
 
@@ -661,9 +661,9 @@ class QueuePoolTest(PoolTestBase):
         c1.close()
         c2 = p.connect()
         c2.close()
-        self.assert_(p.checkedout() != 0)
+        self.assertTrue(p.checkedout() != 0)
         c2.close()
-        self.assert_(p.checkedout() == 0)
+        self.assertTrue(p.checkedout() == 0)
  
     def test_recycle(self):
         p = pool.QueuePool(creator=mock_dbapi.connect, pool_size=1,
@@ -780,7 +780,7 @@ class SingletonThreadPoolTest(PoolTestBase):
                 return p.connect()
 
         def checkout():
-            for x in xrange(10):
+            for x in range(10):
                 c = _conn()
                 assert c
                 c.cursor()
@@ -788,7 +788,7 @@ class SingletonThreadPoolTest(PoolTestBase):
                 time.sleep(.1)
 
         threads = []
-        for i in xrange(10):
+        for i in range(10):
             th = threading.Thread(target=checkout)
             th.start()
             threads.append(th)

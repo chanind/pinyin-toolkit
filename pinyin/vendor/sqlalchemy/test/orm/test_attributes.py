@@ -37,13 +37,13 @@ class AttributesTest(_base.ORMTest):
         u.user_name = 'john'
         u.email_address = 'lala@123.com'
 
-        self.assert_(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
+        self.assertTrue(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
         attributes.instance_state(u).commit_all(attributes.instance_dict(u))
-        self.assert_(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
+        self.assertTrue(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
 
         u.user_name = 'heythere'
         u.email_address = 'foo@bar.com'
-        self.assert_(u.user_id == 7 and u.user_name == 'heythere' and u.email_address == 'foo@bar.com')
+        self.assertTrue(u.user_id == 7 and u.user_name == 'heythere' and u.email_address == 'foo@bar.com')
 
     def test_pickleness(self):
         attributes.register_class(MyTest)
@@ -74,8 +74,8 @@ class AttributesTest(_base.ORMTest):
         if False:
             o_mt2_str = [ k for k in o.__dict__ if k == 'mt2'][0]
             o2_mt2_str = [ k for k in o2.__dict__ if k == 'mt2'][0]
-            self.assert_(o_mt2_str == o2_mt2_str)
-            self.assert_(o_mt2_str is not o2_mt2_str)
+            self.assertTrue(o_mt2_str == o2_mt2_str)
+            self.assertTrue(o_mt2_str is not o2_mt2_str)
             # change the id of o2.__dict__['mt2']
             former = o2.__dict__['mt2']
             del o2.__dict__['mt2']
@@ -83,7 +83,7 @@ class AttributesTest(_base.ORMTest):
 
             # Relies on dict ordering
             if not jython:
-                self.assert_(pk_o == pk_o2)
+                self.assertTrue(pk_o == pk_o2)
 
         # the above is kind of distrurbing, so let's do it again a little
         # differently.  the string-id in serialization thing is just an
@@ -98,17 +98,17 @@ class AttributesTest(_base.ORMTest):
 
         # Relies on dict ordering
         if not jython:
-            self.assert_(pk_o3 == pk_o4)
+            self.assertTrue(pk_o3 == pk_o4)
 
         # and lastly make sure we still have our data after all that.
         # identical serialzation is great, *if* it's complete :)
-        self.assert_(o4.user_id == 7)
-        self.assert_(o4.user_name is None)
-        self.assert_(o4.email_address is None)
-        self.assert_(o4.some_mutable_data == [1,2,3])
-        self.assert_(len(o4.mt2) == 1)
-        self.assert_(o4.mt2[0].a == 'abcde')
-        self.assert_(o4.mt2[0].b is None)
+        self.assertTrue(o4.user_id == 7)
+        self.assertTrue(o4.user_name is None)
+        self.assertTrue(o4.email_address is None)
+        self.assertTrue(o4.some_mutable_data == [1,2,3])
+        self.assertTrue(len(o4.mt2) == 1)
+        self.assertTrue(o4.mt2[0].a == 'abcde')
+        self.assertTrue(o4.mt2[0].b is None)
 
     def test_state_gc(self):
         """test that InstanceState always has a dict, even after host object gc'ed."""
@@ -232,16 +232,16 @@ class AttributesTest(_base.ORMTest):
         a.email_address = 'lala@123.com'
         u.addresses.append(a)
 
-        self.assert_(u.user_id == 7 and u.user_name == 'john' and u.addresses[0].email_address == 'lala@123.com')
+        self.assertTrue(u.user_id == 7 and u.user_name == 'john' and u.addresses[0].email_address == 'lala@123.com')
         u, attributes.instance_state(a).commit_all(attributes.instance_dict(a))
-        self.assert_(u.user_id == 7 and u.user_name == 'john' and u.addresses[0].email_address == 'lala@123.com')
+        self.assertTrue(u.user_id == 7 and u.user_name == 'john' and u.addresses[0].email_address == 'lala@123.com')
 
         u.user_name = 'heythere'
         a = Address()
         a.address_id = 11
         a.email_address = 'foo@bar.com'
         u.addresses.append(a)
-        self.assert_(u.user_id == 7 and u.user_name == 'heythere' and u.addresses[0].email_address == 'lala@123.com' and u.addresses[1].email_address == 'foo@bar.com')
+        self.assertTrue(u.user_id == 7 and u.user_name == 'heythere' and u.addresses[0].email_address == 'lala@123.com' and u.addresses[1].email_address == 'foo@bar.com')
 
     def test_extension_commit_attr(self):
         """test that an extension which commits attribute history
@@ -647,7 +647,7 @@ class AttributesTest(_base.ORMTest):
         try:
             attributes.register_attribute(Foo, "collection", uselist=True, typecallable=dict, useobject=True)
             assert False
-        except sa_exc.ArgumentError, e:
+        except sa_exc.ArgumentError as e:
             assert str(e) == "Type InstrumentedDict must elect an appender method to be a collection class"
 
         class MyDict(dict):
@@ -666,7 +666,7 @@ class AttributesTest(_base.ORMTest):
         try:
             attributes.register_attribute(Foo, "collection", uselist=True, typecallable=MyColl, useobject=True)
             assert False
-        except sa_exc.ArgumentError, e:
+        except sa_exc.ArgumentError as e:
             assert str(e) == "Type MyColl must elect an appender method to be a collection class"
 
         class MyColl(object):
@@ -683,7 +683,7 @@ class AttributesTest(_base.ORMTest):
         try:
             Foo().collection
             assert True
-        except sa_exc.ArgumentError, e:
+        except sa_exc.ArgumentError as e:
             assert False
 
 class UtilTest(_base.ORMTest):
@@ -731,17 +731,17 @@ class BackrefTest(_base.ORMTest):
         s = Student()
         c = Course()
         s.courses.append(c)
-        self.assert_(c.students == [s])
+        self.assertTrue(c.students == [s])
         s.courses.remove(c)
-        self.assert_(c.students == [])
+        self.assertTrue(c.students == [])
 
         (s1, s2, s3) = (Student(), Student(), Student())
 
         c.students = [s1, s2, s3]
-        self.assert_(s2.courses == [c])
-        self.assert_(s1.courses == [c])
+        self.assertTrue(s2.courses == [c])
+        self.assertTrue(s1.courses == [c])
         s1.courses.remove(c)
-        self.assert_(c.students == [s2,s3])
+        self.assertTrue(c.students == [s2,s3])
 
     def test_o2m(self):
         class Post(object):pass
@@ -760,18 +760,18 @@ class BackrefTest(_base.ORMTest):
         b.posts.append(p1)
         b.posts.append(p2)
         b.posts.append(p3)
-        self.assert_(b.posts == [p1, p2, p3])
-        self.assert_(p2.blog is b)
+        self.assertTrue(b.posts == [p1, p2, p3])
+        self.assertTrue(p2.blog is b)
 
         p3.blog = None
-        self.assert_(b.posts == [p1, p2])
+        self.assertTrue(b.posts == [p1, p2])
         p4 = Post()
         p4.blog = b
-        self.assert_(b.posts == [p1, p2, p4])
+        self.assertTrue(b.posts == [p1, p2, p4])
 
         p4.blog = b
         p4.blog = b
-        self.assert_(b.posts == [p1, p2, p4])
+        self.assertTrue(b.posts == [p1, p2, p4])
 
         # assert no failure removing None
         p5 = Post()
@@ -792,11 +792,11 @@ class BackrefTest(_base.ORMTest):
         p = Port()
         j = Jack()
         p.jack = j
-        self.assert_(j.port is p)
-        self.assert_(p.jack is not None)
+        self.assertTrue(j.port is p)
+        self.assertTrue(p.jack is not None)
 
         j.port = None
-        self.assert_(p.jack is None)
+        self.assertTrue(p.jack is None)
 
     def test_symmetric_o2o_inheritance(self):
         """Test that backref 'initiator' catching goes against
@@ -1140,7 +1140,7 @@ class HistoryTest(_base.ORMTest):
 
         class Bar(_base.BasicEntity):
             _state = None
-            def __nonzero__(self):
+            def __bool__(self):
                 assert False
 
         hi = Bar(name='hi')
@@ -1208,7 +1208,7 @@ class HistoryTest(_base.ORMTest):
         class Foo(_base.BasicEntity):
             pass
         class Bar(_base.BasicEntity):
-            def __nonzero__(self):
+            def __bool__(self):
                 assert False
 
         attributes.register_class(Foo)

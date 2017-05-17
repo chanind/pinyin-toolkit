@@ -11,7 +11,7 @@ target database.
 
 """
 
-from testing import \
+from .testing import \
      _block_unconditionally as no_support, \
      _chain_decorators_on, \
      exclude, \
@@ -20,7 +20,7 @@ from testing import \
      fails_on,\
      fails_on_everything_except
 
-import testing
+from . import testing
 import sys
 
 def deferrable_constraints(fn):

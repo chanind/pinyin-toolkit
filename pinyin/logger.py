@@ -4,7 +4,7 @@
 import os
 import logging
 
-import utils
+from . import utils
 
 # Output to file
 logfilepath = utils.toolkitdir("Pinyin Toolkit.log")
@@ -17,10 +17,10 @@ except ImportError:
     # Delete the log file first to make sure it doesn't grow /too/ much
     try:
         os.remove(logfilepath)
-    except IOError, e:
+    except IOError as e:
         # Happens in event of some quite serious problem, I guess :-)
         pass
-    except OSError, e:
+    except OSError as e:
         # Happens in event of file not existing
         pass
     
@@ -28,7 +28,7 @@ except ImportError:
     loghandler = logging.FileHandler(logfilepath, encoding="UTF-8")
 
 # Format quite verbosely, so we can grep for WARN
-loghandler.setFormatter(logging.Formatter(u"%(asctime)s - %(levelname)s - %(message)s"))
+loghandler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
 # Create logger with that handler
 log = logging.getLogger('Pinyin Toolkit')

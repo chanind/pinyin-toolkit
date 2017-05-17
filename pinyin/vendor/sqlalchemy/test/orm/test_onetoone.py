@@ -67,7 +67,7 @@ class O2OTest(_base.MappedTest):
         p = session.query(Port).get(pid)
 
         j.port=None
-        self.assert_(p.jack is None)
+        self.assertTrue(p.jack is None)
         session.flush()
 
         session.delete(j)

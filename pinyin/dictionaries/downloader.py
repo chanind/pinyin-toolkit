@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import re
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 import zipfile
 
 import pinyin.utils as utils
@@ -40,10 +40,10 @@ def runOnDate(date_tuple):
 
 if __name__ == '__main__':
     for name, url, parser, useful in dictionaries:
-        print "Querying download page for", name
+        print("Querying download page for", name)
     
         # Download the contents of the download page itself
-        f = urllib.urlopen(url)
+        f = urllib.request.urlopen(url)
         try:
             page = f.read()
         finally:
@@ -55,15 +55,15 @@ if __name__ == '__main__':
             raise IOError("Couldn't parse the download page for %s" % name)
     
         zip_relative_url, date = parse_result
-        print "> Identified version", runOnDate(date), "at", zip_relative_url
+        print("> Identified version", runOnDate(date), "at", zip_relative_url)
     
         # Great - download the dictionary to the well-known location
         zip_path = utils.toolkitdir("pinyin", "dictionaries", name.lower() + "-" + runOnDate(date) + ".zip")
         if os.path.exists(zip_path):
-            print "> Skipping download because it already exists"
+            print("> Skipping download because it already exists")
         else:
-            urllib.urlretrieve(urlparse.urljoin(url, zip_relative_url), zip_path)
-            print "> Downloaded to", zip_path
+            urllib.request.urlretrieve(urllib.parse.urljoin(url, zip_relative_url), zip_path)
+            print("> Downloaded to", zip_path)
         
         # Trim the zip files down to size by removing useless dictionaries:
         
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         target = {}
         for name in sourcezip.namelist():
             if not useful(name):
-                print "> Removing", name, "from file"
+                print("> Removing", name, "from file")
                 continue
             
             target[name] = sourcezip.read(name)
@@ -80,6 +80,6 @@ if __name__ == '__main__':
         
         # b) Truncate the zip file and write back just that information
         targetzip = zipfile.ZipFile(zip_path, "w")
-        for name, contents in target.items():
+        for name, contents in list(target.items()):
             targetzip.writestr(name, contents)
         targetzip.close()

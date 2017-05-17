@@ -3,6 +3,6 @@ __all__ = [
 	"builddb",
 	"preferences",
 ]
-import icons_rc
-import builddb
-import preferences
+from .icons_rc import *
+from .builddb import *
+from .preferences import *

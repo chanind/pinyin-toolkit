@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import copy
-import cStringIO
+import io
 import random
 import re
 
-from logger import log
-from model import *
-from utils import *
+from .logger import log
+from .model import *
+from .utils import *
 
 
 # TODO: apply tone sandhi at the dictionary stage, to save having to do it in 3 places in the updater?
@@ -22,7 +22,7 @@ NB: we don't implement this very well yet. Give it time..
 """
 def tonesandhi(words):
     # 1) Gather the tone contour into a string
-    tonecontourio = cStringIO.StringIO()
+    tonecontourio = io.StringIO()
     gathervisitor = GatherToneContourVisitor(tonecontourio)
     for word in words:
         word.accept(gathervisitor)
@@ -102,7 +102,7 @@ class ApplyToneContourVisitor(TokenVisitor):
         return Pinyin(pinyin.word, ToneInfo(written=pinyin.toneinfo.written, spoken=int(self.tonecontourqueue.pop())))
     
     def visitTonedCharacter(self, tonedcharacter):
-        return TonedCharacter(unicode(tonedcharacter), ToneInfo(written=tonedcharacter.toneinfo.written, spoken=int(self.tonecontourqueue.pop())))
+        return TonedCharacter(str(tonedcharacter), ToneInfo(written=tonedcharacter.toneinfo.written, spoken=int(self.tonecontourqueue.pop())))
 
 """
 Remove all r5 characters from the supplied words.
@@ -147,7 +147,7 @@ class ColorizerVisitor(TokenVisitor):
         return self.colorize(pinyin, lambda htmlattrs: Pinyin(pinyin.word, pinyin.toneinfo, htmlattrs))
 
     def visitTonedCharacter(self, tonedcharacter):
-        return self.colorize(tonedcharacter, lambda htmlattrs: TonedCharacter(unicode(tonedcharacter), tonedcharacter.toneinfo, htmlattrs))
+        return self.colorize(tonedcharacter, lambda htmlattrs: TonedCharacter(str(tonedcharacter), tonedcharacter.toneinfo, htmlattrs))
     
     def colorize(self, token, rebuild):
         # Colors should always be based on the written tone, but they will be
@@ -284,7 +284,7 @@ class MaskHanziVisitor(TokenVisitor):
         return pinyin
 
     def visitTonedCharacter(self, tonedcharacter):
-        if unicode(tonedcharacter) in self.expression:
+        if str(tonedcharacter) in self.expression:
             return Text(self.maskingcharacter)
         else:
             return tonedcharacter

@@ -7,36 +7,36 @@ from pinyin.dictionaryonline import *
 
 class ParseGoogleResponseTest(unittest.TestCase):
     def testParseNumber(self):
-        self.assertEquals(parsegoogleresponse('1'), 1L)
+        self.assertEqual(parsegoogleresponse('1'), 1)
     
     def testParseNegativeNumber(self):
-        self.assertEquals(parsegoogleresponse('-1'), -1L)
+        self.assertEqual(parsegoogleresponse('-1'), -1)
     
     def testParseString(self):
-        self.assertEquals(parsegoogleresponse('"hello"'), "hello")
+        self.assertEqual(parsegoogleresponse('"hello"'), "hello")
     
     def testParseStringWithEscapes(self):
-        self.assertEquals(parsegoogleresponse('"hello\\t\\"world\\""'), 'hello\t"world"')
-        self.assertEquals(parsegoogleresponse('"\\tleading whitespace"'), '\tleading whitespace')
+        self.assertEqual(parsegoogleresponse('"hello\\t\\"world\\""'), 'hello\t"world"')
+        self.assertEqual(parsegoogleresponse('"\\tleading whitespace"'), '\tleading whitespace')
     
     def testParseUnicodeString(self):
-        self.assertEquals(parsegoogleresponse(u'"好"'), u'好')
+        self.assertEqual(parsegoogleresponse('"好"'), '好')
     
     def testParseList(self):
-        self.assertEquals(parsegoogleresponse('[1, "hello", 10, "world", 1337]'), [1, "hello", 10, "world", 1337])
+        self.assertEqual(parsegoogleresponse('[1, "hello", 10, "world", 1337]'), [1, "hello", 10, "world", 1337])
     
     def testParseListOfLists(self):
-        self.assertEquals(parsegoogleresponse('[1, [2, [3, 4]], [5, 6]]'), [1, [2, [3, 4]], [5, 6]])
+        self.assertEqual(parsegoogleresponse('[1, [2, [3, 4]], [5, 6]]'), [1, [2, [3, 4]], [5, 6]])
     
     def testParseDict(self):
-        self.assertEquals(parsegoogleresponse('{"fruit" : "orange", "1" : 2, "buy" : 1337}'), {"fruit" : "orange", "1" : 2, "buy" : 1337})
+        self.assertEqual(parsegoogleresponse('{"fruit" : "orange", "1" : 2, "buy" : 1337}'), {"fruit" : "orange", "1" : 2, "buy" : 1337})
     
     def testParseDictOfDicts(self):
-        self.assertEquals(parsegoogleresponse('{"fruits" : {"orange" : 1, "banana" : 2}, "numbers" : {"1337" : ["cool"], "13" : ["bad", "unlucky"]}}'),
+        self.assertEqual(parsegoogleresponse('{"fruits" : {"orange" : 1, "banana" : 2}, "numbers" : {"1337" : ["cool"], "13" : ["bad", "unlucky"]}}'),
                                               {"fruits" : {"orange" : 1, "banana" : 2}, "numbers" : {"1337" : ["cool"], "13" : ["bad", "unlucky"]}})
     
     def testParseWhitespace(self):
-        self.assertEquals(parsegoogleresponse('[ 1    ,"hello",[10, "barr rr"],   "world"   , 1337, {     "a" :   "dict"} ]'), [1, "hello", [10, "barr rr"], "world", 1337, { "a": "dict" }])
+        self.assertEqual(parsegoogleresponse('[ 1    ,"hello",[10, "barr rr"],   "world"   , 1337, {     "a" :   "dict"} ]'), [1, "hello", [10, "barr rr"], "world", 1337, { "a": "dict" }])
     
     def testParseErrorIfTrailingStuff(self):
         self.assertRaises(ValueError, lambda: parsegoogleresponse('1 1'))
@@ -55,8 +55,8 @@ class ParseGoogleResponseTest(unittest.TestCase):
         #self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : }'))
     
     def testParsingDictionaryWithEmptyField(self):
-        self.assertEquals(parsegoogleresponse('{ "hello" : "" }'), { u"hello" : u"" })
-        self.assertEquals(parsegoogleresponse('{ "hello" : null }'), { u"hello" : None })
+        self.assertEqual(parsegoogleresponse('{ "hello" : "" }'), { "hello" : "" })
+        self.assertEqual(parsegoogleresponse('{ "hello" : null }'), { "hello" : None })
     
     def testParseErrorIfDictNotClosed(self):
         self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : "world"'))
@@ -66,30 +66,30 @@ class ParseGoogleResponseTest(unittest.TestCase):
     #    self.assertRaises(ValueError, lambda: parsegoogleresponse(''))
     
     def testParsingEmpty(self):
-        self.assertEquals(parsegoogleresponse('{}'), {})
+        self.assertEqual(parsegoogleresponse('{}'), {})
 
 class GoogleTranslateTest(unittest.TestCase):
     def testTranslateNothing(self):
-        self.assertEquals(gTrans(""), None)
+        self.assertEqual(gTrans(""), None)
     
     def testTranslateEnglish(self):
-        self.assertEquals(gTrans(u"你好，你是我的朋友吗？"), [[Word(Text(u'Hello, you my friend?'))]])
+        self.assertEqual(gTrans("你好，你是我的朋友吗？"), [[Word(Text('Hello, you my friend?'))]])
     
     def testTranslateFrench(self):
-        self.assertEquals(gTrans(u"你好，你是我的朋友吗？", "fr"), [[Word(Text(u'Bonjour, vous mon ami?'))]])
+        self.assertEqual(gTrans("你好，你是我的朋友吗？", "fr"), [[Word(Text('Bonjour, vous mon ami?'))]])
     
     def testTranslateIdentity(self):
-        self.assertEquals(gTrans(u"canttranslatemefromchinese"), None)
+        self.assertEqual(gTrans("canttranslatemefromchinese"), None)
     
     def testTranslateStripsHtml(self):
-        self.assertEquals(gTrans(u"你好，你<b>是我的</b>朋友吗？"), [[Word(Text(u'Hello, you my friend?'))]])
+        self.assertEqual(gTrans("你好，你<b>是我的</b>朋友吗？"), [[Word(Text('Hello, you my friend?'))]])
 
     # Annoyingly, this fails. This means that simplified/traditional translation doesn't preserve whitespace:
     # def testTranslatePreservesWhitespace(self):
     #     self.assertEquals(gTrans(u"\t个个个\t个个\t", "zh-tw"), [[Word(Text(u'\t个个个\t个个\t'))]])
     
     def testTranslateDealsWithDefinition(self):
-        self.assertEquals(gTrans(u"好"), [
+        self.assertEqual(gTrans("好"), [
             [Word(Text("Good"))],
             [Word(Text("Adjective: good"))],
             [Word(Text("Adverb: well, OK, fine, okay, okey, okey dokey"))],
@@ -105,7 +105,7 @@ class GoogleTranslateTest(unittest.TestCase):
         #  ])
     
     def testCheck(self):
-        self.assertEquals(gCheck(), True)
+        self.assertEqual(gCheck(), True)
 
 if __name__ == '__main__':
     unittest.main()

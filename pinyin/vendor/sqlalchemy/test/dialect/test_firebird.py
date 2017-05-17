@@ -22,7 +22,7 @@ class DomainReflectionTest(TestBase, AssertsExecutionResults):
                         )
             con.execute('CREATE DOMAIN img_domain AS BLOB SUB_TYPE '
                         'BINARY')
-        except ProgrammingError, e:
+        except ProgrammingError as e:
             if not 'attempt to store duplicate value' in str(e):
                 raise e
         con.execute('''CREATE GENERATOR gen_testtable_id''')

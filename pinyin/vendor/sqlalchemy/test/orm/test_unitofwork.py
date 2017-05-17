@@ -46,7 +46,7 @@ class HistoryTest(_fixtures.FixtureTest):
         a.user = u
         session.add(u)
 
-        self.assert_(u.addresses == [a])
+        self.assertTrue(u.addresses == [a])
         session.commit()
         session.expunge_all()
 
@@ -85,15 +85,15 @@ class UnicodeTest(_base.MappedTest):
     def test_basic(self):
         mapper(Test, uni_t1)
 
-        txt = u"\u0160\u0110\u0106\u010c\u017d"
+        txt = "\u0160\u0110\u0106\u010c\u017d"
         t1 = Test(id=1, txt=txt)
-        self.assert_(t1.txt == txt)
+        self.assertTrue(t1.txt == txt)
 
         session = create_session(autocommit=False)
         session.add(t1)
         session.commit()
 
-        self.assert_(t1.txt == txt)
+        self.assertTrue(t1.txt == txt)
 
     @testing.resolve_artifact_names
     def test_relationship(self):
@@ -101,7 +101,7 @@ class UnicodeTest(_base.MappedTest):
             't2s': relationship(Test2)})
         mapper(Test2, uni_t2)
 
-        txt = u"\u0160\u0110\u0106\u010c\u017d"
+        txt = "\u0160\u0110\u0106\u010c\u017d"
         t1 = Test(txt=txt)
         t1.t2s.append(Test2())
         t1.t2s.append(Test2())
@@ -124,16 +124,16 @@ class UnicodeSchemaTest(engine_base.AltEngineTest, _base.MappedTest):
     @classmethod
     def define_tables(cls, metadata):
         t1 = Table('unitable1', metadata,
-              Column(u'méil', Integer, primary_key=True, key='a', test_needs_autoincrement=True),
-              Column(u'\u6e2c\u8a66', Integer, key='b'),
+              Column('méil', Integer, primary_key=True, key='a', test_needs_autoincrement=True),
+              Column('\u6e2c\u8a66', Integer, key='b'),
               Column('type',  String(20)),
               test_needs_fk=True,
               test_needs_autoincrement=True)
-        t2 = Table(u'Unitéble2', metadata,
-              Column(u'méil', Integer, primary_key=True, key="cc", test_needs_autoincrement=True),
-              Column(u'\u6e2c\u8a66', Integer,
-                     ForeignKey(u'unitable1.a'), key="d"),
-              Column(u'\u6e2c\u8a66_2', Integer, key="e"),
+        t2 = Table('Unitéble2', metadata,
+              Column('méil', Integer, primary_key=True, key="cc", test_needs_autoincrement=True),
+              Column('\u6e2c\u8a66', Integer,
+                     ForeignKey('unitable1.a'), key="d"),
+              Column('\u6e2c\u8a66_2', Integer, key="e"),
               test_needs_fk=True,
               test_needs_autoincrement=True)
 
@@ -310,7 +310,7 @@ class MutableTypesTest(_base.MappedTest):
 
     @testing.resolve_artifact_names
     def test_no_unnecessary_update(self):
-        f1 = Foo(data = pickleable.Bar(4,5), val = u'hi')
+        f1 = Foo(data = pickleable.Bar(4,5), val = 'hi')
 
         session = Session()
         session.add(f1)
@@ -318,22 +318,22 @@ class MutableTypesTest(_base.MappedTest):
 
         self.sql_count_(0, session.commit)
 
-        f1.val = u'someothervalue'
+        f1.val = 'someothervalue'
         self.assert_sql(testing.db, session.commit, [
             ("UPDATE mutable_t SET val=:val "
              "WHERE mutable_t.id = :mutable_t_id",
-             {'mutable_t_id': f1.id, 'val': u'someothervalue'})])
+             {'mutable_t_id': f1.id, 'val': 'someothervalue'})])
 
-        f1.val = u'hi'
+        f1.val = 'hi'
         f1.data.x = 9
         self.assert_sql(testing.db, session.commit, [
             ("UPDATE mutable_t SET data=:data, val=:val "
              "WHERE mutable_t.id = :mutable_t_id",
-             {'mutable_t_id': f1.id, 'val': u'hi', 'data':f1.data})])
+             {'mutable_t_id': f1.id, 'val': 'hi', 'data':f1.data})])
 
     @testing.resolve_artifact_names
     def test_mutated_state_resurrected(self):
-        f1 = Foo(data = pickleable.Bar(4,5), val = u'hi')
+        f1 = Foo(data = pickleable.Bar(4,5), val = 'hi')
 
         session = Session()
         session.add(f1)
@@ -356,13 +356,13 @@ class MutableTypesTest(_base.MappedTest):
         resurrected state.
 
          """
-        f1 = Foo(data = pickleable.Bar(4, 5), val=u'some val')
+        f1 = Foo(data = pickleable.Bar(4, 5), val='some val')
         session = Session()
         session.add(f1)
         session.commit()
         f1.data.x = 10
         f1.data.y = 15
-        f1.val=u'some new val'
+        f1.val='some new val'
 
         assert sa.orm.attributes.instance_state(f1)._strong_obj is not None
 
@@ -397,7 +397,7 @@ class MutableTypesTest(_base.MappedTest):
 
          """
 
-        f1 = Foo(val=u'hi')
+        f1 = Foo(val='hi')
 
         session = Session()
         session.add(f1)
@@ -405,7 +405,7 @@ class MutableTypesTest(_base.MappedTest):
         session.close()
 
         f1 = session.query(Foo).first()
-        f1.val = u'hi'
+        f1.val = 'hi'
         self.sql_count_(0, session.commit)
 
     @testing.resolve_artifact_names
@@ -415,7 +415,7 @@ class MutableTypesTest(_base.MappedTest):
 
         """
 
-        f1 = Foo(data = pickleable.Bar(4, 5), val=u'some val')
+        f1 = Foo(data = pickleable.Bar(4, 5), val='some val')
         session = Session()
         session.add(f1)
         session.commit()
@@ -433,7 +433,7 @@ class MutableTypesTest(_base.MappedTest):
         """test mutations are detected on an expired mutable
         attribute."""
 
-        f1 = Foo(data = pickleable.Bar(4, 5), val=u'some val')
+        f1 = Foo(data = pickleable.Bar(4, 5), val='some val')
         session = Session()
         session.add(f1)
         session.commit()
@@ -457,7 +457,7 @@ class MutableTypesTest(_base.MappedTest):
             'data':sa.orm.deferred(mutable_t.c.data)
         })
 
-        f1 = Foo(data = pickleable.Bar(4, 5), val=u'some val')
+        f1 = Foo(data = pickleable.Bar(4, 5), val='some val')
         session = Session()
         session.add(f1)
         session.commit()
@@ -482,7 +482,7 @@ class MutableTypesTest(_base.MappedTest):
             'data':sa.orm.deferred(mutable_t.c.data)
         })
 
-        f1 = Foo(data = pickleable.Bar(4, 5), val=u'some val')
+        f1 = Foo(data = pickleable.Bar(4, 5), val='some val')
         session = Session()
         session.add(f1)
         session.commit()
@@ -525,17 +525,17 @@ class PickledDictsTest(_base.MappedTest):
 
         f1 = Foo()
         f1.data = [ {
-            'personne': {'nom': u'Smith',
+            'personne': {'nom': 'Smith',
                          'pers_id': 1,
-                         'prenom': u'john',
-                         'civilite': u'Mr',
+                         'prenom': 'john',
+                         'civilite': 'Mr',
                          'int_3': False,
                          'int_2': False,
-                         'int_1': u'23',
+                         'int_1': '23',
                          'VenSoir': True,
-                         'str_1': u'Test',
+                         'str_1': 'Test',
                          'SamMidi': False,
-                         'str_2': u'chien',
+                         'str_2': 'chien',
                          'DimMidi': False,
                          'SamSoir': True,
                          'SamAcc': False} } ]
@@ -547,17 +547,17 @@ class PickledDictsTest(_base.MappedTest):
         self.sql_count_(0, session.commit)
 
         f1.data = [ {
-            'personne': {'nom': u'Smith',
+            'personne': {'nom': 'Smith',
                          'pers_id': 1,
-                         'prenom': u'john',
-                         'civilite': u'Mr',
+                         'prenom': 'john',
+                         'civilite': 'Mr',
                          'int_3': False,
                          'int_2': False,
-                         'int_1': u'23',
+                         'int_1': '23',
                          'VenSoir': True,
-                         'str_1': u'Test',
+                         'str_1': 'Test',
                          'SamMidi': False,
-                         'str_2': u'chien',
+                         'str_2': 'chien',
                          'DimMidi': False,
                          'SamSoir': True,
                          'SamAcc': False} } ]
@@ -571,17 +571,17 @@ class PickledDictsTest(_base.MappedTest):
         f = session.query(Foo).get(f1.id)
         eq_(f.data,
             [ {
-            'personne': {'nom': u'Smith',
+            'personne': {'nom': 'Smith',
                          'pers_id': 1,
-                         'prenom': u'john',
-                         'civilite': u'Mr',
+                         'prenom': 'john',
+                         'civilite': 'Mr',
                          'int_3': False,
                          'int_2': False,
-                         'int_1': u'23',
+                         'int_1': '23',
                          'VenSoir': False,
-                         'str_1': u'Test',
+                         'str_1': 'Test',
                          'SamMidi': False,
-                         'str_2': u'chien',
+                         'str_2': 'chien',
                          'DimMidi': False,
                          'SamSoir': True,
                          'SamAcc': False} } ])
@@ -628,7 +628,7 @@ class PKTest(_base.MappedTest):
         session.expunge_all()
 
         e2 = session.query(Entry).get((e.multi_id, 2))
-        self.assert_(e is not e2)
+        self.assertTrue(e is not e2)
         state = sa.orm.attributes.instance_state(e)
         state2 = sa.orm.attributes.instance_state(e2)
         eq_(state.key, state2.key)
@@ -1076,17 +1076,17 @@ class DefaultTest(_base.MappedTest):
 
         def go():
             # test deferred load of attribues, one select per instance
-            self.assert_(h2.hoho == h4.hoho == h5.hoho == hohoval)
+            self.assertTrue(h2.hoho == h4.hoho == h5.hoho == hohoval)
         self.sql_count_(3, go)
 
         def go():
-            self.assert_(h1.counter == h4.counter == h5.counter == 7)
+            self.assertTrue(h1.counter == h4.counter == h5.counter == 7)
         self.sql_count_(1, go)
 
         def go():
-            self.assert_(h3.counter == h2.counter == 12)
-            self.assert_(h2.foober == h3.foober == h4.foober == 'im foober')
-            self.assert_(h5.foober == 'im the new foober')
+            self.assertTrue(h3.counter == h2.counter == 12)
+            self.assertTrue(h2.foober == h3.foober == h4.foober == 'im foober')
+            self.assertTrue(h5.foober == 'im the new foober')
         self.sql_count_(0, go)
 
         session.expunge_all()
@@ -1095,10 +1095,10 @@ class DefaultTest(_base.MappedTest):
 
         eq_(h1.hoho, althohoval)
         eq_(h3.hoho, althohoval)
-        self.assert_(h2.hoho == h4.hoho == h5.hoho == hohoval)
-        self.assert_(h3.counter == h2.counter == 12)
-        self.assert_(h1.counter ==  h4.counter == h5.counter == 7)
-        self.assert_(h2.foober == h3.foober == h4.foober == 'im foober')
+        self.assertTrue(h2.hoho == h4.hoho == h5.hoho == hohoval)
+        self.assertTrue(h3.counter == h2.counter == 12)
+        self.assertTrue(h1.counter ==  h4.counter == h5.counter == 7)
+        self.assertTrue(h2.foober == h3.foober == h4.foober == 'im foober')
         eq_(h5.foober, 'im the new foober')
 
     @testing.fails_on('firebird', 'Data type unknown on the parameter')
@@ -1268,13 +1268,13 @@ class OneToManyTest(_fixtures.FixtureTest):
         session.flush()
 
         user_rows = users.select(users.c.id.in_([u.id])).execute().fetchall()
-        eq_(user_rows[0].values(), [u.id, 'one2manytester'])
+        eq_(list(user_rows[0].values()), [u.id, 'one2manytester'])
 
         address_rows = addresses.select(
             addresses.c.id.in_([a.id, a2.id]),
             order_by=[addresses.c.email_address]).execute().fetchall()
-        eq_(address_rows[0].values(), [a2.id, u.id, 'lala@test.org'])
-        eq_(address_rows[1].values(), [a.id, u.id, 'one2many@test.org'])
+        eq_(list(address_rows[0].values()), [a2.id, u.id, 'lala@test.org'])
+        eq_(list(address_rows[1].values()), [a.id, u.id, 'one2many@test.org'])
 
         userid = u.id
         addressid = a2.id
@@ -1285,9 +1285,9 @@ class OneToManyTest(_fixtures.FixtureTest):
 
         address_rows = addresses.select(
             addresses.c.id == addressid).execute().fetchall()
-        eq_(address_rows[0].values(),
+        eq_(list(address_rows[0].values()),
             [addressid, userid, 'somethingnew@foo.com'])
-        self.assert_(u.id == userid and a2.id == addressid)
+        self.assertTrue(u.id == userid and a2.id == addressid)
 
     @testing.resolve_artifact_names
     def test_one_to_many_2(self):
@@ -1667,18 +1667,18 @@ class SaveTest(_fixtures.FixtureTest):
         assert u.name == 'multitester'
 
         user_rows = users.select(users.c.id.in_([u.foo_id])).execute().fetchall()
-        eq_(user_rows[0].values(), [u.foo_id, 'multitester'])
+        eq_(list(user_rows[0].values()), [u.foo_id, 'multitester'])
         address_rows = addresses.select(addresses.c.id.in_([u.id])).execute().fetchall()
-        eq_(address_rows[0].values(), [u.id, u.foo_id, 'multi@test.org'])
+        eq_(list(address_rows[0].values()), [u.id, u.foo_id, 'multi@test.org'])
 
         u.email = 'lala@hey.com'
         u.name = 'imnew'
         session.flush()
 
         user_rows = users.select(users.c.id.in_([u.foo_id])).execute().fetchall()
-        eq_(user_rows[0].values(), [u.foo_id, 'imnew'])
+        eq_(list(user_rows[0].values()), [u.foo_id, 'imnew'])
         address_rows = addresses.select(addresses.c.id.in_([u.id])).execute().fetchall()
-        eq_(address_rows[0].values(), [u.id, u.foo_id, 'lala@hey.com'])
+        eq_(list(address_rows[0].values()), [u.id, u.foo_id, 'lala@hey.com'])
 
         session.expunge_all()
         u = session.query(User).get(id)
@@ -1797,7 +1797,7 @@ class ManyToOneTest(_fixtures.FixtureTest):
         l = sa.select([users, addresses],
                       sa.and_(users.c.id==addresses.c.user_id,
                               addresses.c.id==a.id)).execute()
-        eq_(l.first().values(),
+        eq_(list(l.first().values()),
             [a.user.id, 'asdf8d', a.id, a.user_id, 'theater@foo.com'])
 
     @testing.resolve_artifact_names
@@ -2219,7 +2219,7 @@ class SaveTest3(_base.MappedTest):
 
         assert assoc.count().scalar() == 2
         i.keywords = []
-        print i.keywords
+        print(i.keywords)
         session.flush()
         assert assoc.count().scalar() == 0
 

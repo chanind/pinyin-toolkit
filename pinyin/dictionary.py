@@ -4,17 +4,17 @@
 import codecs
 import os
 import re
-import meanings
+from . import meanings
 
 import sqlalchemy
 from sqlalchemy.schema import Table
 
-from model import *
-from utils import *
+from .model import *
+from .utils import *
 
-from db import database
+from .db import database
 
-from logger import log
+from .logger import log
 
 
 def parseMeaning(meaning, simptradindex):
@@ -158,7 +158,7 @@ class PinyinDictionary(object):
             is_punctuation = ispunctuation(flatten(readingtokens))
             reading_starts_with_er = len(readingtokens) > 0 and readingtokens[0].iser
             if words_need_space and not(is_punctuation) and not(reading_starts_with_er):
-                words.append(Word(Text(u' ')))
+                words.append(Word(Text(' ')))
             
             # Add this reading into the token list with nice formatting
             words.append(Word.spacedwordfromunspacedtokens(readingtokens))
@@ -203,7 +203,7 @@ class PinyinDictionary(object):
         isfirstparsedthing = True
         foundmeanings, foundmeasurewords = None, None
         for readingsmeanings, text in self.parse(sentence):
-            if readingsmeanings is None and (ispunctuation(text.strip()) or text.strip() == u""):
+            if readingsmeanings is None and (ispunctuation(text.strip()) or text.strip() == ""):
                 # Discard punctuation and whitespace from consideration, or we don't return a reading for e.g. "你好!"
                 continue
             
@@ -235,7 +235,7 @@ class PinyinDictionary(object):
         return foundmeanings, foundmeasurewords
 
     def parse(self, sentence):
-        assert type(sentence)==unicode
+        assert type(sentence)==str
         if sentence == None or len(sentence) == 0:
             return
         

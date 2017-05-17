@@ -235,7 +235,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
             index = int(col.name[1:])
             eq_(gen.get_column_specification(col),
                            "%s %s" % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
 
         try:
             numeric_table.create(checkfirst=True)
@@ -324,7 +324,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
             index = int(col.name[1:])
             eq_(gen.get_column_specification(col),
                            "%s %s" % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
 
         try:
             charset_table.create(checkfirst=True)
@@ -374,7 +374,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         eq_(colspec(bit_table.c.b8), 'b8 BIT(64)')
 
         for col in bit_table.c:
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         try:
             meta.create_all()
 
@@ -388,11 +388,11 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                     table.insert(store).execute()
                     row = table.select().execute().first()
                     try:
-                        self.assert_(list(row) == expected)
+                        self.assertTrue(list(row) == expected)
                     except:
-                        print "Storing %s" % store
-                        print "Expected %s" % expected
-                        print "Found %s" % list(row)
+                        print("Storing %s" % store)
+                        print("Expected %s" % expected)
+                        print("Found %s" % list(row))
                         raise
                     table.delete().execute().close()
 
@@ -431,7 +431,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         eq_(colspec(bool_table.c.b4), 'b4 TINYINT(1) UNSIGNED')
         eq_(colspec(bool_table.c.b5), 'b5 TINYINT')
         for col in bool_table.c:
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         try:
             meta.create_all()
             table = bool_table
@@ -441,14 +441,14 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                 table.insert(store).execute()
                 row = table.select().execute().first()
                 try:
-                    self.assert_(list(row) == expected)
+                    self.assertTrue(list(row) == expected)
                     for i, val in enumerate(expected):
                         if isinstance(val, bool):
-                            self.assert_(val is row[i])
+                            self.assertTrue(val is row[i])
                 except:
-                    print 'Storing %s' % store
-                    print 'Expected %s' % expected
-                    print 'Found %s' % list(row)
+                    print('Storing %s' % store)
+                    print('Expected %s' % expected)
+                    print('Found %s' % list(row))
                     raise
                 table.delete().execute().close()
 
@@ -520,12 +520,12 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                           Column('id', Integer, primary_key=True),
                           Column('t', *spec))
                 eq_(colspec(t.c.t), "t %s" % expected)
-                self.assert_(repr(t.c.t))
+                self.assertTrue(repr(t.c.t))
                 t.create()
                 r = Table('mysql_ts%s' % idx, MetaData(testing.db),
                           autoload=True)
                 if len(spec) > 1:
-                    self.assert_(r.c.t is not None)
+                    self.assertTrue(r.c.t is not None)
         finally:
             meta.drop_all()
 
@@ -570,7 +570,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                            Column('y5', mysql.MSYear(4)))
 
         for col in year_table.c:
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         try:
             year_table.create()
             reflected = Table('mysql_year', MetaData(testing.db),
@@ -581,7 +581,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                 row = table.select().execute().first()
                 eq_(list(row), [1950, 2050, None, 50, 1950])
                 table.delete().execute()
-                self.assert_(colspec(table.c.y1).startswith('y1 YEAR'))
+                self.assertTrue(colspec(table.c.y1).startswith('y1 YEAR'))
                 eq_(colspec(table.c.y4), 'y4 YEAR(2)')
                 eq_(colspec(table.c.y5), 'y5 YEAR(4)')
         finally:
@@ -599,7 +599,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         eq_(colspec(set_table.c.s2), "s2 SET('a')")
         eq_(colspec(set_table.c.s3), "s3 SET('5','7','9')")
         for col in set_table.c:
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         try:
             set_table.create()
             reflected = Table('mysql_set', MetaData(testing.db),
@@ -611,11 +611,11 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                     table.insert(store).execute()
                     row = table.select().execute().first()
                     try:
-                        self.assert_(list(row) == expected)
+                        self.assertTrue(list(row) == expected)
                     except:
-                        print 'Storing %s' % store
-                        print 'Expected %s' % expected
-                        print 'Found %s' % list(row)
+                        print('Storing %s' % store)
+                        print('Expected %s' % expected)
+                        print('Found %s' % list(row))
                         raise
                     table.delete().execute()
 
@@ -725,17 +725,17 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         metadata = MetaData(unicode_engine)
         t1 = Table('table', metadata,
             Column('id', Integer, primary_key=True),
-            Column('value', Enum(u'réveillé', u'drôle', u'S’il')),
-            Column('value2', mysql.ENUM(u'réveillé', u'drôle', u'S’il'))
+            Column('value', Enum('réveillé', 'drôle', 'S’il')),
+            Column('value2', mysql.ENUM('réveillé', 'drôle', 'S’il'))
         )
         metadata.create_all()
         try:
-            t1.insert().execute(value=u'drôle', value2=u'drôle')
-            t1.insert().execute(value=u'réveillé', value2=u'réveillé')
-            t1.insert().execute(value=u'S’il', value2=u'S’il')
+            t1.insert().execute(value='drôle', value2='drôle')
+            t1.insert().execute(value='réveillé', value2='réveillé')
+            t1.insert().execute(value='S’il', value2='S’il')
             eq_(t1.select().order_by(t1.c.id).execute().fetchall(), 
-                [(1, u'drôle', u'drôle'), (2, u'réveillé', u'réveillé'), 
-                            (3, u'S’il', u'S’il')]
+                [(1, 'drôle', 'drôle'), (2, 'réveillé', 'réveillé'), 
+                            (3, 'S’il', 'S’il')]
             )
 
             # test reflection of the enum labels
@@ -747,9 +747,9 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
             # latin-1 stuff forcing its way in ?
 
             assert t2.c.value.type.enums[0:2] == \
-                    (u'réveillé', u'drôle') #, u'S’il') # eh ?
+                    ('réveillé', 'drôle') #, u'S’il') # eh ?
             assert t2.c.value2.type.enums[0:2] == \
-                    (u'réveillé', u'drôle') #, u'S’il') # eh ? 
+                    ('réveillé', 'drôle') #, u'S’il') # eh ? 
         finally:
             metadata.drop_all()
 
@@ -783,7 +783,7 @@ class TypesTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
             Column('e7', mysql.ENUM("''", "'''a'''", "'b''b'", "''''")))
 
         for col in enum_table.c:
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         try:
             enum_table.create()
             reflected = Table('mysql_enum', MetaData(testing.db),
@@ -917,13 +917,13 @@ class ReflectionTest(TestBase, AssertsExecutionResults):
             reflected = Table('mysql_case', MetaData(testing.db),
                               autoload=True, include_columns=['c1', 'C2'])
             for t in case_table, reflected:
-                assert 'c1' in t.c.keys()
-                assert 'C2' in t.c.keys()
+                assert 'c1' in list(t.c.keys())
+                assert 'C2' in list(t.c.keys())
             reflected2 = Table('mysql_case', MetaData(testing.db),
                               autoload=True, include_columns=['c1', 'c2'])
-            assert 'c1' in reflected2.c.keys()
+            assert 'c1' in list(reflected2.c.keys())
             for c in ['c2', 'C2', 'C3']:
-                assert c not in reflected2.c.keys()
+                assert c not in list(reflected2.c.keys())
         finally:
             case_table.drop()
 

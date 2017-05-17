@@ -303,7 +303,7 @@ class ResultProxyTest(TestBase):
     def test_row_c_sequence_check(self):
         import csv
         import collections
-        from StringIO import StringIO
+        from io import StringIO
 
         metadata = MetaData()
         metadata.bind = 'sqlite://'

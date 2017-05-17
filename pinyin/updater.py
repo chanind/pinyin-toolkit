@@ -3,20 +3,22 @@
 
 import os
 
-import db
-import dictionary
-import dictionaryonline
-import media
-import meanings
-import numberutils
-import model
-import transformations
-import utils
+from . import db
+from . import dictionary
+from . import dictionaryonline
+from . import media
+from . import meanings
+from . import numberutils
+from . import model
+from . import transformations
+from . import utils
 import random
 import re
 
-from config import getconfig, updatecontrolflags
-from logger import log
+import sys
+
+from .config import getconfig, updatecontrolflags
+from .logger import log
 
 
 def preparetokens(config, tokens):
@@ -39,7 +41,7 @@ def generateaudio(notifier, mediamanager, config, dictreading):
     mediapack, output, _mediamissing = transformations.PinyinAudioReadings(mediapacks, config.audioextensions).audioreading(dictreading)
     
     # Construct the string of audio tags from the optimal choice of sounds
-    output_tags = u""
+    output_tags = ""
     for outputfile in output:
         # Install required media in the deck as we go, getting the canonical string to insert into the sound field upon installation
         output_tags += "[sound:%s]" % mediamanager.importtocurrentdeck(os.path.join(mediapack.packpath, outputfile))
@@ -53,8 +55,8 @@ class FieldUpdaterFromAudio(object):
         self.config = config
     
     def reformataudio(self, audio):
-        output = u""
-        for recognised, match in utils.regexparse(re.compile(ur"\[sound:([^\]]*)\]"), audio):
+        output = ""
+        for recognised, match in utils.regexparse(re.compile(r"\[sound:([^\]]*)\]"), audio):
             if recognised:
                 # Must be a sound tag - leave it well alone
                 output += match.group(0)
@@ -77,15 +79,15 @@ class FieldUpdaterFromMeaning(object):
         self.config = config
 
     def reformatmeaning(self, meaning):
-        output = u""
-        for recognised, match in utils.regexparse(re.compile(ur"\(([0-9]+)\)"), meaning):
+        output = ""
+        for recognised, match in utils.regexparse(re.compile(r"\(([0-9]+)\)"), meaning):
             if recognised:
                 # Should reformat the number
                 output += self.config.meaningnumber(int(match.group(1)))
             else:
                 # Output is just unicode, append it directly
                 output += match
-        
+
         return output
     
     def updatefact(self, fact, meaning):
@@ -255,10 +257,10 @@ class FieldUpdaterFromExpression(object):
     def updatefact(self, fact, expression):
         # AutoBlanking Feature - If there is no expression, zeros relevant fields
         # DEBUG - add feature to store the text when a lookup is performed. When new text is entered then allow auto-blank any field that has not been edited
-        if expression == None or expression.strip() == u"":
+        if expression == None or expression.strip() == "":
             for key in ["reading", "meaning", "color", "trad", "simp", "weblinks"]:
                 if key in fact:
-                    fact[key] = u""
+                    fact[key] = ""
             
             # DEBUG Me - Auto generated pinyin should be at least "[sound:" + ".xxx]" (12 characters) plus pinyin (max 6). i.e. 18
             # DEBUG - Split string around "][" to get the audio of each sound in an array. Blank the field unless any one string is longer than 20 characters
@@ -266,14 +268,14 @@ class FieldUpdaterFromExpression(object):
             # MaxB comment: I don't think that will work, because we import the Chinese-Lessons.com Mandarin Sounds into anki and it gives them /long/ names.
             # Instead, how about we check if all of the audio files referenced are files in the format pinyin<tone>.mp3?
             if 'audio' in fact and len(fact['audio']) < 40:
-                fact['audio'] = u""
+                fact['audio'] = ""
             
             # For now this is a compromise in safety and function.
             # longest MW should be: "? - zhangì (9 char)
             # shortest possible is "? - ge" 6 char so we will autoblank if less than 12 letters
             # this means blanking will occur if one measure word is there but not if two (so if user added any they are safe)
             if 'mw' in fact and len(fact['mw']) < 12: 
-                fact['mw'] = u""
+                fact['mw'] = ""
             
             # TODO: Nick added this to give up after auto-blanking. He claims it removes a minor
             # delay, but I'm not sure where the delay originates from, which worries me:
@@ -348,7 +350,7 @@ class FieldUpdaterFromExpression(object):
             }
 
         # Loop through each field, deciding whether to update it or not
-        for key, updater in updaters.items():
+        for key, updater in list(updaters.items()):
             # A hint for reading this method: read the stuff inside the if not(...):
             # as an assertion that has to be valid before we can proceed with the update.
             
@@ -367,7 +369,7 @@ class FieldUpdaterFromExpression(object):
             # b) this is the weblinks field, which must always be up to date
             # c) this is the color field and we have just forced the expression to change,
             #    in which case we'd like to overwrite the colored characters regardless
-            if not(fact[key].strip() == u"" or key in ["expression", "weblinks"] or (key == "color" and expressionupdated)):
+            if not(fact[key].strip() == "" or key in ["expression", "weblinks"] or (key == "color" and expressionupdated)):
                 continue
             
             # Fill the field with the new value, but only if we have one and it is necessary to do so

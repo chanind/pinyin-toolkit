@@ -41,7 +41,7 @@ def profile_memory(func):
             gc_collect()
             samples[x] = len(gc.get_objects())
 
-        print "sample gc sizes:", samples
+        print("sample gc sizes:", samples)
 
         assert len(_sessions) == 0
 

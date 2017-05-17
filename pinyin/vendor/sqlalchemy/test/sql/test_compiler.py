@@ -560,13 +560,13 @@ class SelectTest(TestBase, AssertsCompiledSQL):
         s = select([table1.c.myid]).as_scalar()
         try:
             s.c.foo
-        except exc.InvalidRequestError, err:
+        except exc.InvalidRequestError as err:
             assert str(err) \
                 == 'Scalar Select expression has no columns; use this '\
                 'object directly within a column-level expression.'
         try:
             s.columns.foo
-        except exc.InvalidRequestError, err:
+        except exc.InvalidRequestError as err:
             assert str(err) \
                 == 'Scalar Select expression has no columns; use this '\
                 'object directly within a column-level expression.'
@@ -746,7 +746,7 @@ class SelectTest(TestBase, AssertsCompiledSQL):
                 fwd_sql = "%s %s %s" % (l_sql, fwd_op, r_sql)
                 rev_sql = "%s %s %s" % (r_sql, rev_op, l_sql)
 
-                self.assert_(compiled == fwd_sql or compiled == rev_sql,
+                self.assertTrue(compiled == fwd_sql or compiled == rev_sql,
                              "\n'" + compiled + "'\n does not match\n'" +
                              fwd_sql + "'\n or\n'" + rev_sql + "'")
 
@@ -880,18 +880,18 @@ class SelectTest(TestBase, AssertsCompiledSQL):
         self.assert_compile(
             table1.c.name.contains('jo'), 
             "mytable.name LIKE '%%' || :name_1 || '%%'" , 
-            checkparams = {'name_1': u'jo'},
+            checkparams = {'name_1': 'jo'},
         )
         self.assert_compile(
             table1.c.name.contains('jo'), 
             "mytable.name LIKE concat(concat('%%', %s), '%%')" , 
-            checkparams = {'name_1': u'jo'},
+            checkparams = {'name_1': 'jo'},
             dialect=mysql.dialect()
         )
         self.assert_compile(
             table1.c.name.contains('jo', escape='\\'), 
             "mytable.name LIKE '%%' || :name_1 || '%%' ESCAPE '\\'" , 
-            checkparams = {'name_1': u'jo'},
+            checkparams = {'name_1': 'jo'},
         )
         self.assert_compile(
             table1.c.name.startswith('jo', escape='\\'), 
@@ -902,16 +902,16 @@ class SelectTest(TestBase, AssertsCompiledSQL):
         self.assert_compile(
             table1.c.name.endswith('hn'), 
             "mytable.name LIKE '%%' || :name_1", 
-            checkparams = {'name_1': u'hn'}, )
+            checkparams = {'name_1': 'hn'}, )
         self.assert_compile(
             table1.c.name.endswith('hn'), 
             "mytable.name LIKE concat('%%', %s)",
-            checkparams = {'name_1': u'hn'}, dialect=mysql.dialect()
+            checkparams = {'name_1': 'hn'}, dialect=mysql.dialect()
         )
         self.assert_compile(
-            table1.c.name.startswith(u"hi \xf6 \xf5"), 
+            table1.c.name.startswith("hi \xf6 \xf5"), 
             "mytable.name LIKE :name_1 || '%%'",
-            checkparams = {'name_1': u'hi \xf6 \xf5'},
+            checkparams = {'name_1': 'hi \xf6 \xf5'},
         )
         self.assert_compile(
                 column('name').endswith(text("'foo'")), 
@@ -1103,9 +1103,9 @@ class SelectTest(TestBase, AssertsCompiledSQL):
 
         # test unicode
         self.assert_compile(select(
-            [u"foobar(a)", u"pk_foo_bar(syslaal)"],
-            u"a = 12",
-            from_obj = [u"foobar left outer join lala on foobar.foo = lala.foo"]
+            ["foobar(a)", "pk_foo_bar(syslaal)"],
+            "a = 12",
+            from_obj = ["foobar left outer join lala on foobar.foo = lala.foo"]
             ), 
             "SELECT foobar(a), pk_foo_bar(syslaal) FROM foobar "
             "left outer join lala on foobar.foo = lala.foo WHERE a = 12"
@@ -2150,7 +2150,7 @@ class SelectTest(TestBase, AssertsCompiledSQL):
                     func.lala(table1.c.name).label('gg')])
 
         eq_(
-            s1.c.keys(),
+            list(s1.c.keys()),
             ['myid', 'foobar', str(f1), 'gg']
         )
 
@@ -2176,7 +2176,7 @@ class SelectTest(TestBase, AssertsCompiledSQL):
                 t = table1
 
             s1 = select([col], from_obj=t)
-            assert s1.c.keys() == [key], s1.c.keys()
+            assert list(s1.c.keys()) == [key], list(s1.c.keys())
 
             if label:
                 self.assert_compile(s1, "SELECT %s AS %s FROM mytable" % (expr, label))

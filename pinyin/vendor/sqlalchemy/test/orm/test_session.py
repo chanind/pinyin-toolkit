@@ -108,7 +108,7 @@ class SessionTest(_fixtures.FixtureTest):
         u = session.query(User).filter_by(id=7).one()
 
         # get everything to load in both directions
-        print [a.user for a in u.addresses]
+        print([a.user for a in u.addresses])
 
         # then see if expunge fails
         session.expunge(u)
@@ -466,7 +466,7 @@ class SessionTest(_fixtures.FixtureTest):
         # use :bindparam style
         eq_(sess.execute("select * from users where id=:id",
                          {'id':7}).fetchall(),
-            [(7, u'jack')])
+            [(7, 'jack')])
 
 
         # use :bindparam style
@@ -1078,7 +1078,7 @@ class SessionTest(_fixtures.FixtureTest):
         s.flush()
         user = s.query(User).one()
         user = None
-        print s.identity_map
+        print(s.identity_map)
         gc_collect()
         assert len(s.identity_map) == 1
 
@@ -1095,49 +1095,49 @@ class SessionTest(_fixtures.FixtureTest):
         s = create_session(weak_identity_map=False)
         mapper(User, users)
 
-        for o in [User(name='u%s' % x) for x in xrange(10)]:
+        for o in [User(name='u%s' % x) for x in range(10)]:
             s.add(o)
         # o is still live after this loop...
 
-        self.assert_(len(s.identity_map) == 0)
-        self.assert_(s.prune() == 0)
+        self.assertTrue(len(s.identity_map) == 0)
+        self.assertTrue(s.prune() == 0)
         s.flush()
         gc_collect()
-        self.assert_(s.prune() == 9)
-        self.assert_(len(s.identity_map) == 1)
+        self.assertTrue(s.prune() == 9)
+        self.assertTrue(len(s.identity_map) == 1)
 
         id = o.id
         del o
-        self.assert_(s.prune() == 1)
-        self.assert_(len(s.identity_map) == 0)
+        self.assertTrue(s.prune() == 1)
+        self.assertTrue(len(s.identity_map) == 0)
 
         u = s.query(User).get(id)
-        self.assert_(s.prune() == 0)
-        self.assert_(len(s.identity_map) == 1)
+        self.assertTrue(s.prune() == 0)
+        self.assertTrue(len(s.identity_map) == 1)
         u.name = 'squiznart'
         del u
-        self.assert_(s.prune() == 0)
-        self.assert_(len(s.identity_map) == 1)
+        self.assertTrue(s.prune() == 0)
+        self.assertTrue(len(s.identity_map) == 1)
         s.flush()
-        self.assert_(s.prune() == 1)
-        self.assert_(len(s.identity_map) == 0)
+        self.assertTrue(s.prune() == 1)
+        self.assertTrue(len(s.identity_map) == 0)
 
         s.add(User(name='x'))
-        self.assert_(s.prune() == 0)
-        self.assert_(len(s.identity_map) == 0)
+        self.assertTrue(s.prune() == 0)
+        self.assertTrue(len(s.identity_map) == 0)
         s.flush()
-        self.assert_(len(s.identity_map) == 1)
-        self.assert_(s.prune() == 1)
-        self.assert_(len(s.identity_map) == 0)
+        self.assertTrue(len(s.identity_map) == 1)
+        self.assertTrue(s.prune() == 1)
+        self.assertTrue(len(s.identity_map) == 0)
 
         u = s.query(User).get(id)
         s.delete(u)
         del u
-        self.assert_(s.prune() == 0)
-        self.assert_(len(s.identity_map) == 1)
+        self.assertTrue(s.prune() == 0)
+        self.assertTrue(len(s.identity_map) == 1)
         s.flush()
-        self.assert_(s.prune() == 0)
-        self.assert_(len(s.identity_map) == 0)
+        self.assertTrue(s.prune() == 0)
+        self.assertTrue(len(s.identity_map) == 0)
 
     @testing.resolve_artifact_names
     def test_no_save_cascade_1(self):
@@ -1153,7 +1153,7 @@ class SessionTest(_fixtures.FixtureTest):
         assert u in s
         assert a not in s
         s.flush()
-        print "\n".join([repr(x.__dict__) for x in s])
+        print("\n".join([repr(x.__dict__) for x in s]))
         s.expunge_all()
         assert s.query(User).one().id == u.id
         assert s.query(Address).first() is None
@@ -1434,7 +1434,7 @@ class SessionTest(_fixtures.FixtureTest):
         sess.commit()
 
         u1, u2, u3 = sess.query(User).all()
-        for i, (key, value) in enumerate(sess.identity_map.iteritems()):
+        for i, (key, value) in enumerate(sess.identity_map.items()):
             if i == 2:
                 del u3
                 gc_collect()

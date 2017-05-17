@@ -83,9 +83,9 @@ class TablesTest(testing.TestBase):
             for table in reversed(self.metadata.sorted_tables):
                 try:
                     table.delete().execute().close()
-                except sa.exc.DBAPIError, ex:
-                    print >> sys.stderr, "Error emptying table %s: %r" % (
-                        table, ex)
+                except sa.exc.DBAPIError as ex:
+                    print("Error emptying table %s: %r" % (
+                        table, ex), file=sys.stderr)
 
         if self.run_dispose_bind == 'each':
             self.dispose_bind(self.bind)
@@ -134,8 +134,8 @@ class TablesTest(testing.TestBase):
 
     def _load_fixtures(self):
         headers, rows = {}, {}
-        for table, data in self.fixtures().iteritems():
-            if isinstance(table, basestring):
+        for table, data in self.fixtures().items():
+            if isinstance(table, str):
                 table = self.tables[table]
             headers[table] = data[0]
             rows[table] = data[1:]
@@ -144,7 +144,7 @@ class TablesTest(testing.TestBase):
                 continue
             table.bind.execute(
                 table.insert(),
-                [dict(zip(headers[table], column_values))
+                [dict(list(zip(headers[table], column_values)))
                  for column_values in rows[table]])
 
 

@@ -8,6 +8,9 @@ import string
 import getpass
 import unicodedata
 
+def cmp(a,b):
+    return (a>b)-(a<b)
+
 """
 Is the current user a developer?
 """
@@ -41,7 +44,7 @@ def suppressexceptions(action):
             action()
         except:
             # NB: have to delay the import of logger because it depends on utils
-            from logger import log
+            from .logger import log
             log.exception("Had to suppress an exception")
 
 """
@@ -55,7 +58,7 @@ def ispunctuation(text):
         # Pd -
         # Ps ( [
         # Pe ) ]
-        if 'P' not in unicodedata.category(unicode(char)):
+        if 'P' not in unicodedata.category(str(char)):
             return False
     
     return True
@@ -64,7 +67,7 @@ def ispunctuation(text):
 Reports whether a string consists of only punctuation characters that should have a space added after them.
 """
 def ispostspacedpunctuation(text):
-    return text == u"。" or text == "." or text == u"，" or text == ","
+    return text == "。" or text == "." or text == "，" or text == ","
 
 """
 Turns the empty string into None and leaves everything else alone.
@@ -95,7 +98,7 @@ def canwriteto(path):
         f.close()
         
         return True
-    except IOError, e:
+    except IOError as e:
         # Check that the IO error occurs because of a permissions issue
         if e.errno == 13:
             return False
@@ -183,7 +186,7 @@ class Thunk(object):
         self.__called = True
         try:
             self.__result = self.__function()
-        except Exception, e:
+        except Exception as e:
             from pinyin.logger import log
             # Thunked actions raising an exception is a massively bad idea, because there
             # is no way to know whose exception handler will be on the stack at the time we
@@ -363,8 +366,8 @@ def lstripexactly(what, fromwhat):
         raise ValueError("Couldn't strip %r from %r" % (what, fromwhat))
 
 def urlescape(what):
-    import urllib
-    return urllib.quote(what.encode('utf-8'))
+    import urllib.request, urllib.parse, urllib.error
+    return urllib.parse.quote(what.encode('utf-8'))
 
 def striphtml(what):
     return re.sub('<(?!(?:a\s|/a|!))[^>]*>', '', what)

@@ -210,7 +210,7 @@ class MapperTest(_fixtures.FixtureTest):
         try:
             Foo()
             assert False
-        except Exception, e:
+        except Exception as e:
             assert e is ex
 
         sa.orm.clear_mappers()
@@ -257,7 +257,7 @@ class MapperTest(_fixtures.FixtureTest):
         #    pass
         # Py2K
             def __lt__(self, other):
-                assert not isinstance(other, basestring)
+                assert not isinstance(other, str)
                 return int(self) < other
         # end Py2K
         foos = [Foo(id='f%d' % i) for i in range(5)]
@@ -663,7 +663,7 @@ class MapperTest(_fixtures.FixtureTest):
     @testing.resolve_artifact_names
     def test_we_dont_call_bool(self):
         class NoBoolAllowed(object):
-            def __nonzero__(self):
+            def __bool__(self):
                 raise Exception("nope")
         mapper(NoBoolAllowed, users)
         u1 = NoBoolAllowed()
@@ -808,12 +808,12 @@ class MapperTest(_fixtures.FixtureTest):
 
         eq_(
             create_session().query(User).all(),
-            [User(id=7, name=u'jack'), User(id=9, name=u'fred'), User(id=8, name=u'ed'), User(id=10, name=u'chuck')]
+            [User(id=7, name='jack'), User(id=9, name='fred'), User(id=8, name='ed'), User(id=10, name='chuck')]
         )
 
         eq_(
             create_session().query(User).order_by(User.name).all(),
-            [User(id=10, name=u'chuck'), User(id=8, name=u'ed'), User(id=9, name=u'fred'), User(id=7, name=u'jack')]
+            [User(id=10, name='chuck'), User(id=8, name='ed'), User(id=9, name='fred'), User(id=7, name='jack')]
         )
 
     # 'Raises a "expression evaluation not supported" error at prepare time
@@ -1783,7 +1783,7 @@ class DeferredTest(_fixtures.FixtureTest):
             'description': deferred(orders.c.description)})
 
         o = Order()
-        self.assert_(o.description is None)
+        self.assertTrue(o.description is None)
 
         q = create_session().query(Order)
         def go():
@@ -2655,7 +2655,7 @@ class RequirementsTest(_base.MappedTest):
         def __init__(self, value='abc', id=None):
             self.id = id
             self.value = value
-        def __nonzero__(self):
+        def __bool__(self):
             return False
         def __hash__(self):
             return hash(self.value)
@@ -2802,7 +2802,7 @@ class RequirementsTest(_base.MappedTest):
                 return self.value
 
         class H2(object):
-            def __nonzero__(self):
+            def __bool__(self):
                 return bool(self.get_value())
 
             def get_value(self):

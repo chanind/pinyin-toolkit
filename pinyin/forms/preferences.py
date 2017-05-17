@@ -107,5 +107,5 @@ class Preferences(QDialog):
     
     def updateFields(self, keyedvalues):
         # Update the text in every field we created
-        for key, value in keyedvalues.items():
+        for key, value in list(keyedvalues.items()):
             self.fieldWidgets[key].setText(value)

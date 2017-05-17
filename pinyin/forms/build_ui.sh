@@ -5,8 +5,8 @@ if [ ! -d "designer" ]; then
     exit
 fi
 
-pyuic=`which pyuic4`
-pyrcc=`which pyrcc4`
+pyuic=`which pyuic5`
+pyrcc=`which pyrcc5`
 
 # Clean the directory up
 rm -rf scratch generated
@@ -22,6 +22,7 @@ for file in designer/*.ui; do
     modulename=$(echo $pythonfile | sed -e 's%\.py%%; s%generated/%%')
     
     echo " * $pythonfile"
+    echo "$pyuic $file -o $pythonfile"
     $pyuic $file -o $pythonfile
     echo "	\"$modulename\"," >> scratch/list
     echo "import $modulename" >> scratch/imports

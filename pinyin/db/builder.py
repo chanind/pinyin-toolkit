@@ -131,7 +131,7 @@ def getSatisfiers():
             # We want to find the file with the maximal timestamp.  Luckily, I have carefully
             # constructed the filenames so that this is just the ordering on the strings
             match = re.match(pathpattern % "(.+)", file)
-            if match and match.group(1) > timestamp:
+            if match and (not timestamp or int(match.group(1)) > timestamp):
                 path, timestamp = match.group(0), match.group(1)
         
         return path, timestamp
@@ -181,7 +181,7 @@ def getSatisfiers():
     
     maxtimestamp = 0
     satisfiers = []
-    for requirement, sources in requirements.items():
+    for requirement, sources in list(requirements.items()):
         success = False
         for source in sources:
             timestampsatisfier = source()

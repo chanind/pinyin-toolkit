@@ -106,28 +106,28 @@ class SQLSoupTest(TestBase):
 
         # print db.bad_names.c.id
 
-        print db.bad_names.c.query
+        print(db.bad_names.c.query)
 
     def test_load(self):
         db = sqlsoup.SqlSoup(engine)
         MappedUsers = db.users
         users = db.users.all()
         users.sort()
-        eq_(users, [MappedUsers(name=u'Joe Student',
-            email=u'student@example.edu', password=u'student',
+        eq_(users, [MappedUsers(name='Joe Student',
+            email='student@example.edu', password='student',
             classname=None, admin=0),
-            MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
+            MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1)])
 
     def test_order_by(self):
         db = sqlsoup.SqlSoup(engine)
         MappedUsers = db.users
         users = db.users.order_by(db.users.name).all()
-        eq_(users, [MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
-            classname=None, admin=1), MappedUsers(name=u'Joe Student',
-            email=u'student@example.edu', password=u'student',
+        eq_(users, [MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
+            classname=None, admin=1), MappedUsers(name='Joe Student',
+            email='student@example.edu', password='student',
             classname=None, admin=0)])
 
     def test_whereclause(self):
@@ -137,11 +137,11 @@ class SQLSoupTest(TestBase):
                     == 'student@example.edu')
         users = \
             db.users.filter(where).order_by(desc(db.users.name)).all()
-        eq_(users, [MappedUsers(name=u'Joe Student',
-            email=u'student@example.edu', password=u'student',
+        eq_(users, [MappedUsers(name='Joe Student',
+            email='student@example.edu', password='student',
             classname=None, admin=0),
-            MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
+            MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1)])
 
     def test_first(self):
@@ -149,18 +149,18 @@ class SQLSoupTest(TestBase):
         MappedUsers = db.users
         user = db.users.filter(db.users.name == 'Bhargan Basepair'
                                ).one()
-        eq_(user, MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
+        eq_(user, MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1))
         db.rollback()
         user = db.users.get('Bhargan Basepair')
-        eq_(user, MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
+        eq_(user, MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1))
         db.rollback()
         user = db.users.filter_by(name='Bhargan Basepair').one()
-        eq_(user, MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
+        eq_(user, MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1))
         db.rollback()
 
@@ -178,7 +178,7 @@ class SQLSoupTest(TestBase):
         loan = db.loans.filter_by(book_id=2,
                                   user_name='Bhargan Basepair').one()
         eq_(loan, loan_insert)
-        l2 = MappedLoans(book_id=2, user_name=u'Bhargan Basepair',
+        l2 = MappedLoans(book_id=2, user_name='Bhargan Basepair',
                          loan_date=loan.loan_date)
         eq_(loan, l2)
         db.expunge(l2)
@@ -193,8 +193,8 @@ class SQLSoupTest(TestBase):
         db.users.filter_by(name='Bhargan Basepair'
                            ).update(dict(name='Some New Name'))
         u1 = db.users.filter_by(name='Some New Name').one()
-        eq_(u1, MappedUsers(name=u'Some New Name',
-            email=u'basepair@example.edu', password=u'basepair',
+        eq_(u1, MappedUsers(name='Some New Name',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1))
 
     def test_map_table(self):
@@ -202,10 +202,10 @@ class SQLSoupTest(TestBase):
         users = Table('users', db._metadata, autoload=True)
         MappedUsers = db.map(users)
         users = MappedUsers.order_by(db.users.name).all()
-        eq_(users, [MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
-            classname=None, admin=1), MappedUsers(name=u'Joe Student',
-            email=u'student@example.edu', password=u'student',
+        eq_(users, [MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
+            classname=None, admin=1), MappedUsers(name='Joe Student',
+            email='student@example.edu', password='student',
             classname=None, admin=0)])
 
     def test_mapped_join(self):
@@ -213,52 +213,52 @@ class SQLSoupTest(TestBase):
         join1 = MappedJoin = db.join(db.users, db.loans, isouter=True)
         mj = join1.filter_by(name='Joe Student').all()
         eq_(mj, [MappedJoin(
-            name=u'Joe Student',
-            email=u'student@example.edu',
-            password=u'student',
+            name='Joe Student',
+            email='student@example.edu',
+            password='student',
             classname=None,
             admin=0,
             book_id=1,
-            user_name=u'Joe Student',
+            user_name='Joe Student',
             loan_date=datetime.datetime(2006, 7, 12, 0, 0),
             )])
         db.rollback()
         join2 = MappedJoin = db.join(join1, db.books)
         mj = join2.all()
         eq_(mj, [MappedJoin(
-            name=u'Joe Student',
-            email=u'student@example.edu',
-            password=u'student',
+            name='Joe Student',
+            email='student@example.edu',
+            password='student',
             classname=None,
             admin=0,
             book_id=1,
-            user_name=u'Joe Student',
+            user_name='Joe Student',
             loan_date=datetime.datetime(2006, 7, 12, 0, 0),
             id=1,
-            title=u'Mustards I Have Known',
-            published_year=u'1989',
-            authors=u'Jones',
+            title='Mustards I Have Known',
+            published_year='1989',
+            authors='Jones',
             )])
-        eq_(db.with_labels(join1).c.keys(), [
-            u'users_name',
-            u'users_email',
-            u'users_password',
-            u'users_classname',
-            u'users_admin',
-            u'loans_book_id',
-            u'loans_user_name',
-            u'loans_loan_date',
+        eq_(list(db.with_labels(join1).c.keys()), [
+            'users_name',
+            'users_email',
+            'users_password',
+            'users_classname',
+            'users_admin',
+            'loans_book_id',
+            'loans_user_name',
+            'loans_loan_date',
             ])
         labeled_loans = db.with_labels(db.loans)
-        eq_(db.join(db.users, labeled_loans, isouter=True).c.keys(), [
-            u'name',
-            u'email',
-            u'password',
-            u'classname',
-            u'admin',
-            u'loans_book_id',
-            u'loans_user_name',
-            u'loans_loan_date',
+        eq_(list(db.join(db.users, labeled_loans, isouter=True).c.keys()), [
+            'name',
+            'email',
+            'password',
+            'classname',
+            'admin',
+            'loans_book_id',
+            'loans_user_name',
+            'loans_loan_date',
             ])
 
     def test_relations(self):
@@ -267,12 +267,12 @@ class SQLSoupTest(TestBase):
         MappedLoans = db.loans
         MappedUsers = db.users
         eq_(db.users.get('Joe Student').loans, [MappedLoans(book_id=1,
-            user_name=u'Joe Student', loan_date=datetime.datetime(2006,
+            user_name='Joe Student', loan_date=datetime.datetime(2006,
             7, 12, 0, 0))])
         db.rollback()
         eq_(db.users.filter(~db.users.loans.any()).all(),
-            [MappedUsers(name=u'Bhargan Basepair',
-            email='basepair@example.edu', password=u'basepair',
+            [MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
             classname=None, admin=1)])
         db.rollback()
         del db._cache['users']
@@ -301,7 +301,7 @@ class SQLSoupTest(TestBase):
         s = s.alias('years_with_count')
         years_with_count = db.map(s, primary_key=[s.c.published_year])
         eq_(years_with_count.filter_by(published_year='1989').all(),
-            [MappedBooks(published_year=u'1989', n=1)])
+            [MappedBooks(published_year='1989', n=1)])
 
     def test_raw_sql(self):
         db = sqlsoup.SqlSoup(engine)
@@ -317,7 +317,7 @@ class SQLSoupTest(TestBase):
             [('foo bar', )])
         db.rollback()
         eq_(db.execute('select distinct email from users').fetchall(),
-            [(u'basepair@example.edu', ), (u'student@example.edu', )])
+            [('basepair@example.edu', ), ('student@example.edu', )])
 
     def test_connection(self):
         db = sqlsoup.SqlSoup(engine)
@@ -343,10 +343,10 @@ class SQLSoupTest(TestBase):
         MappedUsers = db.users
         users = \
             db.users.filter_by(classname=None).order_by(db.users.name).all()
-        eq_(users, [MappedUsers(name=u'Bhargan Basepair',
-            email=u'basepair@example.edu', password=u'basepair',
-            classname=None, admin=1), MappedUsers(name=u'Joe Student',
-            email=u'student@example.edu', password=u'student',
+        eq_(users, [MappedUsers(name='Bhargan Basepair',
+            email='basepair@example.edu', password='basepair',
+            classname=None, admin=1), MappedUsers(name='Joe Student',
+            email='student@example.edu', password='student',
             classname=None, admin=0)])
 
     def test_no_pk_reflected(self):
@@ -378,7 +378,7 @@ class SQLSoupTest(TestBase):
 
 
 _ddl = \
-    u"""
+    """
 CREATE TABLE books (
     id                   integer PRIMARY KEY, -- auto-increments in sqlite
     title                text NOT NULL,

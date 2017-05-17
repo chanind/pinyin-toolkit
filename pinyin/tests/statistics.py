@@ -7,24 +7,24 @@ from pinyin.statistics import *
 
 class HanziDailyStatsTest(unittest.TestCase):
     def testNoDays(self):
-        self.assertEquals(self.statsByDay([], 0), [])
+        self.assertEqual(self.statsByDay([], 0), [])
     
     def testSingleDay(self):
-        self.assertEquals(self.statsByDay([(u"的", 0)], 1), [
+        self.assertEqual(self.statsByDay([("的", 0)], 1), [
             (0, [1, 1, 0, 0, 0, 0])
           ])
     
     def testComplex(self):
-        self.assertEquals(self.statsByDay([
-            (u"的是斯", -1),
-            (u"轴", 0),
-            (u'暇TSHIRT', -3),
-            (u'失斯', -1),
-            (u'格捂Western Characters', -5),
-            (u'', -3),
-            (u'撞冒', -6),
-            (u'迅迅迅迅迅', -10),
-            (u'扛', -2)
+        self.assertEqual(self.statsByDay([
+            ("的是斯", -1),
+            ("轴", 0),
+            ('暇TSHIRT', -3),
+            ('失斯', -1),
+            ('格捂Western Characters', -5),
+            ('', -3),
+            ('撞冒', -6),
+            ('迅迅迅迅迅', -10),
+            ('扛', -2)
           ], 5), [
             (-4, [5, 1, 3, 0, 0, 1]),
             (-3, [6, 1, 3, 0, 0, 2]),
@@ -34,18 +34,18 @@ class HanziDailyStatsTest(unittest.TestCase):
           ])
     
     def testZeroFirstAnsweredTreatedAsCreatedDate(self):
-        self.assertEquals(self.stats([
-            (u"的是斯", 0, self.nDaysAgo(-0)),
-            (u"轴", self.nDaysAgo(0), self.nDaysAgo(30)),
-            (u'暇', 0, self.nDaysAgo(-3))
+        self.assertEqual(self.stats([
+            ("的是斯", 0, self.nDaysAgo(-0)),
+            ("轴", self.nDaysAgo(0), self.nDaysAgo(30)),
+            ('暇', 0, self.nDaysAgo(-3))
           ], 2), [
             (-1, [1, 0, 0, 0, 0, 1]),
             (0, [5, 2, 0, 1, 0, 2])
           ])
     
     def testGetZeroesForDaysWithNoData(self):
-        self.assertEquals(self.statsByDay([
-            (u"的", -1),
+        self.assertEqual(self.statsByDay([
+            ("的", -1),
           ], 3), [
             (-2, [0, 0, 0, 0, 0, 0]),
             (-1, [1, 1, 0, 0, 0, 0]),

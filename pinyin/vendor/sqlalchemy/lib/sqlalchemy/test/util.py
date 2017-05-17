@@ -32,7 +32,7 @@ def picklers():
     picklers = set()
     # Py2K
     try:
-        import cPickle
+        import pickle
         picklers.add(cPickle)
     except ImportError:
         pass

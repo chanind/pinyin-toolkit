@@ -153,7 +153,7 @@ class Mapper(object):
         if with_polymorphic == '*':
             self.with_polymorphic = ('*', None)
         elif isinstance(with_polymorphic, (tuple, list)):
-            if isinstance(with_polymorphic[0], (basestring, tuple, list)):
+            if isinstance(with_polymorphic[0], (str, tuple, list)):
                 self.with_polymorphic = with_polymorphic
             else:
                 self.with_polymorphic = (with_polymorphic, None)
@@ -550,12 +550,12 @@ class Mapper(object):
 
         # load custom properties
         if self._init_properties:
-            for key, prop in self._init_properties.iteritems():
+            for key, prop in self._init_properties.items():
                 self._configure_property(key, prop, False)
 
         # pull properties from the inherited mapper if any.
         if self.inherits:
-            for key, prop in self.inherits._props.iteritems():
+            for key, prop in self.inherits._props.items():
                 if key not in self._props and \
                     not self._should_exclude(key, key, local=False, column=None):
                     self._adapt_inherited_property(key, prop, False)
@@ -838,7 +838,7 @@ class Mapper(object):
         """
 
         self._log("_post_configure_properties() started")
-        l = [(key, prop) for key, prop in self._props.iteritems()]
+        l = [(key, prop) for key, prop in self._props.items()]
         for key, prop in l:
             self._log("initialize prop %s", key)
 
@@ -856,7 +856,7 @@ class Mapper(object):
         using `add_property`.
 
         """
-        for key, value in dict_of_properties.iteritems():
+        for key, value in dict_of_properties.items():
             self.add_property(key, value)
 
     def add_property(self, key, prop):
@@ -969,7 +969,7 @@ class Mapper(object):
         """return an iterator of all MapperProperty objects."""
         if not self.compiled:
             self.compile()
-        return self._props.itervalues()
+        return iter(self._props.values())
 
     def _mappers_from_spec(self, spec, selectable):
         """given a with_polymorphic() argument, return the set of mappers it
@@ -1420,7 +1420,7 @@ class Mapper(object):
         visited_instances = util.IdentitySet()
         prp, mpp = object(), object()
 
-        visitables = [(deque(self._props.values()), prp, state)]
+        visitables = [(deque(list(self._props.values())), prp, state)]
 
         while visitables:
             iterator, item_type, parent_state = visitables[-1]
@@ -1440,7 +1440,7 @@ class Mapper(object):
                 instance, instance_mapper, corresponding_state  = \
                                 iterator.popleft()
                 yield (instance, instance_mapper)
-                visitables.append((deque(instance_mapper._props.values()), 
+                visitables.append((deque(list(instance_mapper._props.values())), 
                                         prp, corresponding_state))
 
     @_memoized_compiled_property
@@ -1454,7 +1454,7 @@ class Mapper(object):
             for t in mapper.tables:
                 table_to_mapper[t] = mapper
 
-        sorted_ = sqlutil.sort_tables(table_to_mapper.iterkeys())
+        sorted_ = sqlutil.sort_tables(iter(table_to_mapper.keys()))
         ret = util.OrderedDict()
         for t in sorted_:
             ret[t] = table_to_mapper[t]
@@ -1468,7 +1468,7 @@ class Mapper(object):
         for dep in self._dependency_processors:
             dep.per_property_preprocessors(uow)
 
-        for prop in self._props.values():
+        for prop in list(self._props.values()):
             prop.per_property_preprocessors(uow)
 
     def _per_state_flush_actions(self, uow, states, isdelete):
@@ -1577,7 +1577,7 @@ class Mapper(object):
                 # also group them into common (connection, cols) sets 
                 # to support executemany().
                 for key, grouper in groupby(
-                    update, lambda rec: (rec[4], rec[2].keys())
+                    update, lambda rec: (rec[4], list(rec[2].keys()))
                 ):
                     multiparams = [params for state, state_dict, 
                                             params, mapper, conn in grouper]
@@ -1756,7 +1756,7 @@ class Mapper(object):
                                 # in a different table than the one 
                                 # where the version_id_col is.
                                 for prop in mapper._columntoproperty.\
-                                                        itervalues():
+                                                        values():
                                     history = attributes.get_state_history(
                                                     state, prop.key, 
                                                     passive=True)
@@ -2025,7 +2025,7 @@ class Mapper(object):
 
         table_to_mapper = self._sorted_tables
 
-        for table in reversed(table_to_mapper.keys()):
+        for table in reversed(list(table_to_mapper.keys())):
             delete = util.defaultdict(list)
             for state, state_dict, mapper, has_identity, connection in tups:
                 if not has_identity or table not in mapper._pks_by_table:
@@ -2065,7 +2065,7 @@ class Mapper(object):
 
                 return table.delete(clause)
 
-            for connection, del_objects in delete.iteritems():
+            for connection, del_objects in delete.items():
                 statement = self._memo(('delete', table), delete_stmt)
                 rows = -1
 
@@ -2331,7 +2331,7 @@ class Mapper(object):
         """Produce a collection of attribute level row processor callables."""
 
         delayed_populators = []
-        for prop in self._props.itervalues():
+        for prop in self._props.values():
             newpop, existingpop, delayedpop = prop.create_row_processor(
                                                     context, path, 
                                                     self, row, adapter)

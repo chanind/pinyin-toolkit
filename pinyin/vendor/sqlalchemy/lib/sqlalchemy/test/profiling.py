@@ -41,7 +41,7 @@ def profiled(target=None, **target_opts):
     if target is None:
         target = 'anonymous_target'
     elif target in all_targets:
-        print "Warning: redefining profile target '%s'" % target
+        print("Warning: redefining profile target '%s'" % target)
     all_targets.add(target)
 
     filename = "%s.prof" % target
@@ -59,8 +59,8 @@ def profiled(target=None, **target_opts):
             if report:
                 sort_ = target_opts.get('sort', profile_config['sort'])
                 limit = target_opts.get('limit', profile_config['limit'])
-                print "Profile report for target '%s' (%s)" % (
-                    target, filename)
+                print("Profile report for target '%s' (%s)" % (
+                    target, filename))
 
                 stats = load_stats()
                 stats.sort_stats(*sort_)

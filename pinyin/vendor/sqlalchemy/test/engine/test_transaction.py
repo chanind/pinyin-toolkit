@@ -70,8 +70,8 @@ class TransactionTest(TestBase):
             connection.execute(users.insert(), user_id=1, user_name='user3')
             transaction.commit()
             assert False
-        except Exception , e:
-            print "Exception: ", e
+        except Exception as e:
+            print("Exception: ", e)
             transaction.rollback()
 
         result = connection.execute("select * from query_users")
@@ -117,10 +117,10 @@ class TransactionTest(TestBase):
                     trans2.rollback()
                     raise
                 transaction.rollback()
-            except Exception, e:
+            except Exception as e:
                 transaction.rollback()
                 raise
-        except Exception, e:
+        except Exception as e:
             try:
                 assert str(e) == 'uh oh'  # and not "This transaction is
                                           # inactive"
@@ -150,7 +150,7 @@ class TransactionTest(TestBase):
         connection.execute(users.insert(), user_id=5, user_name='user5')
         trans2.commit()
         transaction.rollback()
-        self.assert_(connection.scalar('select count(*) from '
+        self.assertTrue(connection.scalar('select count(*) from '
                      'query_users') == 0)
         result = connection.execute('select * from query_users')
         assert len(result.fetchall()) == 0
@@ -170,7 +170,7 @@ class TransactionTest(TestBase):
         assert connection.in_transaction()
         transaction.commit()
         assert not connection.in_transaction()
-        self.assert_(connection.scalar('select count(*) from '
+        self.assertTrue(connection.scalar('select count(*) from '
                      'query_users') == 5)
         result = connection.execute('select * from query_users')
         assert len(result.fetchall()) == 5
@@ -190,7 +190,7 @@ class TransactionTest(TestBase):
         assert connection.in_transaction()
         transaction.close()
         assert not connection.in_transaction()
-        self.assert_(connection.scalar('select count(*) from '
+        self.assertTrue(connection.scalar('select count(*) from '
                      'query_users') == 0)
         result = connection.execute('select * from query_users')
         assert len(result.fetchall()) == 0
@@ -746,7 +746,7 @@ class TLTransactionTest(TestBase):
         """tests nesting of transactions, rollback at the end"""
 
         external_connection = tlengine.connect()
-        self.assert_(external_connection.connection
+        self.assertTrue(external_connection.connection
                      is not tlengine.contextual_connect().connection)
         tlengine.begin()
         tlengine.execute(users.insert(), user_id=1, user_name='user1')
@@ -758,7 +758,7 @@ class TLTransactionTest(TestBase):
         tlengine.commit()
         tlengine.rollback()
         try:
-            self.assert_(external_connection.scalar(
+            self.assertTrue(external_connection.scalar(
                         'select count(*) from query_users'
                          ) == 0)
         finally:
@@ -768,7 +768,7 @@ class TLTransactionTest(TestBase):
         """tests nesting of transactions, commit at the end."""
 
         external_connection = tlengine.connect()
-        self.assert_(external_connection.connection
+        self.assertTrue(external_connection.connection
                      is not tlengine.contextual_connect().connection)
         tlengine.begin()
         tlengine.execute(users.insert(), user_id=1, user_name='user1')
@@ -780,7 +780,7 @@ class TLTransactionTest(TestBase):
         tlengine.commit()
         tlengine.commit()
         try:
-            self.assert_(external_connection.scalar(
+            self.assertTrue(external_connection.scalar(
                         'select count(*) from query_users'
                          ) == 5)
         finally:
@@ -791,7 +791,7 @@ class TLTransactionTest(TestBase):
         inside of tranasctions off the connection from the TLEngine"""
 
         external_connection = tlengine.connect()
-        self.assert_(external_connection.connection
+        self.assertTrue(external_connection.connection
                      is not tlengine.contextual_connect().connection)
         conn = tlengine.contextual_connect()
         trans = conn.begin()
@@ -812,7 +812,7 @@ class TLTransactionTest(TestBase):
         trans.rollback()
         conn.close()
         try:
-            self.assert_(external_connection.scalar(
+            self.assertTrue(external_connection.scalar(
                         'select count(*) from query_users'
                          ) == 0)
         finally:
@@ -823,7 +823,7 @@ class TLTransactionTest(TestBase):
         TLEngine inside of tranasctions off thbe TLEngine directly."""
 
         external_connection = tlengine.connect()
-        self.assert_(external_connection.connection
+        self.assertTrue(external_connection.connection
                      is not tlengine.contextual_connect().connection)
         tlengine.begin()
         connection = tlengine.contextual_connect()
@@ -839,7 +839,7 @@ class TLTransactionTest(TestBase):
         tlengine.rollback()
         connection.close()
         try:
-            self.assert_(external_connection.scalar(
+            self.assertTrue(external_connection.scalar(
                         'select count(*) from query_users'
                          ) == 0)
         finally:
@@ -989,7 +989,7 @@ class ForUpdateTest(TestBase):
         con = testing.db.connect()
         sel = counters.select(for_update=update_style,
                               whereclause=counters.c.counter_id == 1)
-        for i in xrange(count):
+        for i in range(count):
             trans = con.begin()
             try:
                 existing = con.execute(sel).first()
@@ -1003,7 +1003,7 @@ class ForUpdateTest(TestBase):
                     raise AssertionError('Got %s post-update, expected '
                             '%s' % (readback['counter_value'], incr))
                 trans.commit()
-            except Exception, e:
+            except Exception as e:
                 trans.rollback()
                 errors.append(e)
                 break
@@ -1027,7 +1027,7 @@ class ForUpdateTest(TestBase):
         db.execute(counters.insert(), counter_id=1, counter_value=0)
         iterations, thread_count = 10, 5
         threads, errors = [], []
-        for i in xrange(thread_count):
+        for i in range(thread_count):
             thrd = threading.Thread(target=self.increment,
                                     args=(iterations, ),
                                     kwargs={'errors': errors,
@@ -1038,10 +1038,10 @@ class ForUpdateTest(TestBase):
             thrd.join()
         for e in errors:
             sys.stdout.write('Failure: %s\n' % e)
-        self.assert_(len(errors) == 0)
+        self.assertTrue(len(errors) == 0)
         sel = counters.select(whereclause=counters.c.counter_id == 1)
         final = db.execute(sel).first()
-        self.assert_(final['counter_value'] == iterations
+        self.assertTrue(final['counter_value'] == iterations
                      * thread_count)
 
     def overlap(
@@ -1058,7 +1058,7 @@ class ForUpdateTest(TestBase):
             rows = con.execute(sel).fetchall()
             time.sleep(0.25)
             trans.commit()
-        except Exception, e:
+        except Exception as e:
             trans.rollback()
             errors.append(e)
         con.close()
@@ -1075,7 +1075,7 @@ class ForUpdateTest(TestBase):
             db.execute(counters.insert(), counter_id=cid + 1,
                        counter_value=0)
         errors, threads = [], []
-        for i in xrange(thread_count):
+        for i in range(thread_count):
             thrd = threading.Thread(target=self.overlap,
                                     args=(groups.pop(0), errors,
                                     update_style))
@@ -1096,7 +1096,7 @@ class ForUpdateTest(TestBase):
         errors = self._threaded_overlap(2, [(1, 2, 3), (3, 4, 5)])
         for e in errors:
             sys.stderr.write('Failure: %s\n' % e)
-        self.assert_(len(errors) == 0)
+        self.assertTrue(len(errors) == 0)
 
     @testing.crashes('mssql', 'FIXME: unknown')
     @testing.fails_on('mysql', 'No support for NOWAIT')
@@ -1109,5 +1109,5 @@ class ForUpdateTest(TestBase):
 
         errors = self._threaded_overlap(2, [(1, 2, 3), (3, 4, 5)],
                 update_style='nowait')
-        self.assert_(len(errors) != 0)
+        self.assertTrue(len(errors) != 0)
 

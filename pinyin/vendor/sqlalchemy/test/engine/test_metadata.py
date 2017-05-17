@@ -73,7 +73,7 @@ class MetaDataTest(TestBase, ComparesTables):
         c1 = Column('foo', String())
         c1._on_table_attach(write)
         m = MetaData()
-        for i in xrange(3):
+        for i in range(3):
             cx = c1.copy()
             t = Table('foo%d' % i, m, cx)
         eq_(msgs, ['attach foo0.foo', 'attach foo1.foo', 'attach foo2.foo'])
@@ -94,7 +94,7 @@ class MetaDataTest(TestBase, ComparesTables):
                     Column('col1', Integer, primary_key=True),
                     Column('col2', String(20)))
                 assert False
-            except tsa.exc.InvalidRequestError, e:
+            except tsa.exc.InvalidRequestError as e:
                 assert str(e) \
                     == "Table 'table1' is already defined for this "\
                     "MetaData instance.  Specify 'useexisting=True' "\
@@ -327,7 +327,7 @@ class MetaDataTest(TestBase, ComparesTables):
         def _get_key(i):
             return [i.name,i.unique] + \
                     sorted(i.kwargs.items()) + \
-                    i.columns.keys()
+                    list(i.columns.keys())
 
         eq_(
             sorted([_get_key(i) for i in table.indexes]),

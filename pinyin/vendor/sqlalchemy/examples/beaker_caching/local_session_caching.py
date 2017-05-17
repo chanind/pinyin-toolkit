@@ -53,8 +53,8 @@ class ScopedSessionNamespace(container.MemoryNamespaceManager):
 
 
 if __name__ == '__main__':
-    from environment import Session, cache_manager
-    from caching_query import FromCache
+    from .environment import Session, cache_manager
+    from .caching_query import FromCache
 
     # create a Beaker container type called "ext:local_session".
     # it will reference the ScopedSession in meta.
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     # set up a region based on this new container type.
     cache_manager.regions['local_session'] ={'type':'ext:local_session'}
 
-    from model import Person
+    from .model import Person
 
     # query to load Person by name, with criterion
     # of "person 10"
@@ -91,6 +91,6 @@ if __name__ == '__main__':
     # that would change the results of a cached query, such as 
     # inserts, deletes, or modification to attributes that are 
     # part of query criterion, still require careful invalidation.
-    from caching_query import _get_cache_parameters
+    from .caching_query import _get_cache_parameters
     cache, key = _get_cache_parameters(q)
     assert person10 is cache.get(key)[0]

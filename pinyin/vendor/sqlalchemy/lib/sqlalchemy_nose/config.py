@@ -1,7 +1,7 @@
-import optparse, os, sys, re, ConfigParser, time, warnings
+import optparse, os, sys, re, configparser, time, warnings
 
 # 2to3
-import StringIO
+import io
 
 logging = None
 
@@ -43,9 +43,9 @@ def _log(option, opt_str, value, parser):
 
 
 def _list_dbs(*args):
-    print "Available --db options (use --dburi to override)"
+    print("Available --db options (use --dburi to override)")
     for macro in sorted(file_config.options('db')):
-        print "%20s\t%s" % (macro, file_config.get('db', macro))
+        print("%20s\t%s" % (macro, file_config.get('db', macro)))
     sys.exit(0)
 
 def _server_side_cursors(options, opt_str, value, parser):
@@ -138,12 +138,12 @@ def _prep_testing_database(options, file_config):
         e = engines.utf8_engine()
         existing = e.table_names()
         if existing:
-            print "Dropping existing tables in database: " + db_url
+            print("Dropping existing tables in database: " + db_url)
             try:
-                print "Tables: %s" % ', '.join(existing)
+                print("Tables: %s" % ', '.join(existing))
             except:
                 pass
-            print "Abort within 5 seconds..."
+            print("Abort within 5 seconds...")
             time.sleep(5)
             md = schema.MetaData(e, reflect=True)
             md.drop_all()

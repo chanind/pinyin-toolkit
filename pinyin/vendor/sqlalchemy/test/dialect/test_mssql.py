@@ -546,11 +546,11 @@ class QueryUnicodeTest(TestBase):
         # encode in UTF-8 (sting object) because this is the default
         # dialect encoding
 
-        con.execute(u"insert into unitest_table values ('bien u\
+        con.execute("insert into unitest_table values ('bien u\
                     umang\xc3\xa9')".encode('UTF-8'))
         try:
             r = t1.select().execute().first()
-            assert isinstance(r[1], unicode), \
+            assert isinstance(r[1], str), \
                 '%s is %s instead of unicode, working on %s' % (r[1],
                     type(r[1]), meta.bind)
         finally:
@@ -615,9 +615,9 @@ class QueryTest(TestBase):
         try:
             tr = con.begin()
             r = con.execute(t2.insert(), descr='hello')
-            self.assert_(r.inserted_primary_key == [200])
+            self.assertTrue(r.inserted_primary_key == [200])
             r = con.execute(t1.insert(), descr='hello')
-            self.assert_(r.inserted_primary_key == [100])
+            self.assertTrue(r.inserted_primary_key == [100])
 
         finally:
             tr.commit()
@@ -1117,7 +1117,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
                 )]
             for value in test_items:
                 float_table.insert().execute(floatcol=value)
-        except Exception, e:
+        except Exception as e:
             raise e
 
     def test_money(self):
@@ -1138,7 +1138,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
             index = int(col.name[1:])
             testing.eq_(gen.get_column_specification(col), '%s %s'
                         % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         try:
             money_table.create(checkfirst=True)
             assert True
@@ -1212,7 +1212,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
             index = int(col.name[1:])
             testing.eq_(gen.get_column_specification(col), '%s %s'
                         % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         dates_table.create(checkfirst=True)
         reflected_dates = Table('test_mssql_dates',
                                 MetaData(testing.db), autoload=True)
@@ -1235,9 +1235,9 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
         t.insert().execute(adate=d2, adatetime=d2, atime=d2)
 
         x = t.select().execute().fetchall()[0]
-        self.assert_(x.adate.__class__ == datetime.date)
-        self.assert_(x.atime.__class__ == datetime.time)
-        self.assert_(x.adatetime.__class__ == datetime.datetime)
+        self.assertTrue(x.adate.__class__ == datetime.date)
+        self.assertTrue(x.atime.__class__ == datetime.time)
+        self.assertTrue(x.adatetime.__class__ == datetime.datetime)
 
         t.delete().execute()
 
@@ -1295,7 +1295,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
             index = int(col.name[1:])
             testing.eq_(gen.get_column_specification(col), '%s %s'
                         % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
         metadata.create_all()
         reflected_binary = Table('test_mssql_binary',
                                  MetaData(testing.db), autoload=True)
@@ -1333,7 +1333,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
             index = int(col.name[1:])
             testing.eq_(gen.get_column_specification(col),
                            "%s %s" % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
 
         metadata.create_all()
 
@@ -1382,7 +1382,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
             index = int(col.name[1:])
             testing.eq_(gen.get_column_specification(col),
                            "%s %s" % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
 
         metadata.create_all()
 
@@ -1443,7 +1443,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
             index = int(col.name[1:])
             testing.eq_(gen.get_column_specification(col),
                            "%s %s" % (col.name, columns[index][3]))
-            self.assert_(repr(col))
+            self.assertTrue(repr(col))
 
         metadata.create_all()
 
@@ -1458,7 +1458,7 @@ class TypesTest(TestBase, AssertsExecutionResults, ComparesTables):
                    Column('t', spec, nullable=None))
         gen = dialect.ddl_compiler(dialect, schema.CreateTable(t))
         testing.eq_(gen.get_column_specification(t.c.t), "t %s" % expected)
-        self.assert_(repr(t.c.t))
+        self.assertTrue(repr(t.c.t))
         t.create(checkfirst=True)
 
     def test_autoincrement(self):
@@ -1655,13 +1655,13 @@ class ReflectHugeViewTest(TestBase):
         t = Table('base_table', self.metadata,
                 *[
                     Column("long_named_column_number_%d" % i, Integer)
-                    for i in xrange(self.col_num)
+                    for i in range(self.col_num)
                 ]
         )
         self.view_str = view_str = \
             "CREATE VIEW huge_named_view AS SELECT %s FROM base_table" % (
             ",".join("long_named_column_number_%d" % i 
-                        for i in xrange(self.col_num))
+                        for i in range(self.col_num))
             )
         assert len(view_str) > 4000
 

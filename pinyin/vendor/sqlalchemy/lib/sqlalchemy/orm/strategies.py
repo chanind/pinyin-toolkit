@@ -380,7 +380,7 @@ class LazyLoader(AbstractRelationshipLoader):
                         )
 
         if self.use_get:
-            for col in self._equated_columns.keys():
+            for col in list(self._equated_columns.keys()):
                 if col in self.mapper._equivalent_columns:
                     for c in self.mapper._equivalent_columns[col]:
                         self._equated_columns[c] = self._equated_columns[col]
@@ -802,7 +802,7 @@ class SubqueryLoader(AbstractRelationshipLoader):
         # figure out what's being joined.  a.k.a. the fun part
         to_join = [
                     (subq_path[i], subq_path[i+1]) 
-                    for i in xrange(0, len(subq_path), 2)
+                    for i in range(0, len(subq_path), 2)
                 ]
 
         # determine the immediate parent class we are joining from,
@@ -885,7 +885,7 @@ class SubqueryLoader(AbstractRelationshipLoader):
 
     def _local_remote_columns(self, prop):
         if prop.secondary is None:
-            return zip(*prop.local_remote_pairs)
+            return list(zip(*prop.local_remote_pairs))
         else:
             return \
                 [p[0] for p in prop.synchronize_pairs],\
@@ -1166,7 +1166,7 @@ class EagerLoader(AbstractRelationshipLoader):
         try:
             identity_key = self.mapper.identity_key_from_row(row, decorator)
             return decorator
-        except KeyError, k:
+        except KeyError as k:
             # no identity key - dont return a row 
             # processor, will cause a degrade to lazy
             return False
@@ -1304,13 +1304,13 @@ class LoadEagerFromAliasOption(PropertyOption):
     def __init__(self, key, alias=None):
         super(LoadEagerFromAliasOption, self).__init__(key)
         if alias is not None:
-            if not isinstance(alias, basestring):
+            if not isinstance(alias, str):
                 m, alias, is_aliased_class = mapperutil._entity_info(alias)
         self.alias = alias
 
     def process_query_property(self, query, paths, mappers):
         if self.alias is not None:
-            if isinstance(self.alias, basestring):
+            if isinstance(self.alias, str):
                 mapper = mappers[-1]
                 (root_mapper, propname) = paths[-1][-2:]
                 prop = mapper.get_property(propname, resolve_synonyms=True)

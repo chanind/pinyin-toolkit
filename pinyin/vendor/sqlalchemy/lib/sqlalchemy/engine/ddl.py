@@ -32,7 +32,7 @@ class SchemaGenerator(DDLBase):
         if self.tables:
             tables = self.tables
         else:
-            tables = metadata.tables.values()
+            tables = list(metadata.tables.values())
         collection = [t for t in sql_util.sort_tables(tables) if self._can_create(t)]
 
         for listener in metadata.ddl_listeners['before-create']:
@@ -88,7 +88,7 @@ class SchemaDropper(DDLBase):
         if self.tables:
             tables = self.tables
         else:
-            tables = metadata.tables.values()
+            tables = list(metadata.tables.values())
         collection = [t for t in reversed(sql_util.sort_tables(tables)) if self._can_drop(t)]
 
         for listener in metadata.ddl_listeners['before-drop']:

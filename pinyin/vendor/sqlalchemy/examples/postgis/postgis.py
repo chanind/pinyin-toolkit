@@ -37,7 +37,7 @@ class TextualGisElement(GisElement, expression.Function):
     """
 
     def __init__(self, desc, srid=-1):
-        assert isinstance(desc, basestring)
+        assert isinstance(desc, str)
         self.desc = desc
         expression.Function.__init__(self, "GeomFromText", desc, srid)
 
@@ -138,7 +138,7 @@ def _to_postgis(value):
         return value.__clause_element__()
     elif isinstance(value, (expression.ClauseElement, GisElement)):
         return value
-    elif isinstance(value, basestring):
+    elif isinstance(value, str):
         return TextualGisElement(value)
     elif value is None:
         return None
@@ -251,7 +251,7 @@ if __name__ == '__main__':
     assert r1 is r2 is r3
 
     # illustrate the "intersects" operator
-    print session.query(Road).filter(Road.road_geom.intersects(r1.road_geom)).all()
+    print(session.query(Road).filter(Road.road_geom.intersects(r1.road_geom)).all())
 
     # illustrate usage of the "wkt" accessor. this requires a DB
     # execution to call the AsText() function so we keep this explicit.

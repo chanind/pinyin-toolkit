@@ -110,7 +110,7 @@ class EagerTest(_base.MappedTest):
         # 3  "
 
         # not orm style correct query
-        print "Obtaining correct results without orm"
+        print("Obtaining correct results without orm")
         result = sa.select(
             [tests.c.id,categories.c.name],
             sa.and_(tests.c.owner_id == 1,
@@ -121,7 +121,7 @@ class EagerTest(_base.MappedTest):
                 tests.c.id == options.c.test_id,
                 tests.c.owner_id == options.c.owner_id))]
             ).execute().fetchall()
-        eq_(result, [(1, u'Some Category'), (3, u'Some Category')])
+        eq_(result, [(1, 'Some Category'), (3, 'Some Category')])
 
     @testing.resolve_artifact_names
     def test_withoutjoinedload(self):
@@ -136,7 +136,7 @@ class EagerTest(_base.MappedTest):
                                    options.c.someoption==False))))
 
         result = ["%d %s" % ( t.id,t.category.name ) for t in l]
-        eq_(result, [u'1 Some Category', u'3 Some Category'])
+        eq_(result, ['1 Some Category', '3 Some Category'])
 
     @testing.resolve_artifact_names
     def test_withjoinedload(self):
@@ -159,7 +159,7 @@ class EagerTest(_base.MappedTest):
                                  options.c.someoption==False))))
 
         result = ["%d %s" % ( t.id,t.category.name ) for t in l]
-        eq_(result, [u'1 Some Category', u'3 Some Category'])
+        eq_(result, ['1 Some Category', '3 Some Category'])
 
     @testing.resolve_artifact_names
     def test_dslish(self):
@@ -173,7 +173,7 @@ class EagerTest(_base.MappedTest):
             ).outerjoin('owner_option')
 
         result = ["%d %s" % ( t.id,t.category.name ) for t in l]
-        eq_(result, [u'1 Some Category', u'3 Some Category'])
+        eq_(result, ['1 Some Category', '3 Some Category'])
 
     @testing.crashes('sybase', 'FIXME: unknown, verify not fails_on')
     @testing.resolve_artifact_names
@@ -186,7 +186,7 @@ class EagerTest(_base.MappedTest):
              join('owner_option'))
 
         result = ["%d %s" % ( t.id,t.category.name ) for t in l]
-        eq_(result, [u'3 Some Category'])
+        eq_(result, ['3 Some Category'])
 
     @testing.resolve_artifact_names
     def test_withoutouterjoin(self):
@@ -198,7 +198,7 @@ class EagerTest(_base.MappedTest):
                     ).join('owner_option')
 
         result = ["%d %s" % ( t.id,t.category.name ) for t in l]
-        eq_(result, [u'3 Some Category'])
+        eq_(result, ['3 Some Category'])
 
 
 class EagerTest2(_base.MappedTest):
@@ -749,7 +749,7 @@ class EagerTest8(_base.MappedTest):
                        (1,),),
 
             task=(('title', 'task_type_id', 'status_id', 'prj_id'),
-                  (u'task 1', 1, 1, 1)))
+                  ('task 1', 1, 1, 1)))
 
     @classmethod
     def setup_classes(cls):
@@ -783,7 +783,7 @@ class EagerTest8(_base.MappedTest):
         session = create_session()
 
         eq_(session.query(Joined).limit(10).offset(0).one(),
-            Joined(id=1, title=u'task 1', props_cnt=0))
+            Joined(id=1, title='task 1', props_cnt=0))
 
 
 class EagerTest9(_base.MappedTest):

@@ -449,11 +449,11 @@ class ReversePKsTest(_base.MappedTest):
 
         session = sa.orm.sessionmaker()()
 
-        a_published = User(1, PUBLISHED, u'a')
+        a_published = User(1, PUBLISHED, 'a')
         session.add(a_published)
         session.commit()
 
-        a_editable = User(1, EDITABLE, u'a')
+        a_editable = User(1, EDITABLE, 'a')
 
         session.add(a_editable)
         session.commit()

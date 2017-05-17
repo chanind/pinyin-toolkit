@@ -14,8 +14,8 @@ import pinyin.utils
 # Code from ActiveState recipe (http://code.activestate.com/recipes/146306/)
 #
 
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import mimetools, mimetypes
 import os, stat
 
@@ -27,8 +27,8 @@ class Callable:
 #  assigning a sequence.
 doseq = 1
 
-class MultipartPostHandler(urllib2.BaseHandler):
-    handler_order = urllib2.HTTPHandler.handler_order - 10 # needs to run first
+class MultipartPostHandler(urllib.request.BaseHandler):
+    handler_order = urllib.request.HTTPHandler.handler_order - 10 # needs to run first
 
     def http_request(self, request):
         data = request.get_data()
@@ -36,23 +36,23 @@ class MultipartPostHandler(urllib2.BaseHandler):
             v_files = []
             v_vars = []
             try:
-                 for(key, value) in data.items():
+                 for(key, value) in list(data.items()):
                      if type(value) == file:
                          v_files.append((key, value))
                      else:
                          v_vars.append((key, value))
             except TypeError:
                 systype, value, traceback = sys.exc_info()
-                raise TypeError, "not a valid non-string sequence or mapping object", traceback
+                raise TypeError("not a valid non-string sequence or mapping object").with_traceback(traceback)
 
             if len(v_files) == 0:
-                data = urllib.urlencode(v_vars, doseq)
+                data = urllib.parse.urlencode(v_vars, doseq)
             else:
                 boundary, data = self.multipart_encode(v_vars, v_files)
                 contenttype = 'multipart/form-data; boundary=%s' % boundary
                 if(request.has_header('Content-Type')
                    and request.get_header('Content-Type').find('multipart/form-data') != 0):
-                    print "Replacing %s with %s" % (request.get_header('content-type'), 'multipart/form-data')
+                    print("Replacing %s with %s" % (request.get_header('content-type'), 'multipart/form-data'))
                 request.add_unredirected_header('Content-Type', contenttype)
 
             request.add_data(data)
@@ -83,13 +83,13 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
     https_request = http_request
 
-import cookielib
-cookies = cookielib.CookieJar()
+import http.cookiejar
+cookies = http.cookiejar.CookieJar()
 
 def post_multipart(url, fields, file_fields):
     # This extra handler is useful for debugging with Charles:
     # urllib2.ProxyHandler({ "http" : "127.0.0.1:8888" })
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies), MultipartPostHandler)
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookies), MultipartPostHandler)
     params = dict(fields + [(name, open(filename, "rb")) for name, filename in file_fields])
     return opener.open(url, params).read()
 
@@ -113,7 +113,7 @@ def preflight_checks(release_info, repo_dir):
         for name in names:
             full_path = os.path.join(dirname, name)
             # See http://code.google.com/p/anki/issues/detail?id=1342&colspec=ID%20Type%20Status%20Priority%20Stars%20Summary
-            if os.path.isfile(full_path) and os.path.getsize(full_path) == 0L and "vendor" not in full_path:
+            if os.path.isfile(full_path) and os.path.getsize(full_path) == 0 and "vendor" not in full_path:
                 errors.append(full_path + " is 0 bytes long - a bug found in Anki 0.9.9.8.5 means that such files are not extracted")
     
     os.path.walk(repo_dir, visit, None)
@@ -131,7 +131,7 @@ def build_release(credentials, release_info, temp_dir):
     # this ensures we don't have any crap in the release
     temp_repo_dir = os.path.join(temp_dir, "repo")
     repo_dir = pinyin.utils.toolkitdir()
-    print "Cloning current repo state to", temp_repo_dir
+    print("Cloning current repo state to", temp_repo_dir)
     subprocess.check_call(["git", "clone", repo_dir, temp_repo_dir])
     subprocess.check_call(["git", "submodule", "init"], cwd=temp_repo_dir)
     subprocess.check_call(["git", "submodule", "update"], cwd=temp_repo_dir)
@@ -139,7 +139,7 @@ def build_release(credentials, release_info, temp_dir):
     # 1.5) Sanity check directory
     errors = preflight_checks(release_info, temp_repo_dir)
     if len(errors) > 0:
-        print "\n".join(errors)
+        print("\n".join(errors))
         sys.exit(1)
     
     # 2) Build a ZIP of that fresh checkout, excluding the .git directory
@@ -151,9 +151,9 @@ def build_release(credentials, release_info, temp_dir):
     subprocess.check_call(["zip", "-9", "-r", zip_file] + repo_contents, cwd=temp_repo_dir)
     
     # 3) Get confirmation
-    print "The zipfile has been prepared at:"
-    print zip_file
-    raw_input("Press enter to upload to Anki Online ...")
+    print("The zipfile has been prepared at:")
+    print(zip_file)
+    input("Press enter to upload to Anki Online ...")
     
     # 4) Upload to Anki
     upload_to_anki_online(credentials, release_info, zip_file)
@@ -167,7 +167,7 @@ def upload_to_anki_online(credentials, release_info, zip_file):
     #  <input type="submit" value="Login" />
     #  <input type="submit" value="Sign Up" />
     # </form>
-    print "Logging in to the Anki website as", credentials["username"]
+    print("Logging in to the Anki website as", credentials["username"])
     post_multipart("http://anki.ichi2.net/account/login",
         [("username", credentials["username"]), ("password", credentials["password"]), ("submitted", "1")],
         [])
@@ -182,7 +182,7 @@ def upload_to_anki_online(credentials, release_info, zip_file):
     #   <input name="id" type="hidden" value="423">
     #   <input name="submit" type="submit" value="Update" />
     # </form>
-    print "Uploading a new version of the plugin"
+    print("Uploading a new version of the plugin")
     post_multipart("http://anki.ichi2.net/file/upload",
         [("type", "plugin"), ("title", release_info["title"]), ("tags", release_info["tags"]), ("description", release_info["description"]), ("id", release_info["id"]), ("submit", "Update")],
         [("file", zip_file)])
@@ -203,9 +203,9 @@ if __name__ == "__main__":
     version, date, changelog = list(parse_releases(file_contents(pinyin.utils.toolkitdir("Pinyin Toolkit.txt"))))[0]
     
     try:
-        print changelog
-        raw_input("Press enter to prepare version %s (%s) ..." % (version, date))
-    except KeyboardInterrupt, e:
+        print(changelog)
+        input("Press enter to prepare version %s (%s) ..." % (version, date))
+    except KeyboardInterrupt as e:
         sys.exit(1)
     
     description = """The Pinyin Toolkit adds many useful features to Anki to assist the study of Mandarin. The aim of 
@@ -228,4 +228,4 @@ Changes in the most recent version:
     
     #upload_to_anki_online(config["credentials"], release_info, home_path("Junk", "test-plugin", "test-plugin.zip"))
     pinyin.utils.withtempdir(lambda tempdir: build_release(config["credentials"], release_info, tempdir))
-    print "Everything seems to have worked!"
+    print("Everything seems to have worked!")

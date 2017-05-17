@@ -315,7 +315,7 @@ class MergeTest(_fixtures.FixtureTest):
         sess = create_session()
         sess.merge(u1)
         sess.flush()
-        assert u1.addresses.keys() == ['foo@bar.com']
+        assert list(u1.addresses.keys()) == ['foo@bar.com']
 
     @testing.resolve_artifact_names
     def test_attribute_cascade(self):
@@ -736,7 +736,7 @@ class MergeTest(_fixtures.FixtureTest):
         try:
             sess2.merge(u, load=False)
             assert False
-        except sa.exc.InvalidRequestError, e:
+        except sa.exc.InvalidRequestError as e:
             assert ("merge() with load=False option does not support "
                     "objects marked as 'dirty'.  flush() all changes on mapped "
                     "instances before merging with load=False.") in str(e)
@@ -841,7 +841,7 @@ class MergeTest(_fixtures.FixtureTest):
             sess2.expunge_all()
             eq_(sess2.query(User).get(u2.id).addresses[0].email_address,
                 'somenewaddress')
-        except sa.exc.InvalidRequestError, e:
+        except sa.exc.InvalidRequestError as e:
             assert "load=False option does not support" in str(e)
 
     @testing.resolve_artifact_names

@@ -169,7 +169,7 @@ class SelectableTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         j = join(a, table2)
 
         criterion = a.c.col1 == table2.c.col2
-        self.assert_(criterion.compare(j.onclause))
+        self.assertTrue(criterion.compare(j.onclause))
 
 
     def test_union(self):
@@ -264,26 +264,26 @@ class SelectableTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
 
     def test_join(self):
         a = join(table1, table2)
-        print str(a.select(use_labels=True))
+        print(str(a.select(use_labels=True)))
         b = table2.alias('b')
         j = join(a, b)
-        print str(j)
+        print(str(j))
         criterion = a.c.table1_col1 == b.c.col2
-        self.assert_(criterion.compare(j.onclause))
+        self.assertTrue(criterion.compare(j.onclause))
 
     def test_select_alias(self):
         a = table1.select().alias('a')
         j = join(a, table2)
 
         criterion = a.c.col1 == table2.c.col2
-        self.assert_(criterion.compare(j.onclause))
+        self.assertTrue(criterion.compare(j.onclause))
 
     def test_select_labels(self):
         a = table1.select(use_labels=True)
         j = join(a, table2)
 
         criterion = a.c.table1_col1 == table2.c.col2
-        self.assert_(criterion.compare(j.onclause))
+        self.assertTrue(criterion.compare(j.onclause))
 
 
     def test_column_labels(self):
@@ -292,7 +292,7 @@ class SelectableTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                    table1.c.col3.label('acol3')])
         j = join(a, table2)
         criterion = a.c.acol1 == table2.c.col2
-        self.assert_(criterion.compare(j.onclause))
+        self.assertTrue(criterion.compare(j.onclause))
 
     def test_labeled_select_correspoinding(self):
         l1 = select([func.max(table1.c.col1)]).label('foo')
@@ -308,7 +308,7 @@ class SelectableTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         j = join(a, table1)
 
         criterion = table1.c.col1 == a.c.table2_col2
-        self.assert_(criterion.compare(j.onclause))
+        self.assertTrue(criterion.compare(j.onclause))
 
     def test_table_joined_to_select_of_table(self):
         metadata = MetaData()
@@ -498,7 +498,7 @@ class PrimaryKeyTest(TestBase, AssertsExecutionResults):
                   primary_key=True), Column('x', Integer))
         d = Table('d', meta, Column('id', Integer, ForeignKey('c.id'),
                   primary_key=True), Column('x', Integer))
-        print list(a.join(b, a.c.x == b.c.id).primary_key)
+        print(list(a.join(b, a.c.x == b.c.id).primary_key))
         assert list(a.join(b, a.c.x == b.c.id).primary_key) == [a.c.id]
         assert list(b.join(c, b.c.x == c.c.id).primary_key) == [b.c.id]
         assert list(a.join(b).join(c, c.c.id == b.c.x).primary_key) \

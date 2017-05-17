@@ -81,23 +81,23 @@ fred.parent = chuck
 session.add_all([albert, bert, chuck, donna, eddie, fred])
 session.commit()
 
-print session.query(Employee).all()
+print(session.query(Employee).all())
 
 # 1. Find an employee and all his/her supervisors, no matter how deep the tree.
 ealias = aliased(Employee)
-print session.query(Employee).\
+print(session.query(Employee).\
             filter(ealias.left.between(Employee.left, Employee.right)).\
-            filter(ealias.emp=='Eddie').all()
+            filter(ealias.emp=='Eddie').all())
 
 #2. Find the employee and all his/her subordinates. (This query has a nice symmetry with the first query.)
-print session.query(Employee).\
+print(session.query(Employee).\
     filter(Employee.left.between(ealias.left, ealias.right)).\
-    filter(ealias.emp=='Chuck').all()
+    filter(ealias.emp=='Chuck').all())
 
 #3. Find the level of each node, so you can print the tree as an indented listing.
 for indentation, employee in session.query(func.count(Employee.emp).label('indentation') - 1, ealias).\
     filter(ealias.left.between(Employee.left, Employee.right)).\
     group_by(ealias.emp).\
     order_by(ealias.left):
-    print "    " * indentation + str(employee)
+    print("    " * indentation + str(employee))
 

@@ -138,7 +138,7 @@ __version__ = '1.70'    # Highest version of the spec this complies with
 
 import copy as _copy
 import math as _math
-import numbers as _numbers
+from . import numbers as _numbers
 
 try:
     from collections import namedtuple as _namedtuple
@@ -539,7 +539,7 @@ class Decimal(object):
 
         # From a string
         # REs insist on real strings, so we can too.
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             m = _parser(value.strip())
             if m is None:
                 if context is None:
@@ -576,7 +576,7 @@ class Decimal(object):
             return self
 
         # From an integer
-        if isinstance(value, (int,long)):
+        if isinstance(value, int):
             if value >= 0:
                 self._sign = 0
             else:
@@ -609,7 +609,7 @@ class Decimal(object):
                                  'from list or tuple.  The list or tuple '
                                  'should have exactly three elements.')
             # process sign.  The isinstance test rejects floats
-            if not (isinstance(value[0], (int, long)) and value[0] in (0,1)):
+            if not (isinstance(value[0], int) and value[0] in (0,1)):
                 raise ValueError("Invalid sign.  The first value in the tuple "
                                  "should be an integer; either 0 for a "
                                  "positive number or 1 for a negative number.")
@@ -623,7 +623,7 @@ class Decimal(object):
                 # process and validate the digits in value[1]
                 digits = []
                 for digit in value[1]:
-                    if isinstance(digit, (int, long)) and 0 <= digit <= 9:
+                    if isinstance(digit, int) and 0 <= digit <= 9:
                         # skip leading zeros
                         if digits or digit != 0:
                             digits.append(digit)
@@ -636,7 +636,7 @@ class Decimal(object):
                     self._int = ''.join(map(str, digits))
                     self._exp = value[2]
                     self._is_special = True
-                elif isinstance(value[2], (int, long)):
+                elif isinstance(value[2], int):
                     # finite number: digits give the coefficient
                     self._int = ''.join(map(str, digits or [0]))
                     self._exp = value[2]
@@ -680,7 +680,7 @@ class Decimal(object):
         Decimal('-0')
 
         """
-        if isinstance(f, (int, long)):        # handle integer inputs
+        if isinstance(f, int):        # handle integer inputs
             return cls(f)
         if _math.isinf(f) or _math.isnan(f):  # raises TypeError if not a float
             return cls(repr(f))
@@ -790,7 +790,7 @@ class Decimal(object):
                                             other)
         return 0
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Return True if self is nonzero; otherwise return False.
 
         NaNs and infinities are considered nonzero.
@@ -1617,7 +1617,7 @@ class Decimal(object):
 
         Equivalent to long(int(self))
         """
-        return long(self.__int__())
+        return int(self.__int__())
 
     def _fix_nan(self, context):
         """Decapitate the payload of a NaN to fit the context"""
@@ -1922,7 +1922,7 @@ class Decimal(object):
 
         # compute result using integer pow()
         base = (base.int % modulo * pow(10, base.exp, modulo)) % modulo
-        for i in xrange(exponent.exp):
+        for i in range(exponent.exp):
             base = pow(base, 10, modulo)
         base = pow(base, exponent.int, modulo)
 
@@ -2131,7 +2131,7 @@ class Decimal(object):
                 return None
 
             # compute nth root of xc using Newton's method
-            a = 1L << -(-_nbits(xc)//n) # initial estimate
+            a = 1 << -(-_nbits(xc)//n) # initial estimate
             while True:
                 q, r = divmod(xc, a**(n-1))
                 if a <= q:
@@ -3817,9 +3817,9 @@ class Context(object):
         s.append('Context(prec=%(prec)d, rounding=%(rounding)s, '
                  'Emin=%(Emin)d, Emax=%(Emax)d, capitals=%(capitals)d'
                  % vars(self))
-        names = [f.__name__ for f, v in self.flags.items() if v]
+        names = [f.__name__ for f, v in list(self.flags.items()) if v]
         s.append('flags=[' + ', '.join(names) + ']')
-        names = [t.__name__ for t, v in self.traps.items() if v]
+        names = [t.__name__ for t, v in list(self.traps.items()) if v]
         s.append('traps=[' + ', '.join(names) + ']')
         return ', '.join(s) + ')'
 
@@ -3919,7 +3919,7 @@ class Context(object):
         This method implements the to-number operation of the
         IBM Decimal specification."""
 
-        if isinstance(num, basestring) and num != num.strip():
+        if isinstance(num, str) and num != num.strip():
             return self._raise_error(ConversionSyntax,
                                      "no trailing or leading whitespace is "
                                      "permitted.")
@@ -5526,7 +5526,7 @@ def _rshift_nearest(x, shift):
     integer to x / 2**shift; use round-to-even in case of a tie.
 
     """
-    b, q = 1L << shift, x >> shift
+    b, q = 1 << shift, x >> shift
     return q + (2*(x & (b-1)) + (q&1) > b)
 
 def _div_nearest(a, b):
@@ -5570,9 +5570,9 @@ def _ilog(x, M, L = 8):
     y = x-M
     # argument reduction; R = number of reductions performed
     R = 0
-    while (R <= L and long(abs(y)) << L-R >= M or
+    while (R <= L and int(abs(y)) << L-R >= M or
            R > L and abs(y) >> R-L >= M):
-        y = _div_nearest(long(M*y) << 1,
+        y = _div_nearest(int(M*y) << 1,
                          M + _sqrt_nearest(M*(M+_rshift_nearest(y, R)), M))
         R += 1
 
@@ -5580,7 +5580,7 @@ def _ilog(x, M, L = 8):
     T = -int(-10*len(str(M))//(3*L))
     yshift = _rshift_nearest(y, R)
     w = _div_nearest(M, T)
-    for k in xrange(T-1, 0, -1):
+    for k in range(T-1, 0, -1):
         w = _div_nearest(M, k) - _div_nearest(yshift*w, M)
 
     return _div_nearest(w*y, M)
@@ -5721,18 +5721,18 @@ def _iexp(x, M, L=8):
     # expm1(z/2**(R-1)), ... , exp(z/2), exp(z).
 
     # Find R such that x/2**R/M <= 2**-L
-    R = _nbits((long(x)<<L)//M)
+    R = _nbits((int(x)<<L)//M)
 
     # Taylor series.  (2**L)**T > M
     T = -int(-10*len(str(M))//(3*L))
     y = _div_nearest(x, T)
-    Mshift = long(M)<<R
-    for i in xrange(T-1, 0, -1):
+    Mshift = int(M)<<R
+    for i in range(T-1, 0, -1):
         y = _div_nearest(x*(Mshift + y), Mshift * i)
 
     # Expansion
-    for k in xrange(R-1, -1, -1):
-        Mshift = long(M)<<(k+2)
+    for k in range(R-1, -1, -1):
+        Mshift = int(M)<<(k+2)
         y = _div_nearest(y*(y+Mshift), Mshift)
 
     return M+y
@@ -5836,7 +5836,7 @@ def _convert_other(other, raiseit=False, allow_float=False):
     """
     if isinstance(other, Decimal):
         return other
-    if isinstance(other, (int, long)):
+    if isinstance(other, int):
         return Decimal(other)
     if allow_float and isinstance(other, float):
         return Decimal.from_float(other)
@@ -6027,7 +6027,7 @@ def _parse_format_specifier(format_spec, _localeconv=None):
         format_dict['decimal_point'] = '.'
 
     # record whether return type should be str or unicode
-    format_dict['unicode'] = isinstance(format_spec, unicode)
+    format_dict['unicode'] = isinstance(format_spec, str)
 
     return format_dict
 
@@ -6060,7 +6060,7 @@ def _format_align(sign, body, spec):
 
     # make sure that result is unicode if necessary
     if spec['unicode']:
-        result = unicode(result)
+        result = str(result)
 
     return result
 

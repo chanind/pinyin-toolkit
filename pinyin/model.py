@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import htmlentitydefs
+import html.entities
 import re
-from BeautifulSoup import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag
 import sqlalchemy
 import unicodedata
 
-import utils
-from db import database
+from . import utils
+from .db import database
 
-from logger import log
+from .logger import log
 
 
 def opt_dict_arg_repr(dict):
@@ -21,20 +21,20 @@ def opt_dict_arg_repr(dict):
 # Map tones to Unicode combining diacritical marks
 # <http://en.wikipedia.org/wiki/Combining_diacritical_mark>
 tonecombiningmarks = [
-    u'\u0304', # Macron
-    u'\u0301', # Acute
-    u'\u030C', # Caron
-    u'\u0300', # Grave
-    u''        # Blank - 5th tone is trivial
+    '\u0304', # Macron
+    '\u0301', # Acute
+    '\u030C', # Caron
+    '\u0300', # Grave
+    ''        # Blank - 5th tone is trivial
 ]
 
 def substituteForUUmlaut(inwhat):
-    return inwhat.replace(u"u:", u"ü").replace(u"U:", u"ü".upper()) \
-                 .replace(u"v", u"ü").replace(u"V", u"ü".upper())
+    return inwhat.replace("u:", "ü").replace("U:", "ü".upper()) \
+                 .replace("v", "ü").replace("V", "ü".upper())
 
 def waysToSubstituteAwayUUmlaut(inwhat):
-    strategy1 = inwhat.replace(u"ü", u"v").replace(u"Ü", u"V")
-    strategy2 = inwhat.replace(u"ü", u"u:").replace(u"Ü", u"U:")
+    strategy1 = inwhat.replace("ü", "v").replace("Ü", "V")
+    strategy2 = inwhat.replace("ü", "u:").replace("Ü", "U:")
     
     if strategy1 == strategy2:
         # Equal strategies, so the initial string doesn't contain ü
@@ -72,7 +72,7 @@ class ToneInfo(object):
         self.spoken = spoken or written
 
     def __repr__(self):
-        return u"ToneInfo(written=%s, spoken=%s)" % (repr(self.written), repr(self.spoken))
+        return "ToneInfo(written=%s, spoken=%s)" % (repr(self.written), repr(self.spoken))
     
     def __eq__(self, other):
         if other is None or other.__class__ != self.__class__:
@@ -86,25 +86,25 @@ class ToneInfo(object):
 """
 Represents a purely textual token.
 """
-class Text(unicode):
+class Text(str):
     def __new__(cls, text, htmlattrs=None):
         if len(text) == 0:
             raise ValueError("All Text tokens must be non-empty")
         
-        self = unicode.__new__(cls, text)
+        self = str.__new__(cls, text)
         self.htmlattrs = htmlattrs or {}
         return self
 
     iser = property(lambda self: False)
 
     def __repr__(self):
-        return u"Text(%s%s)" % (unicode.__repr__(self), opt_dict_arg_repr(self.htmlattrs))
+        return "Text(%s%s)" % (str.__repr__(self), opt_dict_arg_repr(self.htmlattrs))
 
     def __eq__(self, other):
         if other is None or other.__class__ != self.__class__:
             return False
         
-        return unicode.__eq__(other, self) and other.htmlattrs == self.htmlattrs
+        return str.__eq__(other, self) and other.htmlattrs == self.htmlattrs
     
     def __ne__(self, other):
         return not(self == other)
@@ -132,7 +132,7 @@ class Pinyin(object):
         
         self.htmlattrs = htmlattrs or {}
     
-    iser = property(lambda self: self.word.lower() == u"r" and self.toneinfo.written == 5)
+    iser = property(lambda self: self.word.lower() == "r" and self.toneinfo.written == 5)
 
     def __str__(self):
         return self.__unicode__()
@@ -141,7 +141,7 @@ class Pinyin(object):
         return self.numericformat(hideneutraltone=True)
     
     def __repr__(self):
-        return u"Pinyin(%s, %s%s)" % (repr(self.word), repr(self.toneinfo), opt_dict_arg_repr(self.htmlattrs))
+        return "Pinyin(%s, %s%s)" % (repr(self.word), repr(self.toneinfo), opt_dict_arg_repr(self.htmlattrs))
     
     def __eq__(self, other):
         if other == None or other.__class__ != self.__class__:
@@ -180,7 +180,7 @@ class Pinyin(object):
         # Length check (yes, you can get 7 character pinyin, such as zhuang1.
         # If the u had an umlaut then it would be 8 'characters' to Python)
         if len(text) < 2 or len(text) > 8:
-            raise ValueError(u"The text '%s' was not the right length to be Pinyin - should be in the range 2 to 7 characters" % text)
+            raise ValueError("The text '%s' was not the right length to be Pinyin - should be in the range 2 to 7 characters" % text)
         
         # Does it look like we have a non-tonified string?
         if text[-1].isdigit():
@@ -189,7 +189,7 @@ class Pinyin(object):
             word = text[:-1]
         elif forcenumeric:
             # Whoops. Should have been numeric but wasn't!
-            raise ValueError(u"No tone mark present on purportely-numeric pinyin '%s'" % text)
+            raise ValueError("No tone mark present on purportely-numeric pinyin '%s'" % text)
         else:
             # Seperate combining marks (NFD = Normal Form Decomposed) so it
             # is easy to spot the combining marks
@@ -201,7 +201,7 @@ class Pinyin(object):
                 if tonecombiningmark != "" and tonecombiningmark in text:
                     # Two marks on the same string is an error
                     if toneinfo != None:
-                        raise ValueError(u"Too many combining tone marks on the input pinyin '%s'" % text)
+                        raise ValueError("Too many combining tone marks on the input pinyin '%s'" % text)
                     
                     # Record the corresponding tone and remove the combining mark
                     toneinfo = ToneInfo(written=n+1)
@@ -217,7 +217,7 @@ class Pinyin(object):
         # Sanity check to catch English/French/whatever that doesn't look like pinyin
         if word.lower() not in cls.validpinyin():
             log.info("Couldn't find %s in the valid pinyin list", word)
-            raise ValueError(u"The proposed pinyin '%s' doesn't look like pinyin after all" % text)
+            raise ValueError("The proposed pinyin '%s' doesn't look like pinyin after all" % text)
         
         # We now have a word and tone info, whichever route we took
         return Pinyin(word, toneinfo)
@@ -225,12 +225,12 @@ class Pinyin(object):
 """
 Represents a Chinese character with tone information in the system.
 """
-class TonedCharacter(unicode):
+class TonedCharacter(str):
     def __new__(cls, character, toneinfo, htmlattrs=None):
         if len(character) == 0:
             raise ValueError("All TonedCharacters tokens must be non-empty")
         
-        self = unicode.__new__(cls, character)
+        self = str.__new__(cls, character)
         
         if isinstance(toneinfo, int):
             # Convenience constructor
@@ -242,18 +242,18 @@ class TonedCharacter(unicode):
         return self
     
     def __repr__(self):
-        return u"TonedCharacter(%s, %s%s)" % (unicode.__repr__(self), repr(self.toneinfo), opt_dict_arg_repr(self.htmlattrs))
+        return "TonedCharacter(%s, %s%s)" % (str.__repr__(self), repr(self.toneinfo), opt_dict_arg_repr(self.htmlattrs))
     
     def __eq__(self, other):
         if other == None or other.__class__ != self.__class__:
             return False
         
-        return unicode.__eq__(self, other) and self.toneinfo == other.toneinfo and self.htmlattrs == other.htmlattrs
+        return str.__eq__(self, other) and self.toneinfo == other.toneinfo and self.htmlattrs == other.htmlattrs
     
     def __ne__(self, other):
         return not(self == other)
 
-    iser = property(lambda self: (unicode(self) == u"儿" or unicode(self) == u"兒") and self.toneinfo.written == 5)
+    iser = property(lambda self: (str(self) == "儿" or str(self) == "兒") and self.toneinfo.written == 5)
 
     def accept(self, visitor):
         return visitor.visitTonedCharacter(self)
@@ -315,7 +315,7 @@ def tokenizetext(text, forcenumeric):
     # sequences of alphanumeric characters as defined by Unicode. This should catch
     # the pinyin, its tone marks, tone numbers (if any) and allow umlauts.
     tokens = []
-    for recognised, match in utils.regexparse(re.compile(u"(\w|:)+", re.UNICODE), text):
+    for recognised, match in utils.regexparse(re.compile("(\w|:)+", re.UNICODE), text):
         if recognised:
             tokens.extend(tokenizeonewitherhua(match.group(0), forcenumeric=forcenumeric))
         else:
@@ -398,7 +398,7 @@ def tokenize(html, forcenumeric=False):
         for attrs in attributesstack:
             current_attrs.update(attrs)
         
-        for k, v in current_attrs.items():
+        for k, v in list(current_attrs.items()):
             what.htmlattrs[k] = v
         
         return what
@@ -408,7 +408,7 @@ def tokenize(html, forcenumeric=False):
     def recurse(attributesstack, parent):
         for child in parent.contents:
             if not isinstance(child, Tag):
-                tokens.extend([contextify(attributesstack, token) for token in tokenizetext(unicode(child), forcenumeric)])
+                tokens.extend([contextify(attributesstack, token) for token in tokenizetext(str(child), forcenumeric)])
             elif child.isSelfClosing:
                 tokens.append(Text("<%s />" % child.name))
             else:
@@ -422,7 +422,7 @@ def tokenize(html, forcenumeric=False):
         
                     # We are still interested in writing out the remainder of the <span> tag, in
                     # case it had other information in it (apart from the "style" attribute)
-                    thisattrs = attrsdict.items()
+                    thisattrs = list(attrsdict.items())
                 else:
                     thisattributesstack = attributesstack
                     thisattrs = child.attrs
@@ -449,19 +449,19 @@ class Word(list):
         list.__init__(self, [item for item in items if item != None])
     
     def __repr__(self):
-        return u"Word(%s)" % list.__repr__(self)[1:-1]
+        return "Word(%s)" % list.__repr__(self)[1:-1]
     
     def __str__(self):
-        return unicode(self)
+        return str(self)
     
     def __unicode__(self):
-        output = u"<"
+        output = "<"
         for n, token in enumerate(self):
             if n != 0:
-                output += u", "
-            output += unicode(token)
+                output += ", "
+            output += str(token)
         
-        return output + u">"
+        return output + ">"
     
     def append(self, item):
         assert item is None or type(item) in Word.ACCEPTABLE_TOKEN_TYPES
@@ -495,7 +495,7 @@ class Word(list):
         for n, reading_token in enumerate(reading_tokens):
             # Don't add spaces if this is the first token or if we have an erhua
             if n != 0 and not(reading_token.iser):
-                word.append(Text(u' '))
+                word.append(Text(' '))
 
             word.append(reading_token)
         
@@ -512,17 +512,17 @@ def flatten(words, tonify=False):
 
 class FlattenTokensVisitor(TokenVisitor):
     def __init__(self, tonify):
-        self.output = u""
+        self.output = ""
         self.tonify = tonify
 
     def visitText(self, text):
-        self.wrapHtml(text, unicode(text))
+        self.wrapHtml(text, str(text))
 
     def visitPinyin(self, pinyin):
-        self.wrapHtml(pinyin, self.tonify and pinyin.tonifiedformat() or unicode(pinyin))
+        self.wrapHtml(pinyin, self.tonify and pinyin.tonifiedformat() or str(pinyin))
 
     def visitTonedCharacter(self, tonedcharacter):
-        self.wrapHtml(tonedcharacter, unicode(tonedcharacter))
+        self.wrapHtml(tonedcharacter, str(tonedcharacter))
     
     def wrapHtml(self, token, text):
         if "color" in token.htmlattrs:
@@ -547,7 +547,7 @@ class NeedsSpaceBeforeAppendVisitor(TokenVisitor):
     
     def visitText(self, text):
         lastchar = text[-1]
-        self.needsspacebeforeappend = (not(lastchar.isspace()) and not(utils.ispunctuation(lastchar))) or utils.ispostspacedpunctuation(unicode(text))
+        self.needsspacebeforeappend = (not(lastchar.isspace()) and not(utils.ispunctuation(lastchar))) or utils.ispostspacedpunctuation(str(text))
     
     def visitPinyin(self, pinyin):
         self.needsspacebeforeappend = True
@@ -593,16 +593,16 @@ class PinyinTonifier(object):
     
     # map (final) constanant+tone to tone+constanant
     constTone2ToneConst = {
-        u'([nNrR])([1234])'  : ur'\g<2>\g<1>',
-        u'([nN][gG])([1234])': ur'\g<2>\g<1>'
+        '([nNrR])([1234])'  : r'\g<2>\g<1>',
+        '([nN][gG])([1234])': r'\g<2>\g<1>'
     }
 
     #
     # map vowel+vowel+tone to vowel+tone+vowel
     vowelVowelTone2VowelToneVowel = {
-        u'([aA])([iIoO])([1234])' : ur'\g<1>\g<3>\g<2>',
-        u'([eE])([iI])([1234])'   : ur'\g<1>\g<3>\g<2>',
-        u'([oO])([uU])([1234])'   : ur'\g<1>\g<3>\g<2>'
+        '([aA])([iIoO])([1234])' : r'\g<1>\g<3>\g<2>',
+        '([eE])([iI])([1234])'   : r'\g<1>\g<3>\g<2>',
+        '([oO])([uU])([1234])'   : r'\g<1>\g<3>\g<2>'
     }
 
     """
@@ -617,15 +617,15 @@ class PinyinTonifier(object):
     "xiǎo lóng tāng bāo"
     """
     def tonify(self, line):
-        assert type(line)==unicode
+        assert type(line)==str
         
         # First transform: commute tone numbers over finals containing only constants
-        for (x,y) in self.constTone2ToneConst.items():
+        for (x,y) in list(self.constTone2ToneConst.items()):
             line = re.sub(x, y, line)
 
         # Second transform: for runs of two vowels with a following tone mark, move
         # the tone mark so it occurs directly afterwards the first vowel
-        for (x,y) in self.vowelVowelTone2VowelToneVowel.items():
+        for (x,y) in list(self.vowelVowelTone2VowelToneVowel.items()):
             line = re.sub(x, y, line)
 
         # Third transform: map tones to the Unicode equivalent

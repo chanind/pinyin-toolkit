@@ -118,7 +118,7 @@ class UserDefinedExtensionTest(_base.ORMTest):
         u.user_id = 7
         u.user_name = 'john'
         u.email_address = 'lala@123.com'
-        self.assert_(u.__dict__ == {'_my_state':u._my_state, '_goofy_dict':{'user_id':7, 'user_name':'john', 'email_address':'lala@123.com'}}, u.__dict__)
+        self.assertTrue(u.__dict__ == {'_my_state':u._my_state, '_goofy_dict':{'user_id':7, 'user_name':'john', 'email_address':'lala@123.com'}}, u.__dict__)
 
     def test_basic(self):
         for base in (object, MyBaseClass, MyClass):
@@ -135,13 +135,13 @@ class UserDefinedExtensionTest(_base.ORMTest):
             u.user_name = 'john'
             u.email_address = 'lala@123.com'
 
-            self.assert_(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
+            self.assertTrue(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
             attributes.instance_state(u).commit_all(attributes.instance_dict(u))
-            self.assert_(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
+            self.assertTrue(u.user_id == 7 and u.user_name == 'john' and u.email_address == 'lala@123.com')
 
             u.user_name = 'heythere'
             u.email_address = 'foo@bar.com'
-            self.assert_(u.user_id == 7 and u.user_name == 'heythere' and u.email_address == 'foo@bar.com')
+            self.assertTrue(u.user_id == 7 and u.user_name == 'heythere' and u.email_address == 'foo@bar.com')
 
     def test_deferred(self):
         for base in (object, MyBaseClass, MyClass):
@@ -198,13 +198,13 @@ class UserDefinedExtensionTest(_base.ORMTest):
             attributes.register_class(Bar)
 
             def func1(**kw):
-                print "func1"
+                print("func1")
                 return "this is the foo attr"
             def func2(**kw):
-                print "func2"
+                print("func2")
                 return "this is the bar attr"
             def func3(**kw):
-                print "func3"
+                print("func3")
                 return "this is the shared attr"
             attributes.register_attribute(Foo, 'element', uselist=False, callable_=lambda o:func1, useobject=True)
             attributes.register_attribute(Foo, 'element2', uselist=False, callable_=lambda o:func3, useobject=True)
@@ -231,18 +231,18 @@ class UserDefinedExtensionTest(_base.ORMTest):
             b.posts.append(p1)
             b.posts.append(p2)
             b.posts.append(p3)
-            self.assert_(b.posts == [p1, p2, p3])
-            self.assert_(p2.blog is b)
+            self.assertTrue(b.posts == [p1, p2, p3])
+            self.assertTrue(p2.blog is b)
 
             p3.blog = None
-            self.assert_(b.posts == [p1, p2])
+            self.assertTrue(b.posts == [p1, p2])
             p4 = Post()
             p4.blog = b
-            self.assert_(b.posts == [p1, p2, p4])
+            self.assertTrue(b.posts == [p1, p2, p4])
 
             p4.blog = b
             p4.blog = b
-            self.assert_(b.posts == [p1, p2, p4])
+            self.assertTrue(b.posts == [p1, p2, p4])
 
             # assert no failure removing None
             p5 = Post()

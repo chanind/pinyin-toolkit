@@ -27,9 +27,9 @@ if __name__ == "__main__":
     
     class MockDBBuilder(object):
         def build(self):
-            print "Building!"
+            print("Building!")
             time.sleep(5)
-            print "Building done"
+            print("Building done")
     
     app = QApplication(sys.argv)
 

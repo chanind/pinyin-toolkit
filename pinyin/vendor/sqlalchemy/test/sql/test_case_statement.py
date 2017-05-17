@@ -113,8 +113,8 @@ class CaseTest(TestBase, AssertsCompiledSQL):
 
         ]:
             eq_(s.execute().fetchall(), [
-                (u'no', ), (u'no', ), (u'no', ), (u'yes', ),
-                (u'no', ), (u'no', ),
+                ('no', ), ('no', ), ('no', ), ('yes', ),
+                ('no', ), ('no', ),
                 ])
 
 

@@ -7,6 +7,7 @@ from sqlalchemy.ext.horizontal_shard import ShardedSession
 from sqlalchemy.sql import operators, visitors
 
 import datetime
+import collections
 
 # step 2. databases
 echo = True
@@ -166,7 +167,7 @@ def _get_query_comparisons(query):
         # some ORM functions place the bind's value as a 
         # callable for deferred evaulation.   Get that
         # actual value here.
-        if callable(value):
+        if isinstance(value, collections.Callable):
             value = value()
 
         binds[bind] = value

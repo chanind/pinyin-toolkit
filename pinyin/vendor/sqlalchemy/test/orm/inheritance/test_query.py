@@ -243,10 +243,10 @@ def _produce_test(select_type):
             eq_(q.count(), 1)
             eq_(q.all(), [
                 (
-                    Company(company_id=1,name=u'MegaCorp, Inc.'), 
-                    Engineer(status=u'regular engineer',engineer_name=u'dilbert',name=u'dilbert',company_id=1,primary_language=u'java',person_id=1,type=u'engineer'),
-                    Company(company_id=1,name=u'MegaCorp, Inc.'), 
-                    Engineer(status=u'regular engineer',engineer_name=u'wally',name=u'wally',company_id=1,primary_language=u'c++',person_id=2,type=u'engineer')
+                    Company(company_id=1,name='MegaCorp, Inc.'), 
+                    Engineer(status='regular engineer',engineer_name='dilbert',name='dilbert',company_id=1,primary_language='java',person_id=1,type='engineer'),
+                    Company(company_id=1,name='MegaCorp, Inc.'), 
+                    Engineer(status='regular engineer',engineer_name='wally',name='wally',company_id=1,primary_language='c++',person_id=2,type='engineer')
                 )
             ])
 
@@ -354,22 +354,22 @@ def _produce_test(select_type):
 
             eq_(
                 sess.query(Manager.name).order_by(Manager.name).all(),
-                [(u'dogbert',), (u'pointy haired boss',)]
+                [('dogbert',), ('pointy haired boss',)]
             )
 
             eq_(
                 sess.query(Manager.name).join((Paperwork, Manager.paperwork)).order_by(Manager.name).all(),
-                [(u'dogbert',), (u'dogbert',), (u'pointy haired boss',)]
+                [('dogbert',), ('dogbert',), ('pointy haired boss',)]
             )
 
             eq_(
                 sess.query(Person.name).join((Paperwork, Person.paperwork)).order_by(Person.name).all(),
-                [(u'dilbert',), (u'dilbert',), (u'dogbert',), (u'dogbert',), (u'pointy haired boss',), (u'vlad',), (u'wally',), (u'wally',)]
+                [('dilbert',), ('dilbert',), ('dogbert',), ('dogbert',), ('pointy haired boss',), ('vlad',), ('wally',), ('wally',)]
             )
 
             eq_(
                 sess.query(Person.name).join((paperwork, Manager.person_id==paperwork.c.person_id)).order_by(Person.name).all(),
-                [(u'dilbert',), (u'dilbert',), (u'dogbert',), (u'dogbert',), (u'pointy haired boss',), (u'vlad',), (u'wally',), (u'wally',)]
+                [('dilbert',), ('dilbert',), ('dogbert',), ('dogbert',), ('pointy haired boss',), ('vlad',), ('wally',), ('wally',)]
             )
 
             eq_(
@@ -379,7 +379,7 @@ def _produce_test(select_type):
 
             eq_(
                 sess.query(Manager.name).join((paperwork, Manager.person_id==paperwork.c.person_id)).order_by(Manager.name).all(),
-                [(u'dogbert',), (u'dogbert',), (u'pointy haired boss',)]
+                [('dogbert',), ('dogbert',), ('pointy haired boss',)]
             )
 
             eq_(
@@ -392,13 +392,13 @@ def _produce_test(select_type):
                     join((Paperwork, Manager.person_id==Paperwork.person_id)).
                     order_by(Paperwork.paperwork_id).
                     all(),
-                [(u'pointy haired boss', u'review #1'), (u'dogbert', u'review #2'), (u'dogbert', u'review #3')]
+                [('pointy haired boss', 'review #1'), ('dogbert', 'review #2'), ('dogbert', 'review #3')]
             )
 
             malias = aliased(Manager)
             eq_(
                 sess.query(malias.name).join((paperwork, malias.person_id==paperwork.c.person_id)).all(),
-                [(u'pointy haired boss',), (u'dogbert',), (u'dogbert',)]
+                [('pointy haired boss',), ('dogbert',), ('dogbert',)]
             )
 
         def test_polymorphic_option(self):
@@ -714,14 +714,14 @@ def _produce_test(select_type):
 
             eq_(
                 sess.query(Company.name, Person).join(Company.employees).filter(Company.name=='Elbonia, Inc.').all(),
-                [(u'Elbonia, Inc.', 
-                    Engineer(status=u'elbonian engineer',engineer_name=u'vlad',name=u'vlad',primary_language=u'cobol'))]
+                [('Elbonia, Inc.', 
+                    Engineer(status='elbonian engineer',engineer_name='vlad',name='vlad',primary_language='cobol'))]
             )
 
             eq_(
                 sess.query(Person, Company.name).join(Company.employees).filter(Company.name=='Elbonia, Inc.').all(),
-                [(Engineer(status=u'elbonian engineer',engineer_name=u'vlad',name=u'vlad',primary_language=u'cobol'),
-                    u'Elbonia, Inc.')]
+                [(Engineer(status='elbonian engineer',engineer_name='vlad',name='vlad',primary_language='cobol'),
+                    'Elbonia, Inc.')]
             )
 
 
@@ -742,12 +742,12 @@ def _produce_test(select_type):
 
             eq_(
                 sess.query(Engineer.name, Engineer.primary_language).all(),
-                [(u'dilbert', u'java'), (u'wally', u'c++'), (u'vlad', u'cobol')]
+                [('dilbert', 'java'), ('wally', 'c++'), ('vlad', 'cobol')]
             )
 
             eq_(
                 sess.query(Boss.name, Boss.golf_swing).all(),
-                [(u'pointy haired boss', u'fore')]
+                [('pointy haired boss', 'fore')]
             )
 
             # TODO: I think raise error on these for now.  different inheritance/loading schemes have different
@@ -765,67 +765,67 @@ def _produce_test(select_type):
 
             eq_(
                 sess.query(Person.name, Company.name).join(Company.employees).filter(Company.name=='Elbonia, Inc.').all(),
-                [(u'vlad',u'Elbonia, Inc.')]
+                [('vlad','Elbonia, Inc.')]
             )
 
             eq_(
                 sess.query(Engineer.primary_language).filter(Person.type=='engineer').all(),
-                [(u'java',), (u'c++',), (u'cobol',)]
+                [('java',), ('c++',), ('cobol',)]
             )
 
             if select_type != '':
                 eq_(
                     sess.query(Engineer, Company.name).join(Company.employees).filter(Person.type=='engineer').all(),
                     [
-                    (Engineer(status=u'regular engineer',engineer_name=u'dilbert',name=u'dilbert',company_id=1,primary_language=u'java',person_id=1,type=u'engineer'), u'MegaCorp, Inc.'), 
-                    (Engineer(status=u'regular engineer',engineer_name=u'wally',name=u'wally',company_id=1,primary_language=u'c++',person_id=2,type=u'engineer'), u'MegaCorp, Inc.'), 
-                    (Engineer(status=u'elbonian engineer',engineer_name=u'vlad',name=u'vlad',company_id=2,primary_language=u'cobol',person_id=5,type=u'engineer'), u'Elbonia, Inc.')
+                    (Engineer(status='regular engineer',engineer_name='dilbert',name='dilbert',company_id=1,primary_language='java',person_id=1,type='engineer'), 'MegaCorp, Inc.'), 
+                    (Engineer(status='regular engineer',engineer_name='wally',name='wally',company_id=1,primary_language='c++',person_id=2,type='engineer'), 'MegaCorp, Inc.'), 
+                    (Engineer(status='elbonian engineer',engineer_name='vlad',name='vlad',company_id=2,primary_language='cobol',person_id=5,type='engineer'), 'Elbonia, Inc.')
                     ]
                 )
 
                 eq_(
                     sess.query(Engineer.primary_language, Company.name).join(Company.employees).filter(Person.type=='engineer').order_by(desc(Engineer.primary_language)).all(),
-                    [(u'java', u'MegaCorp, Inc.'), (u'cobol', u'Elbonia, Inc.'), (u'c++', u'MegaCorp, Inc.')]
+                    [('java', 'MegaCorp, Inc.'), ('cobol', 'Elbonia, Inc.'), ('c++', 'MegaCorp, Inc.')]
                 )
 
             palias = aliased(Person)
             eq_(
                 sess.query(Person, Company.name, palias).join(Company.employees).filter(Company.name=='Elbonia, Inc.').filter(palias.name=='dilbert').all(),
-                [(Engineer(status=u'elbonian engineer',engineer_name=u'vlad',name=u'vlad',primary_language=u'cobol'),
-                    u'Elbonia, Inc.', 
-                    Engineer(status=u'regular engineer',engineer_name=u'dilbert',name=u'dilbert',company_id=1,primary_language=u'java',person_id=1,type=u'engineer'))]
+                [(Engineer(status='elbonian engineer',engineer_name='vlad',name='vlad',primary_language='cobol'),
+                    'Elbonia, Inc.', 
+                    Engineer(status='regular engineer',engineer_name='dilbert',name='dilbert',company_id=1,primary_language='java',person_id=1,type='engineer'))]
             )
 
             eq_(
                 sess.query(palias, Company.name, Person).join(Company.employees).filter(Company.name=='Elbonia, Inc.').filter(palias.name=='dilbert').all(),
-                [(Engineer(status=u'regular engineer',engineer_name=u'dilbert',name=u'dilbert',company_id=1,primary_language=u'java',person_id=1,type=u'engineer'),
-                    u'Elbonia, Inc.', 
-                    Engineer(status=u'elbonian engineer',engineer_name=u'vlad',name=u'vlad',primary_language=u'cobol'),)
+                [(Engineer(status='regular engineer',engineer_name='dilbert',name='dilbert',company_id=1,primary_language='java',person_id=1,type='engineer'),
+                    'Elbonia, Inc.', 
+                    Engineer(status='elbonian engineer',engineer_name='vlad',name='vlad',primary_language='cobol'),)
                 ]
             )
 
             eq_(
                 sess.query(Person.name, Company.name, palias.name).join(Company.employees).filter(Company.name=='Elbonia, Inc.').filter(palias.name=='dilbert').all(),
-                [(u'vlad', u'Elbonia, Inc.', u'dilbert')]
+                [('vlad', 'Elbonia, Inc.', 'dilbert')]
             )
 
             palias = aliased(Person)
             eq_(
                 sess.query(Person.type, Person.name, palias.type, palias.name).filter(Person.company_id==palias.company_id).filter(Person.name=='dogbert').\
                     filter(Person.person_id>palias.person_id).order_by(Person.person_id, palias.person_id).all(), 
-                [(u'manager', u'dogbert', u'engineer', u'dilbert'), 
-                (u'manager', u'dogbert', u'engineer', u'wally'), 
-                (u'manager', u'dogbert', u'boss', u'pointy haired boss')]
+                [('manager', 'dogbert', 'engineer', 'dilbert'), 
+                ('manager', 'dogbert', 'engineer', 'wally'), 
+                ('manager', 'dogbert', 'boss', 'pointy haired boss')]
             )
 
             eq_(
                 sess.query(Person.name, Paperwork.description).filter(Person.person_id==Paperwork.person_id).order_by(Person.name, Paperwork.description).all(), 
-                [(u'dilbert', u'tps report #1'), (u'dilbert', u'tps report #2'), (u'dogbert', u'review #2'), 
-                (u'dogbert', u'review #3'), 
-                (u'pointy haired boss', u'review #1'), 
-                (u'vlad', u'elbonian missive #3'),
-                (u'wally', u'tps report #3'), 
-                (u'wally', u'tps report #4'),
+                [('dilbert', 'tps report #1'), ('dilbert', 'tps report #2'), ('dogbert', 'review #2'), 
+                ('dogbert', 'review #3'), 
+                ('pointy haired boss', 'review #1'), 
+                ('vlad', 'elbonian missive #3'),
+                ('wally', 'tps report #3'), 
+                ('wally', 'tps report #4'),
                 ]
             )
 
@@ -837,12 +837,12 @@ def _produce_test(select_type):
 
             eq_(
                 sess.query(Company.name, func.count(Person.person_id)).filter(Company.company_id==Person.company_id).group_by(Company.name).order_by(Company.name).all(),
-                [(u'Elbonia, Inc.', 1), (u'MegaCorp, Inc.', 4)]
+                [('Elbonia, Inc.', 1), ('MegaCorp, Inc.', 4)]
             )
 
             eq_(
                 sess.query(Company.name, func.count(Person.person_id)).join(Company.employees).group_by(Company.name).order_by(Company.name).all(),
-                [(u'Elbonia, Inc.', 1), (u'MegaCorp, Inc.', 4)]
+                [('Elbonia, Inc.', 1), ('MegaCorp, Inc.', 4)]
             )
 
 
@@ -1073,7 +1073,7 @@ class SelfReferentialJ2JSelfTest(_base.MappedTest):
     def _five_obj_fixture(self):
         sess =Session()
         e1, e2, e3, e4, e5 = [
-            Engineer(name='e%d' % (i + 1)) for i in xrange(5)
+            Engineer(name='e%d' % (i + 1)) for i in range(5)
         ]
         e3.reports_to=e1
         e4.reports_to=e2

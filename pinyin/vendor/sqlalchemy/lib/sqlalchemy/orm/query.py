@@ -48,7 +48,7 @@ def _generative(*assertions):
     def generate(fn, *args, **kw):
         self = args[0]._clone()
         for assertion in assertions:
-            assertion(self, fn.func_name)
+            assertion(self, fn.__name__)
         fn(self, *args[1:], **kw)
         return self
     return generate
@@ -1018,7 +1018,7 @@ class Query(object):
         of a select.
 
         """
-        if isinstance(criterion, basestring):
+        if isinstance(criterion, str):
             criterion = sql.text(criterion)
 
         if criterion is not None and \
@@ -1039,7 +1039,7 @@ class Query(object):
         the newly resulting ``Query``."""
 
         clauses = [_entity_descriptor(self._joinpoint_zero(), key) == value
-            for key, value in kwargs.iteritems()]
+            for key, value in kwargs.items()]
 
         return self.filter(sql.and_(*clauses))
 
@@ -1096,7 +1096,7 @@ class Query(object):
         """apply a HAVING criterion to the query and return the 
         newly resulting ``Query``."""
 
-        if isinstance(criterion, basestring):
+        if isinstance(criterion, str):
             criterion = sql.text(criterion)
 
         if criterion is not None and \
@@ -1273,7 +1273,7 @@ class Query(object):
                                     kwargs.pop('from_joinpoint', False)
         if kwargs:
             raise TypeError("unknown arguments: %s" %
-                                ','.join(kwargs.iterkeys()))
+                                ','.join(iter(kwargs.keys())))
         return self._join(props, 
                             outerjoin=False, create_aliases=aliased, 
                             from_joinpoint=from_joinpoint)
@@ -1290,7 +1290,7 @@ class Query(object):
                                 kwargs.pop('from_joinpoint', False)
         if kwargs:
             raise TypeError("unknown arguments: %s" %
-                    ','.join(kwargs.iterkeys()))
+                    ','.join(iter(kwargs.keys())))
         return self._join(props, 
                             outerjoin=True, create_aliases=aliased, 
                             from_joinpoint=from_joinpoint)
@@ -1324,14 +1324,14 @@ class Query(object):
             # is a little bit of legacy behavior still at work here
             # which means they might be in either order.  may possibly
             # lock this down to (right_entity, onclause) in 0.6.
-            if isinstance(arg1, (interfaces.PropComparator, basestring)):
+            if isinstance(arg1, (interfaces.PropComparator, str)):
                 right_entity, onclause = arg2, arg1
             else:
                 right_entity, onclause = arg1, arg2
 
             left_entity = prop = None
 
-            if isinstance(onclause, basestring):
+            if isinstance(onclause, str):
                 left_entity = self._joinpoint_zero()
 
                 descriptor = _entity_descriptor(left_entity, onclause)
@@ -1677,7 +1677,7 @@ class Query(object):
         appropriate to the entity class represented by this ``Query``.
 
         """
-        if isinstance(statement, basestring):
+        if isinstance(statement, str):
             statement = sql.text(statement)
 
         if not isinstance(statement, 
@@ -1861,10 +1861,10 @@ class Query(object):
                         'append_result' in self._entities[0].extension
 
         (process, labels) = \
-                    zip(*[
+                    list(zip(*[
                         query_entity.row_processor(self, context, custom_rows)
                         for query_entity in self._entities
-                    ])
+                    ]))
 
 
         while True:
@@ -1899,7 +1899,7 @@ class Query(object):
 
             session._finalize_loaded(context.progress)
 
-            for ii, (dict_, attrs) in context.partials.iteritems():
+            for ii, (dict_, attrs) in context.partials.items():
                 ii.commit(dict_, attrs)
 
             for row in rows:
@@ -2236,7 +2236,7 @@ class Query(object):
             #TODO: detect when the where clause is a trivial primary key match
             objs_to_expunge = [
                                 obj for (cls, pk),obj in
-                                session.identity_map.iteritems()
+                                session.identity_map.items()
                                 if issubclass(cls, target_cls) and
                                 eval_condition(obj)]
             for obj in objs_to_expunge:
@@ -2345,7 +2345,7 @@ class Query(object):
                         return True
 
                 value_evaluators = {}
-                for key,value in values.iteritems():
+                for key,value in values.items():
                     key = _attr_as_key(key)
                     value_evaluators[key] = evaluator_compiler.process(
                                         expression._literal_as_binds(value))
@@ -2371,8 +2371,8 @@ class Query(object):
         if synchronize_session == 'evaluate':
             target_cls = self._mapper_zero().class_
 
-            for (cls, pk),obj in session.identity_map.iteritems():
-                evaluated_keys = value_evaluators.keys()
+            for (cls, pk),obj in session.identity_map.items():
+                evaluated_keys = list(value_evaluators.keys())
 
                 if issubclass(cls, target_cls) and eval_condition(obj):
                     state, dict_ = attributes.instance_state(obj),\
@@ -2434,7 +2434,7 @@ class Query(object):
             strategy = rec[0]
             strategy(*rec[1:])
 
-        eager_joins = context.eager_joins.values()
+        eager_joins = list(context.eager_joins.values())
 
         if context.from_clause:
             # "load from explicit FROMs" mode, 
@@ -2583,7 +2583,7 @@ class Query(object):
         """
 
         for entity, (mapper, adapter, s, i, w) in \
-                            self._mapper_adapter_map.iteritems():
+                            self._mapper_adapter_map.items():
             single_crit = mapper._single_table_criterion
             if single_crit is not None:
                 if adapter:
@@ -2602,7 +2602,7 @@ class _QueryEntity(object):
     def __new__(cls, *args, **kwargs):
         if cls is _QueryEntity:
             entity = args[1]
-            if not isinstance(entity, basestring) and \
+            if not isinstance(entity, str) and \
                         _is_mapped_class(entity):
                 cls = _MapperEntity
             else:
@@ -2779,7 +2779,7 @@ class _ColumnEntity(_QueryEntity):
     def __init__(self, query, column):
         self.expr = column
 
-        if isinstance(column, basestring):
+        if isinstance(column, str):
             column = sql.literal_column(column)
             self._label_name = column.name
         elif isinstance(column, attributes.QueryableAttribute):
@@ -2929,14 +2929,14 @@ class AliasOption(interfaces.MapperOption):
         self.alias = alias
 
     def process_query(self, query):
-        if isinstance(self.alias, basestring):
+        if isinstance(self.alias, str):
             alias = query._mapper_zero().mapped_table.alias(self.alias)
         else:
             alias = self.alias
         query._from_obj_alias = sql_util.ColumnAdapter(alias)
 
 
-_runid = 1L
+_runid = 1
 _id_lock = util.threading.Lock()
 
 def _new_runid():

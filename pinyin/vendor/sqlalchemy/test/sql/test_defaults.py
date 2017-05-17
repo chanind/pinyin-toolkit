@@ -419,26 +419,26 @@ class PKIncrementTest(_base.TablesTest):
         ids = set()
         rs = bind.execute(aitable.insert(), int1=1)
         last = rs.inserted_primary_key[0]
-        self.assert_(last)
-        self.assert_(last not in ids)
+        self.assertTrue(last)
+        self.assertTrue(last not in ids)
         ids.add(last)
 
         rs = bind.execute(aitable.insert(), str1='row 2')
         last = rs.inserted_primary_key[0]
-        self.assert_(last)
-        self.assert_(last not in ids)
+        self.assertTrue(last)
+        self.assertTrue(last not in ids)
         ids.add(last)
 
         rs = bind.execute(aitable.insert(), int1=3, str1='row 3')
         last = rs.inserted_primary_key[0]
-        self.assert_(last)
-        self.assert_(last not in ids)
+        self.assertTrue(last)
+        self.assertTrue(last not in ids)
         ids.add(last)
 
         rs = bind.execute(aitable.insert(values={'int1':func.length('four')}))
         last = rs.inserted_primary_key[0]
-        self.assert_(last)
-        self.assert_(last not in ids)
+        self.assertTrue(last)
+        self.assertTrue(last not in ids)
         ids.add(last)
 
         eq_(ids, set([1,2,3,4]))
@@ -530,7 +530,7 @@ class AutoIncrementTest(_base.TablesTest):
             nonai.insert().execute(data='row 1')
             nonai.insert().execute(data='row 2')
             assert False
-        except sa.exc.SQLError, e:
+        except sa.exc.SQLError as e:
             assert True
 
         nonai.insert().execute(id=1, data='row 1')
@@ -604,7 +604,7 @@ class SequenceTest(testing.TestBase, testing.AssertsCompiledSQL):
                 ]
                 start = seq.start or 1
                 inc = seq.increment or 1
-                assert values == list(xrange(start, start + inc * 3, inc))
+                assert values == list(range(start, start + inc * 3, inc))
 
             finally:
                 seq.drop(testing.db)
@@ -682,7 +682,7 @@ class SequenceTest(testing.TestBase, testing.AssertsCompiledSQL):
     @testing.requires.sequences
     def teststandalone2(self):
         x = cartitems.c.cart_id.default.execute()
-        self.assert_(1 <= x <= 4)
+        self.assertTrue(1 <= x <= 4)
 
     @classmethod
     @testing.requires.sequences

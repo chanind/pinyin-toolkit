@@ -1,5 +1,5 @@
-import preferences
-import preferencescontroller
-import utils
+from . import preferences
+from . import preferencescontroller
+from . import utils
 
-import generated
+from . import generated

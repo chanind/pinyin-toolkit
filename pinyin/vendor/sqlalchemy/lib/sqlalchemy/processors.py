@@ -24,7 +24,7 @@ def str_to_datetime_processor_factory(regexp, type_):
         if value is None:
             return None
         else:
-            return type_(*map(int, rmatch(value).groups(0)))
+            return type_(*list(map(int, rmatch(value).groups(0))))
     return process
 
 def boolean_to_int(value):

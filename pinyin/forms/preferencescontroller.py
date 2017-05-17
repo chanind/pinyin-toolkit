@@ -11,12 +11,12 @@ import pinyin.mocks
 import pinyin.updater
 import pinyin.utils
 
-import utils
+from . import utils
 
 
 previewexpressions = {
-    "simp" : u"书",
-    "trad" : u"書"
+    "simp" : "书",
+    "trad" : "書"
   } 
 # Could also use:
 #previewexpression = u"住宅樓"
@@ -59,7 +59,7 @@ class PreferencesController(object):
     def setUpViewPreview(self):
         # Make sure we create a field for every field we're going to preview
         keyedfieldnames = []
-        for key, candidatefieldnames in self.model.candidateFieldNamesByKey.items():
+        for key, candidatefieldnames in list(self.model.candidateFieldNamesByKey.items()):
             # The field name isn't drawn from the current deck (if any), we just pick the most vanilla one
             fieldname = pinyin.utils.heador(candidatefieldnames, key.capitalize())
             
@@ -73,7 +73,7 @@ class PreferencesController(object):
         checkwidgets = self.view.setupFields(sorted(keyedfieldnames, pinyin.utils.bySecond))
         
         # Set up all the checkboxes to map to the corresponding control flags
-        for key, checkwidget in checkwidgets.items():
+        for key, checkwidget in list(checkwidgets.items()):
             self.registerCheckMapping(pinyin.config.updatecontrolflags[key], checkwidget)
     
     def setUpText(self):
@@ -179,8 +179,8 @@ class PreferencesController(object):
         self.updateAudioPacksList()
         
         # Connect up the two buttons to the event handlers
-        self.view.connect(self.view.controls.installMandarinSoundsButton, SIGNAL("clicked()"), lambda: self.installMandarinSounds())
-        self.view.connect(self.view.controls.openAudioPackDirectoryButton, SIGNAL("clicked()"), lambda: self.openAudioPackDirectory())
+        self.view.controls.installMandarinSoundsButton.clicked.connect(lambda: self.installMandarinSounds())
+        self.view.controls.openAudioPackDirectoryButton.clicked.connect(lambda: self.openAudioPackDirectory())
 
     def setUpModelName(self):
         self.registerTextMapping("modelTags", self.view.controls.modelTags)
@@ -227,7 +227,7 @@ class PreferencesController(object):
     
     def updateViewPreview(self):
         # Update a blank fact using the current model configuration
-        fact = dict([(key, u"") for key in self.model.candidateFieldNamesByKey.keys()])
+        fact = dict([(key, "") for key in list(self.model.candidateFieldNamesByKey.keys())])
         self.updaterfromexpr.updatefact(fact, previewexpressions[self.model.prefersimptrad])
         
         # Done: give the named values to the view to update it
@@ -289,7 +289,7 @@ class Mapping(object):
         self.updateViewValue(eval("model." + self.key, { "model" : self.model }))
 
     def updateModelValue(self, value):
-        exec ("model." + self.key + " = value") in { "model" : self.model, "value" : value }
+        exec(("model." + self.key + " = value"), { "model" : self.model, "value" : value })
         self.modelchanged.fire()
 
 class RadioMapping(Mapping):
@@ -298,17 +298,17 @@ class RadioMapping(Mapping):
         self.radiobuttonswithvalues = radiobuttonswithvalues
         
         buttongroup = None
-        for radiobutton, correspondingvalue in self.radiobuttonswithvalues.items():
+        for radiobutton, correspondingvalue in list(self.radiobuttonswithvalues.items()):
             # Tiresome extra setup to ensure that exactly one button is ever checked
             if buttongroup is None:
                 buttongroup = QButtonGroup(radiobutton.parent())
             buttongroup.addButton(radiobutton)
             
             # NB: default-argument indirection below to solve closure capture issues
-            radiobutton.connect(radiobutton, SIGNAL("clicked()"), lambda cv=correspondingvalue: self.updateModelValue(cv))
+            radiobutton.clicked.connect(lambda cv=correspondingvalue: self.updateModelValue(cv))
 
     def updateViewValue(self, value):
-        for radiobutton, correspondingvalue in self.radiobuttonswithvalues.items():
+        for radiobutton, correspondingvalue in list(self.radiobuttonswithvalues.items()):
             radiobutton.setChecked(value == correspondingvalue)
 
 class CheckMapping(Mapping):
@@ -316,7 +316,7 @@ class CheckMapping(Mapping):
         Mapping.__init__(self, model, key)
         self.checkbox = checkbox
         
-        self.checkbox.connect(self.checkbox, SIGNAL("clicked()"), lambda: self.updateModel())
+        self.checkbox.clicked.connect(lambda: self.updateModel())
     
     def updateModel(self):
         self.updateModelValue(self.checkbox.isChecked())
@@ -329,7 +329,7 @@ class ComboMapping(Mapping):
         Mapping.__init__(self, model, key)
         self.combobox = combobox
         
-        self.combobox.connect(self.combobox, SIGNAL("currentIndexChanged(int)"), lambda n: self.updateModel(n))
+        self.combobox.currentIndexChanged.connect(lambda n: self.updateModel(n))
     
     def updateModel(self, n):
         self.updateModelValue(self.combobox.itemData(n))
@@ -349,7 +349,7 @@ class TextMapping(Mapping):
         
         # NB: must use unicode(), because otherwise we get a QString back from QT,
         # which causes other parts of the toolkit to choke in interesting ways
-        self.lineedit.connect(self.lineedit, SIGNAL('textEdited(QString)'), lambda text: self.updateModel(unicode(text)))
+        self.lineedit.textEdited.connect(lambda text: self.updateModel(str(text)))
     
     def updateModel(self, text):
         self.updateModelValue(text)
@@ -363,7 +363,7 @@ class ColorChooserMapping(Mapping):
         self.button = button
         self.pickcolor = pickcolor
         
-        self.button.connect(self.button, SIGNAL("clicked()"), lambda: self.updateModel())
+        self.button.clicked.connect(lambda: self.updateModel())
     
     def palette(self):
         return self.button.palette()

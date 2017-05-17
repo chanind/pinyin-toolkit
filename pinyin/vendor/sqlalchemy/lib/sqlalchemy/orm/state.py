@@ -235,7 +235,7 @@ class InstanceState(object):
         # "key switch" bookkeeping scenarios.
 
         if attribute_names is None:
-            attribute_names = self.manager.keys()
+            attribute_names = list(self.manager.keys())
             self.expired = True
             if self.modified:
                 if not instance_dict:
@@ -319,7 +319,7 @@ class InstanceState(object):
            against this set when a refresh operation occurs.
 
         """
-        return set([k for k, v in self.callables.items() if v is self])
+        return set([k for k, v in list(self.callables.items()) if v is self])
 
     def _instance_dict(self):
         return None

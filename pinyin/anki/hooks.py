@@ -40,7 +40,7 @@ class FocusHook(Hook):
     # Called by anki editor (aqt.editor)
     # Requires boolean return value: true if note was updated
     def onFocusLost(self, flag, note, fldIdx):
-        savedNoteValues = deepcopy(note.values())
+        savedNoteValues = deepcopy(list(note.values()))
 
         fieldNames = self.mw.col.models.fieldNames(note.model())
         currentFieldName = fieldNames[fldIdx]
@@ -55,7 +55,7 @@ class FocusHook(Hook):
         
         # Find which kind of field we have just moved off
         updater = None
-        for key, fieldname in factproxy.fieldnames.items():
+        for key, fieldname in list(factproxy.fieldnames.items()):
             if currentFieldName == fieldname:
                 updater = self.updaters.get(key)
                 break
@@ -65,10 +65,11 @@ class FocusHook(Hook):
         if not updater:
             return flag
 
-        pinyin.utils.suppressexceptions(
-            lambda: updater.updatefact(factproxy, fieldValue))
+        updater.updatefact(factproxy, fieldValue)
+        # pinyin.utils.suppressexceptions(
+        #     lambda: updater.updatefact(factproxy, fieldValue))
 
-        noteChanged = (savedNoteValues != note.values())
+        noteChanged = (savedNoteValues != list(note.values()))
 
         return noteChanged
     
@@ -138,10 +139,9 @@ class HelpHook(Hook):
         self.action.setStatusTip("Help for the Pinyin Toolkit available at our website")
         self.action.setEnabled(True)
         
-        helpUrl = QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
+        helpUrl = QUrl("http://batterseapower.github.com/pinyin-toolkit/")
         self.mw.form.menuHelp.addAction(self.action)
-        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: QDesktopServices.openUrl(helpUrl))
-
+        self.action.triggered.connect(lambda: QDesktopServices.openUrl(helpUrl))
    
 class TagRemovingHook(Hook):
     def filterHtml(self, html, _card):
@@ -180,7 +180,7 @@ def buildHooks(menu, mw, config, notifier, mediamanager, updaters):
 def buildHookHelp(menu, mw):
     title = "About" 
     tip = "Help for the Pinyin Toolkit available at our website"
-    helpUrl = QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
+    helpUrl = QUrl("http://batterseapower.github.com/pinyin-toolkit/")
     function = lambda: QDesktopServices.openUrl(helpUrl)
     createAction(menu, mw, title, tip, function)
 
@@ -214,7 +214,7 @@ def createAction(menu, mw, title, statusTip, function):
     action.setText(title)
     action.setStatusTip(statusTip)
     action.setEnabled(True)
-    mw.connect(action, SIGNAL('triggered()'), function)
+    action.triggered.connect(function)
     menu.addAction(action)
     return action
 
@@ -238,7 +238,7 @@ def openPreferences(mw, config, notifier, mediamanager):
 
 def runBulkFill(mw, config, notifier, updaters, field, updatehow, notification):
     if mw.web.key == "deckBrowser":
-        return showInfo(u"No deck selected 同志!")
+        return showInfo("No deck selected 同志!")
 
     log.info("User triggered missing information fill for %s" % field)
     

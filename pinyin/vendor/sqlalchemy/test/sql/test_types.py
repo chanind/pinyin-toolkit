@@ -125,14 +125,14 @@ class UserDefinedTest(TestBase, AssertsCompiledSQL):
 
         global users
         users.insert().execute(
-            user_id=2, goofy='jack', goofy2='jack', goofy4=u'jack',
-            goofy7=u'jack', goofy8=12, goofy9=12)
+            user_id=2, goofy='jack', goofy2='jack', goofy4='jack',
+            goofy7='jack', goofy8=12, goofy9=12)
         users.insert().execute(
-            user_id=3, goofy='lala', goofy2='lala', goofy4=u'lala',
-            goofy7=u'lala', goofy8=15, goofy9=15)
+            user_id=3, goofy='lala', goofy2='lala', goofy4='lala',
+            goofy7='lala', goofy8=15, goofy9=15)
         users.insert().execute(
-            user_id=4, goofy='fred', goofy2='fred', goofy4=u'fred',
-            goofy7=u'fred', goofy8=9, goofy9=9)
+            user_id=4, goofy='fred', goofy2='fred', goofy4='fred',
+            goofy7='fred', goofy8=9, goofy9=9)
 
         l = users.select().order_by(users.c.user_id).execute().fetchall()
         for assertstr, assertint, assertint2, row in zip(
@@ -146,7 +146,7 @@ class UserDefinedTest(TestBase, AssertsCompiledSQL):
             eq_(row[5], assertint)
             eq_(row[6], assertint2)
             for col in row[3], row[4]:
-                assert isinstance(col, unicode)
+                assert isinstance(col, str)
 
     def test_typedecorator_impl(self):
         for impl_, exp, kw in [
@@ -420,15 +420,15 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
                                          testing.db.dialect.returns_unicode_strings)
 
     def test_round_trip(self):
-        unicodedata = u"Alors vous imaginez ma surprise, au lever du jour, "\
-                    u"quand une drôle de petit voix m’a réveillé. Elle "\
-                    u"disait: « S’il vous plaît… dessine-moi un mouton! »"
+        unicodedata = "Alors vous imaginez ma surprise, au lever du jour, "\
+                    "quand une drôle de petit voix m’a réveillé. Elle "\
+                    "disait: « S’il vous plaît… dessine-moi un mouton! »"
 
         unicode_table.insert().execute(unicode_varchar=unicodedata,unicode_text=unicodedata)
 
         x = unicode_table.select().execute().first()
-        assert isinstance(x['unicode_varchar'], unicode)
-        assert isinstance(x['unicode_text'], unicode)
+        assert isinstance(x['unicode_varchar'], str)
+        assert isinstance(x['unicode_text'], str)
         eq_(x['unicode_varchar'], unicodedata)
         eq_(x['unicode_text'], unicodedata)
 
@@ -436,9 +436,9 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
         # cx_oracle was producing different behavior for cursor.executemany()
         # vs. cursor.execute()
 
-        unicodedata = u"Alors vous imaginez ma surprise, au lever du jour, quand "\
-                        u"une drôle de petit voix m’a réveillé. "\
-                        u"Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
+        unicodedata = "Alors vous imaginez ma surprise, au lever du jour, quand "\
+                        "une drôle de petit voix m’a réveillé. "\
+                        "Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
 
         unicode_table.insert().execute(
                 dict(unicode_varchar=unicodedata,unicode_text=unicodedata),
@@ -446,17 +446,17 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
         )
 
         x = unicode_table.select().execute().first()
-        assert isinstance(x['unicode_varchar'], unicode)
+        assert isinstance(x['unicode_varchar'], str)
         eq_(x['unicode_varchar'], unicodedata)
-        assert isinstance(x['unicode_text'], unicode)
+        assert isinstance(x['unicode_text'], str)
         eq_(x['unicode_text'], unicodedata)
 
     def test_union(self):
         """ensure compiler processing works for UNIONs"""
 
-        unicodedata = u"Alors vous imaginez ma surprise, au lever du jour, quand "\
-                        u"une drôle de petit voix m’a réveillé. "\
-                        u"Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
+        unicodedata = "Alors vous imaginez ma surprise, au lever du jour, quand "\
+                        "une drôle de petit voix m’a réveillé. "\
+                        "Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
 
         unicode_table.insert().execute(unicode_varchar=unicodedata,unicode_text=unicodedata)
 
@@ -465,13 +465,13 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
                     select([unicode_table.c.unicode_varchar])
                 ).execute().first()
 
-        assert isinstance(x['unicode_varchar'], unicode)
+        assert isinstance(x['unicode_varchar'], str)
         eq_(x['unicode_varchar'], unicodedata)
 
     @testing.fails_on('oracle', 'oracle converts empty strings to a blank space')
     def test_blank_strings(self):
-        unicode_table.insert().execute(unicode_varchar=u'')
-        assert select([unicode_table.c.unicode_varchar]).scalar() == u''
+        unicode_table.insert().execute(unicode_varchar='')
+        assert select([unicode_table.c.unicode_varchar]).scalar() == ''
 
     def test_unicode_warnings(self):
         """test the warnings raised when SQLA must coerce unicode binds,
@@ -479,9 +479,9 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
 
         """
 
-        unicodedata = u"Alors vous imaginez ma surprise, au lever du jour, quand "\
-                        u"une drôle de petit voix m’a réveillé. "\
-                        u"Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
+        unicodedata = "Alors vous imaginez ma surprise, au lever du jour, quand "\
+                        "une drôle de petit voix m’a réveillé. "\
+                        "Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
 
         # using Unicode explicly - warning should be emitted
         u = Unicode()
@@ -492,7 +492,7 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
             #assert isinstance(uni(unicodedata), str)
             # Py2K
             assert_raises(exc.SAWarning, uni, 'x')
-            assert isinstance(uni(unicodedata), unicode)
+            assert isinstance(uni(unicodedata), str)
             # end Py2K
 
             eq_(uni(unicodedata), unicodedata)
@@ -532,9 +532,9 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
     def test_ignoring_unicode_error(self):
         """checks String(unicode_error='ignore') is passed to underlying codec."""
 
-        unicodedata = u"Alors vous imaginez ma surprise, au lever du jour, quand "\
-                        u"une drôle de petit voix m’a réveillé. "\
-                        u"Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
+        unicodedata = "Alors vous imaginez ma surprise, au lever du jour, quand "\
+                        "une drôle de petit voix m’a réveillé. "\
+                        "Elle disait: « S’il vous plaît… dessine-moi un mouton! »"
 
         asciidata = unicodedata.encode('ascii', 'ignore')
 
@@ -609,9 +609,9 @@ class UnicodeTest(TestBase, AssertsExecutionResults):
                 # TODO: no clue what this is
                 eq_(
                       x,
-                      u'Alors vous imaginez ma surprise, au lever du jour, quand une '
-                      u'drle de petit voix ma rveill. Elle disait:  Sil vous plat '
-                      u'dessine-moi un mouton! '
+                      'Alors vous imaginez ma surprise, au lever du jour, quand une '
+                      'drle de petit voix ma rveill. Elle disait:  Sil vous plat '
+                      'dessine-moi un mouton! '
                 )
             elif engine.dialect.returns_unicode_strings:
                 eq_(x, unicodedata)
@@ -1176,7 +1176,7 @@ class DateTest(TestBase, AssertsExecutionResults):
         users_with_date = Table('query_users_with_date',
                                 MetaData(testing.db), *collist)
         users_with_date.create()
-        insert_dicts = [dict(zip(fnames, d)) for d in insert_data]
+        insert_dicts = [dict(list(zip(fnames, d))) for d in insert_data]
 
         for idict in insert_dicts:
             users_with_date.insert().execute(**idict)
@@ -1188,9 +1188,9 @@ class DateTest(TestBase, AssertsExecutionResults):
     def testdate(self):
         global insert_data
 
-        l = map(tuple,
-                users_with_date.select().order_by(users_with_date.c.user_id).execute().fetchall())
-        self.assert_(l == insert_data,
+        l = list(map(tuple,
+                users_with_date.select().order_by(users_with_date.c.user_id).execute().fetchall()))
+        self.assertTrue(l == insert_data,
                      'DateTest mismatch: got:%s expected:%s' % (l, insert_data))
 
     def testtextdate(self):
@@ -1198,7 +1198,7 @@ class DateTest(TestBase, AssertsExecutionResults):
             "select user_datetime from query_users_with_date",
             typemap={'user_datetime':DateTime}).execute().fetchall()
 
-        self.assert_(isinstance(x[0][0], datetime.datetime))
+        self.assertTrue(isinstance(x[0][0], datetime.datetime))
 
         x = testing.db.text(
             "select * from query_users_with_date where user_datetime=:somedate",

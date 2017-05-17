@@ -35,7 +35,7 @@ def dump_tree(node, indent=0):
                 "\n" + \
                 "".join([
                     dump_tree(c, indent +1) 
-                    for c in node.children.values()]
+                    for c in list(node.children.values())]
                 )
 
 
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     engine = create_engine('sqlite://', echo=True)
 
     def msg(msg):
-        print "\n\n\n" + "-" * len(msg)
-        print msg
-        print "-" * len(msg)
+        print("\n\n\n" + "-" * len(msg))
+        print(msg)
+        print("-" * len(msg))
 
     msg("Creating Tree Table:")
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     msg("Created new tree structure:")
 
-    print dump_tree(node)
+    print(dump_tree(node))
 
     msg("flush + commit:")
 
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     msg("Tree After Save:")
 
-    print dump_tree(node)
+    print(dump_tree(node))
 
     node.append('node4')
     node.children['node4'].append('subnode3')
@@ -106,14 +106,14 @@ if __name__ == '__main__':
     msg("Removed node1.  flush + commit:")
     session.commit()
 
-    print "\n\n\n----------------------------"
-    print "Tree After Save:"
-    print "----------------------------"
+    print("\n\n\n----------------------------")
+    print("Tree After Save:")
+    print("----------------------------")
 
     # expire the "children" collection so that
     # it reflects the deletion of "node1".
     session.expire(node, ['children'])
-    print dump_tree(node)
+    print(dump_tree(node))
 
     msg("Emptying out the session entirely, "
         "selecting tree on root, using eager loading to join four levels deep.")
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                         first()
 
     msg("Full Tree:")
-    print dump_tree(node)
+    print(dump_tree(node))
 
     msg( "Marking root node as deleted, flush + commit:" )
 

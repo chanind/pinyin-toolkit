@@ -13,7 +13,8 @@ import weakref
 import re
 
 # Py2K
-import __builtin__
+import builtins
+import collections
 # end Py2K
 types = __import__('types')
 
@@ -55,7 +56,7 @@ if py3k:
     import pickle
 else:
     try:
-        import cPickle as pickle
+        import pickle as pickle
     except ImportError:
         import pickle
 
@@ -104,9 +105,9 @@ if py3k:
 
     from functools import reduce
 else:
-    callable = __builtin__.callable
-    cmp = __builtin__.cmp
-    reduce = __builtin__.reduce
+    callable = builtins.callable
+    cmp = builtins.cmp
+    reduce = builtins.reduce
 
 try:
     from collections import defaultdict
@@ -133,7 +134,7 @@ except ImportError:
                 args = tuple()
             else:
                 args = self.default_factory,
-            return type(self), args, None, None, self.iteritems()
+            return type(self), args, None, None, iter(self.items())
         def copy(self):
             return self.__copy__()
         def __copy__(self):
@@ -141,7 +142,7 @@ except ImportError:
         def __deepcopy__(self, memo):
             import copy
             return type(self)(self.default_factory,
-                              copy.deepcopy(self.items()))
+                              copy.deepcopy(list(self.items())))
         def __repr__(self):
             return 'defaultdict(%s, %s)' % (self.default_factory,
                                             dict.__repr__(self))
@@ -149,7 +150,7 @@ except ImportError:
 class frozendict(dict):
     @property
     def _blocked_attribute(obj):
-        raise AttributeError, "A frozendict cannot be modified."
+        raise AttributeError("A frozendict cannot be modified.")
 
     __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute
@@ -281,7 +282,7 @@ def accepts_a_list_as_starargs(list_deprecation=None):
                     "variable argument list.  Supplying %s as a single "
                     "list is deprecated and support will be removed "
                     "in a future release." % (
-                        fn.func_name,
+                        fn.__name__,
                         inspect.formatargspec(*spec),
                         spec[1], spec[1]))
                 warnings.warn(msg, warning_type, stacklevel=3)
@@ -301,8 +302,8 @@ def unique_symbols(used, *bases):
     used = set(used)
     for base in bases:
         pool = itertools.chain((base,),
-                               itertools.imap(lambda i: base + str(i),
-                                              xrange(1000)))
+                               map(lambda i: base + str(i),
+                                              range(1000)))
         for sym in pool:
             if sym not in used:
                 used.add(sym)
@@ -316,7 +317,7 @@ def decorator(target):
 
     def decorate(fn):
         spec = inspect.getargspec(fn)
-        names = tuple(spec[0]) + spec[1:3] + (fn.func_name,)
+        names = tuple(spec[0]) + spec[1:3] + (fn.__name__,)
         targ_name, fn_name = unique_symbols(names, 'target', 'fn')
 
         metadata = dict(target=targ_name, fn=fn_name)
@@ -325,7 +326,7 @@ def decorator(target):
         code = 'lambda %(args)s: %(target)s(%(fn)s, %(apply_kw)s)' % (
                 metadata)
         decorated = eval(code, {targ_name:target, fn_name:fn})
-        decorated.func_defaults = getattr(fn, 'im_func', fn).func_defaults
+        decorated.__defaults__ = getattr(fn, 'im_func', fn).__defaults__
         return update_wrapper(decorated, fn)
     return update_wrapper(decorate, target)
 
@@ -362,7 +363,7 @@ def flatten_iterator(x):
 
     """
     for elem in x:
-        if not isinstance(elem, basestring) and hasattr(elem, '__iter__'):
+        if not isinstance(elem, str) and hasattr(elem, '__iter__'):
             for y in flatten_iterator(elem):
                 yield y
         else:
@@ -435,7 +436,7 @@ def format_argspec_plus(fn, grouped=True):
        'apply_pos': '(self, a, b, c, **d)'}
 
     """
-    spec = callable(fn) and inspect.getargspec(fn) or fn
+    spec = isinstance(fn, collections.Callable) and inspect.getargspec(fn) or fn
     args = inspect.formatargspec(*spec)
     if spec[0]:
         self_arg = spec[0][0]
@@ -496,8 +497,8 @@ def getargspec_init(method):
 def unbound_method_to_callable(func_or_cls):
     """Adjust the incoming callable such that a 'self' argument is not required."""
 
-    if isinstance(func_or_cls, types.MethodType) and not func_or_cls.im_self:
-        return func_or_cls.im_func
+    if isinstance(func_or_cls, types.MethodType) and not func_or_cls.__self__:
+        return func_or_cls.__func__
     else:
         return func_or_cls
 
@@ -507,7 +508,7 @@ class portable_instancemethod(object):
 
     """
     def __init__(self, meth):
-        self.target = meth.im_self
+        self.target = meth.__self__
         self.name = meth.__name__
 
     def __call__(self, *arg, **kw):
@@ -527,7 +528,7 @@ def class_hierarchy(cls):
 
     """
     # Py2K
-    if isinstance(cls, types.ClassType):
+    if isinstance(cls, type):
         return list()
     # end Py2K
     hier = set([cls])
@@ -535,10 +536,10 @@ def class_hierarchy(cls):
     while process:
         c = process.pop()
         # Py2K
-        if isinstance(c, types.ClassType):
+        if isinstance(c, type):
             continue
         for b in (_ for _ in c.__bases__
-                  if _ not in hier and not isinstance(_, types.ClassType)):
+                  if _ not in hier and not isinstance(_, type)):
         # end Py2K
         # Py3K
         #for b in (_ for _ in c.__bases__
@@ -574,7 +575,7 @@ def iterate_attributes(cls):
 
 # from paste.deploy.converters
 def asbool(obj):
-    if isinstance(obj, (str, unicode)):
+    if isinstance(obj, str):
         obj = obj.strip().lower()
         if obj in ['true', 'yes', 'on', 'y', 't', '1']:
             return True
@@ -654,9 +655,9 @@ def dictlike_iteritems(dictlike):
     #    return dictlike.items()
     # Py2K
     if hasattr(dictlike, 'iteritems'):
-        return dictlike.iteritems()
-    elif hasattr(dictlike, 'items'):
         return iter(dictlike.items())
+    elif hasattr(dictlike, 'items'):
+        return iter(list(dictlike.items()))
     # end Py2K
 
     getter = getattr(dictlike, '__getitem__', getattr(dictlike, 'get', None))
@@ -666,11 +667,11 @@ def dictlike_iteritems(dictlike):
 
     if hasattr(dictlike, 'iterkeys'):
         def iterator():
-            for key in dictlike.iterkeys():
+            for key in dictlike.keys():
                 yield key, getter(key)
         return iterator()
     elif hasattr(dictlike, 'keys'):
-        return iter((key, getter(key)) for key in dictlike.keys())
+        return iter((key, getter(key)) for key in list(dictlike.keys()))
     else:
         raise TypeError(
             "Object '%r' is not dict-like" % dictlike)
@@ -741,9 +742,9 @@ def monkeypatch_proxied_specials(into_cls, from_cls, skip=None, only=None,
               "return %(name)s.%(method)s%(d_args)s" % locals())
 
         env = from_instance is not None and {name: from_instance} or {}
-        exec py in env
+        exec(py, env)
         try:
-            env[method].func_defaults = fn.func_defaults
+            env[method].__defaults__ = fn.__defaults__
         except AttributeError:
             pass
         setattr(into_cls, method, env[method])
@@ -759,7 +760,7 @@ class NamedTuple(tuple):
         vals = list(vals)
         t = tuple.__new__(cls, vals)
         if labels:
-            t.__dict__ = dict(itertools.izip(labels, vals))
+            t.__dict__ = dict(zip(labels, vals))
             t._labels = labels
         return t
 
@@ -785,7 +786,7 @@ class OrderedProperties(object):
         return len(self._data)
 
     def __iter__(self):
-        return self._data.itervalues()
+        return iter(self._data.values())
 
     def __add__(self, other):
         return list(self) + list(other)
@@ -827,7 +828,7 @@ class OrderedProperties(object):
             return default
 
     def keys(self):
-        return self._data.keys()
+        return list(self._data.keys())
 
     def has_key(self, key):
         return key in self._data
@@ -862,7 +863,7 @@ class OrderedDict(dict):
     def update(self, ____sequence=None, **kwargs):
         if ____sequence is not None:
             if hasattr(____sequence, 'keys'):
-                for key in ____sequence.keys():
+                for key in list(____sequence.keys()):
                     self.__setitem__(key, ____sequence[key])
             else:
                 for key, value in ____sequence:
@@ -884,19 +885,19 @@ class OrderedDict(dict):
         return [self[key] for key in self._list]
 
     def itervalues(self):
-        return iter(self.values())
+        return iter(list(self.values()))
 
     def keys(self):
         return list(self._list)
 
     def iterkeys(self):
-        return iter(self.keys())
+        return iter(list(self.keys()))
 
     def items(self):
-        return [(key, self[key]) for key in self.keys()]
+        return [(key, self[key]) for key in list(self.keys())]
 
     def iteritems(self):
-        return iter(self.items())
+        return iter(list(self.items()))
 
     def __setitem__(self, key, object):
         if key not in self:
@@ -1085,8 +1086,8 @@ class IdentitySet(object):
 
         if len(self) > len(other):
             return False
-        for m in itertools.ifilterfalse(other._members.__contains__,
-                                        self._members.iterkeys()):
+        for m in itertools.filterfalse(other._members.__contains__,
+                                        iter(self._members.keys())):
             return False
         return True
 
@@ -1106,8 +1107,8 @@ class IdentitySet(object):
         if len(self) < len(other):
             return False
 
-        for m in itertools.ifilterfalse(self._members.__contains__,
-                                        other._members.iterkeys()):
+        for m in itertools.filterfalse(self._members.__contains__,
+                                        iter(other._members.keys())):
             return False
         return True
 
@@ -1192,7 +1193,7 @@ class IdentitySet(object):
         return result
 
     def _member_id_tuples(self):
-        return ((id(v), v) for v in self._members.itervalues())
+        return ((id(v), v) for v in self._members.values())
 
     def __xor__(self, other):
         if not isinstance(other, IdentitySet):
@@ -1209,7 +1210,7 @@ class IdentitySet(object):
         return self
 
     def copy(self):
-        return type(self)(self._members.itervalues())
+        return type(self)(iter(self._members.values()))
 
     __copy__ = copy
 
@@ -1217,13 +1218,13 @@ class IdentitySet(object):
         return len(self._members)
 
     def __iter__(self):
-        return self._members.itervalues()
+        return iter(self._members.values())
 
     def __hash__(self):
         raise TypeError('set objects are unhashable')
 
     def __repr__(self):
-        return '%s(%r)' % (type(self).__name__, self._members.values())
+        return '%s(%r)' % (type(self).__name__, list(self._members.values()))
 
 
 class OrderedIdentitySet(IdentitySet):
@@ -1485,7 +1486,7 @@ def as_interface(obj, cls=None, methods=None, required=None):
     for method, impl in dictlike_iteritems(obj):
         if method not in interface:
             raise TypeError("%r: unknown in this interface" % method)
-        if not callable(impl):
+        if not isinstance(impl, collections.Callable):
             raise TypeError("%r=%r is not callable" % (method, impl))
         setattr(AnonymousInterface, method, staticmethod(impl))
         found.add(method)
@@ -1506,8 +1507,8 @@ def function_named(fn, name):
     try:
         fn.__name__ = name
     except TypeError:
-        fn = types.FunctionType(fn.func_code, fn.func_globals, name,
-                          fn.func_defaults, fn.func_closure)
+        fn = types.FunctionType(fn.__code__, fn.__globals__, name,
+                          fn.__defaults__, fn.__closure__)
     return fn
 
 
@@ -1789,7 +1790,7 @@ class LRUCache(dict):
                     break
 
 def warn(msg, stacklevel=3):
-    if isinstance(msg, basestring):
+    if isinstance(msg, str):
         warnings.warn(msg, exc.SAWarning, stacklevel=stacklevel)
     else:
         warnings.warn(msg, stacklevel=stacklevel)

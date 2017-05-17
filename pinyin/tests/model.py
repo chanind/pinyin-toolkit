@@ -8,201 +8,201 @@ from pinyin.model import *
 class ToneInfoTest(unittest.TestCase):
     def testAccessors(self):
         ti = ToneInfo(written=1, spoken=2)
-        self.assertEquals(ti.written, 1)
-        self.assertEquals(ti.spoken, 2)
+        self.assertEqual(ti.written, 1)
+        self.assertEqual(ti.spoken, 2)
     
     def testRepr(self):
-        self.assertEquals(repr(ToneInfo(written=1, spoken=2)), "ToneInfo(written=1, spoken=2)")
+        self.assertEqual(repr(ToneInfo(written=1, spoken=2)), "ToneInfo(written=1, spoken=2)")
     
     def testDefaulting(self):
-        self.assertEquals(ToneInfo(written=1), ToneInfo(written=1, spoken=1))
-        self.assertEquals(ToneInfo(spoken=1), ToneInfo(written=1, spoken=1))
+        self.assertEqual(ToneInfo(written=1), ToneInfo(written=1, spoken=1))
+        self.assertEqual(ToneInfo(spoken=1), ToneInfo(written=1, spoken=1))
     
     def testEq(self):
-        self.assertEquals(ToneInfo(written=1, spoken=3), ToneInfo(written=1, spoken=3))
-        self.assertNotEquals(ToneInfo(written=1, spoken=3), ToneInfo(written=2, spoken=3))
-        self.assertNotEquals(ToneInfo(written=1, spoken=3), ToneInfo(written=1, spoken=5))
+        self.assertEqual(ToneInfo(written=1, spoken=3), ToneInfo(written=1, spoken=3))
+        self.assertNotEqual(ToneInfo(written=1, spoken=3), ToneInfo(written=2, spoken=3))
+        self.assertNotEqual(ToneInfo(written=1, spoken=3), ToneInfo(written=1, spoken=5))
     
     def testEqDissimilar(self):
-        self.assertNotEquals(ToneInfo(written=1, spoken=3), "ToneInfo(written=1, spoken=3)")
-        self.assertNotEquals("ToneInfo(written=1, spoken=3)", ToneInfo(written=1, spoken=3))
+        self.assertNotEqual(ToneInfo(written=1, spoken=3), "ToneInfo(written=1, spoken=3)")
+        self.assertNotEqual("ToneInfo(written=1, spoken=3)", ToneInfo(written=1, spoken=3))
 
     def testMustBeNonEmpty(self):
         self.assertRaises(ValueError, lambda: ToneInfo())
 
 class PinyinTest(unittest.TestCase):
     def testConvenienceConstructor(self):
-        self.assertEquals(Pinyin(u"hen", 3), Pinyin(u"hen", ToneInfo(written=3)))
+        self.assertEqual(Pinyin("hen", 3), Pinyin("hen", ToneInfo(written=3)))
     
     def testUnicode(self):
-        self.assertEquals(unicode(Pinyin(u"hen", 3)), u"hen3")
+        self.assertEqual(str(Pinyin("hen", 3)), "hen3")
     
     def testStr(self):
-        self.assertEquals(str(Pinyin(u"hen", 3)), u"hen3")
+        self.assertEqual(str(Pinyin("hen", 3)), "hen3")
     
     def testRepr(self):
-        self.assertEquals(repr(Pinyin(u"hen", 3)), u"Pinyin(u'hen', ToneInfo(written=3, spoken=3))")
-        self.assertEquals(repr(Pinyin(u"hen", 3, { "attr" : "val" })), u"Pinyin(u'hen', ToneInfo(written=3, spoken=3), {'attr': 'val'})")
+        self.assertEqual(repr(Pinyin("hen", 3)), "Pinyin(u'hen', ToneInfo(written=3, spoken=3))")
+        self.assertEqual(repr(Pinyin("hen", 3, { "attr" : "val" })), "Pinyin(u'hen', ToneInfo(written=3, spoken=3), {'attr': 'val'})")
     
     def testEq(self):
-        self.assertEquals(Pinyin(u"hen", 3), Pinyin(u"hen", 3))
-        self.assertEquals(Pinyin(u"hen", 3, { "moo" : "cow" }), Pinyin(u"hen", 3, { "moo" : "cow" }))
-        self.assertNotEquals(Pinyin(u"hen", 3), Pinyin(u"hen", 2))
-        self.assertNotEquals(Pinyin(u"hen", 3), Pinyin(u"han", 3))
-        self.assertNotEquals(Pinyin(u"hen", 3), Pinyin(u"hen", 3, { "moo" : "cow" }))
-        self.assertNotEquals(Pinyin(u"hen", 3, { "moo" : "cow" }), Pinyin(u"hen", 3, { "moo" : "sheep" }))
+        self.assertEqual(Pinyin("hen", 3), Pinyin("hen", 3))
+        self.assertEqual(Pinyin("hen", 3, { "moo" : "cow" }), Pinyin("hen", 3, { "moo" : "cow" }))
+        self.assertNotEqual(Pinyin("hen", 3), Pinyin("hen", 2))
+        self.assertNotEqual(Pinyin("hen", 3), Pinyin("han", 3))
+        self.assertNotEqual(Pinyin("hen", 3), Pinyin("hen", 3, { "moo" : "cow" }))
+        self.assertNotEqual(Pinyin("hen", 3, { "moo" : "cow" }), Pinyin("hen", 3, { "moo" : "sheep" }))
     
     def testEqDissimilar(self):
-        self.assertNotEquals(Pinyin(u"hen", 3), "Pinyin(u'hen', 3)")
-        self.assertNotEquals("Pinyin(u'hen', 3)", Pinyin(u"hen", 3))
+        self.assertNotEqual(Pinyin("hen", 3), "Pinyin(u'hen', 3)")
+        self.assertNotEqual("Pinyin(u'hen', 3)", Pinyin("hen", 3))
     
     def testStrNeutralTone(self):
-        py = Pinyin(u"ma", 5)
-        self.assertEquals(str(py), u"ma")
+        py = Pinyin("ma", 5)
+        self.assertEqual(str(py), "ma")
     
     def testNumericFormat(self):
-        self.assertEquals(Pinyin(u"hen", 3).numericformat(), u"hen3")
+        self.assertEqual(Pinyin("hen", 3).numericformat(), "hen3")
     
     def testNumericFormatSelectTone(self):
-        self.assertEquals(Pinyin(u"hen", ToneInfo(written=1, spoken=2)).numericformat(tone="written"), u"hen1")
-        self.assertEquals(Pinyin(u"hen", ToneInfo(written=1, spoken=2)).numericformat(tone="spoken"), u"hen2")
+        self.assertEqual(Pinyin("hen", ToneInfo(written=1, spoken=2)).numericformat(tone="written"), "hen1")
+        self.assertEqual(Pinyin("hen", ToneInfo(written=1, spoken=2)).numericformat(tone="spoken"), "hen2")
         
     def testNumericFormatNeutralTone(self):
-        self.assertEquals(Pinyin(u"ma", 5).numericformat(), u"ma5")
-        self.assertEquals(Pinyin(u"ma", 5).numericformat(hideneutraltone=True), u"ma")
+        self.assertEqual(Pinyin("ma", 5).numericformat(), "ma5")
+        self.assertEqual(Pinyin("ma", 5).numericformat(hideneutraltone=True), "ma")
     
     def testTonifiedFormat(self):
-        self.assertEquals(Pinyin(u"hen", 3).tonifiedformat(), u"hěn")
+        self.assertEqual(Pinyin("hen", 3).tonifiedformat(), "hěn")
     
     def testTonifiedFormatNeutralTone(self):
-        self.assertEquals(Pinyin(u"ma", 5).tonifiedformat(), u"ma")
+        self.assertEqual(Pinyin("ma", 5).tonifiedformat(), "ma")
     
     def testIsEr(self):
-        self.assertTrue(Pinyin(u"r", 5).iser)
-        self.assertTrue(Pinyin(u"R", 5).iser)
-        self.assertFalse(Pinyin(u"r", 4).iser)
-        self.assertFalse(Pinyin(u"er", 5).iser)
+        self.assertTrue(Pinyin("r", 5).iser)
+        self.assertTrue(Pinyin("R", 5).iser)
+        self.assertFalse(Pinyin("r", 4).iser)
+        self.assertFalse(Pinyin("er", 5).iser)
     
     def testParse(self):
-        self.assertEquals(Pinyin.parse("ma1"), Pinyin("ma", 1))
-        self.assertEquals(Pinyin.parse("ma2"), Pinyin("ma", 2))
-        self.assertEquals(Pinyin.parse("ma3"), Pinyin("ma", 3))
-        self.assertEquals(Pinyin.parse("ma4"), Pinyin("ma", 4))
-        self.assertEquals(Pinyin.parse("ma5"), Pinyin("ma", 5))
+        self.assertEqual(Pinyin.parse("ma1"), Pinyin("ma", 1))
+        self.assertEqual(Pinyin.parse("ma2"), Pinyin("ma", 2))
+        self.assertEqual(Pinyin.parse("ma3"), Pinyin("ma", 3))
+        self.assertEqual(Pinyin.parse("ma4"), Pinyin("ma", 4))
+        self.assertEqual(Pinyin.parse("ma5"), Pinyin("ma", 5))
     
     def testParseAdditions(self):
-        self.assertEquals(Pinyin.parse("er5"), Pinyin("er", 5))
-        self.assertEquals(Pinyin.parse("r2"), Pinyin("r", 2))
+        self.assertEqual(Pinyin.parse("er5"), Pinyin("er", 5))
+        self.assertEqual(Pinyin.parse("r2"), Pinyin("r", 2))
     
     def testParseShort(self):
-        self.assertEquals(Pinyin.parse("a1"), Pinyin("a", 1))
+        self.assertEqual(Pinyin.parse("a1"), Pinyin("a", 1))
     
     def testParseLong(self):
-        self.assertEquals(Pinyin.parse("zhuang1"), Pinyin("zhuang", 1))
+        self.assertEqual(Pinyin.parse("zhuang1"), Pinyin("zhuang", 1))
     
     def testParseNormalisesUmlaut(self):
-        self.assertEquals(Pinyin.parse("nu:3"), Pinyin.parse(u"nü3"))
-        self.assertEquals(Pinyin.parse("nU:3"), Pinyin.parse(u"nÜ3"))
-        self.assertEquals(Pinyin.parse("nv3"), Pinyin.parse(u"nü3"))
-        self.assertEquals(Pinyin.parse("nV3"), Pinyin.parse(u"nÜ3"))
+        self.assertEqual(Pinyin.parse("nu:3"), Pinyin.parse("nü3"))
+        self.assertEqual(Pinyin.parse("nU:3"), Pinyin.parse("nÜ3"))
+        self.assertEqual(Pinyin.parse("nv3"), Pinyin.parse("nü3"))
+        self.assertEqual(Pinyin.parse("nV3"), Pinyin.parse("nÜ3"))
     
     def testParseTonified(self):
-        self.assertEquals(Pinyin.parse("chi1"), Pinyin.parse(u"chī"))
-        self.assertEquals(Pinyin.parse("shi2"), Pinyin.parse(u"shí"))
-        self.assertEquals(Pinyin.parse("xiao3"), Pinyin.parse(u"xiǎo"))
-        self.assertEquals(Pinyin.parse("dan4"), Pinyin.parse(u"dàn"))
-        self.assertEquals(Pinyin.parse("huan"), Pinyin.parse(u"huan"))
+        self.assertEqual(Pinyin.parse("chi1"), Pinyin.parse("chī"))
+        self.assertEqual(Pinyin.parse("shi2"), Pinyin.parse("shí"))
+        self.assertEqual(Pinyin.parse("xiao3"), Pinyin.parse("xiǎo"))
+        self.assertEqual(Pinyin.parse("dan4"), Pinyin.parse("dàn"))
+        self.assertEqual(Pinyin.parse("huan"), Pinyin.parse("huan"))
     
     def testParseRespectsOtherCombiningMarks(self):
-        self.assertEquals(u"nü", unicode(Pinyin.parse(u"nü5")))
-        self.assertEquals(u"nü", unicode(Pinyin.parse(u"nü")))
+        self.assertEqual("nü", str(Pinyin.parse("nü5")))
+        self.assertEqual("nü", str(Pinyin.parse("nü")))
     
     def testParseForceNumeric(self):
         Pinyin.parse("chi")
         self.assertRaises(ValueError, lambda: Pinyin.parse("chi", forcenumeric=True))
     
     def testParseUnicode(self):
-        self.assertEquals(repr(Pinyin.parse(u"nü3")), u"Pinyin(u'n\\xfc', ToneInfo(written=3, spoken=3))")
+        self.assertEqual(repr(Pinyin.parse("nü3")), "Pinyin(u'n\\xfc', ToneInfo(written=3, spoken=3))")
     
     def testParseAlternativeUUmlaut(self):
-        self.assertEquals(Pinyin.parse(u"nü3"), Pinyin.parse(u"nu:3"))
-        self.assertEquals(Pinyin.parse(u"nü3"), Pinyin.parse(u"nv3"))
-        self.assertEquals(Pinyin.parse(u"lü3"), Pinyin.parse(u"lu:3"))
+        self.assertEqual(Pinyin.parse("nü3"), Pinyin.parse("nu:3"))
+        self.assertEqual(Pinyin.parse("nü3"), Pinyin.parse("nv3"))
+        self.assertEqual(Pinyin.parse("lü3"), Pinyin.parse("lu:3"))
     
     # Bug #138 - kind of a relic of when we used a regex to recognise pinyin
     def testParsesXiong(self):
-        self.assertEquals(Pinyin.parse(u"xiong1"), Pinyin("xiong", 1))
+        self.assertEqual(Pinyin.parse("xiong1"), Pinyin("xiong", 1))
     
     def testRejectsPinyinWithMultipleToneMarks(self):
-        self.assertRaises(ValueError, lambda: Pinyin.parse(u"xíǎo"))
+        self.assertRaises(ValueError, lambda: Pinyin.parse("xíǎo"))
     
     def testRejectsSingleNumbers(self):
-        self.assertRaises(ValueError, lambda: Pinyin.parse(u"1"))
+        self.assertRaises(ValueError, lambda: Pinyin.parse("1"))
     
     def testRejectsNumbers(self):
-        self.assertRaises(ValueError, lambda: Pinyin.parse(u"12345"))
+        self.assertRaises(ValueError, lambda: Pinyin.parse("12345"))
     
     def testRejectsPinyinlikeEnglish(self):
         self.assertRaises(ValueError, lambda: Pinyin.parse("USB"))
 
 class TextTest(unittest.TestCase):
     def testNonEmpty(self):
-        self.assertRaises(ValueError, lambda: Text(u""))
+        self.assertRaises(ValueError, lambda: Text(""))
     
     def testRepr(self):
-        self.assertEquals(repr(Text(u"hello")), "Text(u'hello')")
-        self.assertEquals(repr(Text(u"hello", { "china" : "great" })), "Text(u'hello', {'china': 'great'})")
+        self.assertEqual(repr(Text("hello")), "Text(u'hello')")
+        self.assertEqual(repr(Text("hello", { "china" : "great" })), "Text(u'hello', {'china': 'great'})")
     
     def testUnicodeAndStr(self):
-        self.assertEquals(str(Text(u"hello")), u"hello")
-        self.assertEquals(unicode(Text(u"hello")), u"hello")
-        self.assertEquals(type(unicode(Text(u"hello"))), unicode)
+        self.assertEqual(str(Text("hello")), "hello")
+        self.assertEqual(str(Text("hello")), "hello")
+        self.assertEqual(type(str(Text("hello"))), str)
     
     def testEq(self):
-        self.assertEquals(Text(u"hello"), Text(u"hello"))
-        self.assertEquals(Text(u"hello", { "color" : "mah" }), Text(u"hello", { "color" : "mah" }))
-        self.assertNotEquals(Text(u"hello"), Text(u"bye"))
-        self.assertNotEquals(Text(u"hello", { "color" : "mah" }), Text(u"hello"))
-        self.assertNotEquals(Text(u"hello", { "color" : "mah" }), Text(u"hello", { "color" : "meh" }))
+        self.assertEqual(Text("hello"), Text("hello"))
+        self.assertEqual(Text("hello", { "color" : "mah" }), Text("hello", { "color" : "mah" }))
+        self.assertNotEqual(Text("hello"), Text("bye"))
+        self.assertNotEqual(Text("hello", { "color" : "mah" }), Text("hello"))
+        self.assertNotEqual(Text("hello", { "color" : "mah" }), Text("hello", { "color" : "meh" }))
     
     def testEqDissimilar(self):
-        self.assertNotEquals(Text(u"hello"), 'Text(u"hello")')
-        self.assertNotEquals('Text(u"hello")', Text(u"hello"))
+        self.assertNotEqual(Text("hello"), 'Text(u"hello")')
+        self.assertNotEqual('Text(u"hello")', Text("hello"))
     
     def testIsEr(self):
         self.assertFalse(Text("r5").iser)
 
 class WordTest(unittest.TestCase):
     def testAppendSingleReading(self):
-        self.assertEquals(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse(u"hen3")])]), u"hen3")
+        self.assertEqual(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse("hen3")])]), "hen3")
 
     def testAppendMultipleReadings(self):
-        self.assertEquals(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse(u"hen3"), Pinyin.parse(u"ma5")])]), u"hen3 ma")
+        self.assertEqual(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse("hen3"), Pinyin.parse("ma5")])]), "hen3 ma")
     
     def testAppendSingleReadingErhua(self):
-        self.assertEquals(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse(u"r5")])]), u"r")
+        self.assertEqual(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse("r5")])]), "r")
 
     def testAppendMultipleReadingsErhua(self):
-        self.assertEquals(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse(u"hen3"), Pinyin.parse(u"ma5"), Pinyin.parse("r5")])]), u"hen3 mar")
+        self.assertEqual(flatten([Word.spacedwordfromunspacedtokens([Pinyin.parse("hen3"), Pinyin.parse("ma5"), Pinyin.parse("r5")])]), "hen3 mar")
     
     def testEquality(self):
-        self.assertEquals(Word(Text(u"hello")), Word(Text(u"hello")))
-        self.assertNotEquals(Word(Text(u"hello")), Word(Text(u"hallo")))
+        self.assertEqual(Word(Text("hello")), Word(Text("hello")))
+        self.assertNotEqual(Word(Text("hello")), Word(Text("hallo")))
     
     def testRepr(self):
-        self.assertEquals(repr(Word(Text(u"hello"))), "Word(Text(u'hello'))")
+        self.assertEqual(repr(Word(Text("hello"))), "Word(Text(u'hello'))")
     
     def testStr(self):
-        self.assertEquals(str(Word(Text(u"hello"))), u"<hello>")
-        self.assertEquals(unicode(Word(Text(u"hello"))), u"<hello>")
+        self.assertEqual(str(Word(Text("hello"))), "<hello>")
+        self.assertEqual(str(Word(Text("hello"))), "<hello>")
         
     def testFilterNones(self):
-        self.assertEquals(Word(None, Text("yes"), None, Text("no")), Word(Text("yes"), Text("no")))
+        self.assertEqual(Word(None, Text("yes"), None, Text("no")), Word(Text("yes"), Text("no")))
     
     def testAppendNoneFiltered(self):
         word = Word(Text("yes"), Text("no"))
         word.append(None)
-        self.assertEquals(word, Word(Text("yes"), Text("no")))
+        self.assertEqual(word, Word(Text("yes"), Text("no")))
     
     def testAccept(self):
         output = []
@@ -249,100 +249,100 @@ class WordTest(unittest.TestCase):
 
 class TonedCharacterTest(unittest.TestCase):
     def testConvenienceConstructor(self):
-        self.assertEquals(TonedCharacter(u"儿", 2), TonedCharacter(u"儿", ToneInfo(written=2)))
+        self.assertEqual(TonedCharacter("儿", 2), TonedCharacter("儿", ToneInfo(written=2)))
     
     def testRepr(self):
-        self.assertEquals(repr(TonedCharacter(u"儿", 2)), "TonedCharacter(u'\\u513f', ToneInfo(written=2, spoken=2))")
-        self.assertEquals(repr(TonedCharacter(u"儿", ToneInfo(written=2, spoken=3), { "foo" : "bar" })), "TonedCharacter(u'\\u513f', ToneInfo(written=2, spoken=3), {'foo': 'bar'})")
+        self.assertEqual(repr(TonedCharacter("儿", 2)), "TonedCharacter(u'\\u513f', ToneInfo(written=2, spoken=2))")
+        self.assertEqual(repr(TonedCharacter("儿", ToneInfo(written=2, spoken=3), { "foo" : "bar" })), "TonedCharacter(u'\\u513f', ToneInfo(written=2, spoken=3), {'foo': 'bar'})")
     
     def testEq(self):
-        self.assertEquals(TonedCharacter(u"儿", 2), TonedCharacter(u"儿", 2))
-        self.assertEquals(TonedCharacter(u"儿", 2, { "color" : "meh" }), TonedCharacter(u"儿", 2, { "color" : "meh" }))
-        self.assertNotEquals(TonedCharacter(u"儿", 2), TonedCharacter(u"儿", 3))
-        self.assertNotEquals(TonedCharacter(u"儿", 2), TonedCharacter(u"兒", 2))
-        self.assertNotEquals(TonedCharacter(u"儿", 2), TonedCharacter(u"儿", 2, { "foo" : "bar" }))
-        self.assertNotEquals(TonedCharacter(u"儿", 2, { "color" : "moo" }), TonedCharacter(u"儿", 2, { "color" : "meh" }))
+        self.assertEqual(TonedCharacter("儿", 2), TonedCharacter("儿", 2))
+        self.assertEqual(TonedCharacter("儿", 2, { "color" : "meh" }), TonedCharacter("儿", 2, { "color" : "meh" }))
+        self.assertNotEqual(TonedCharacter("儿", 2), TonedCharacter("儿", 3))
+        self.assertNotEqual(TonedCharacter("儿", 2), TonedCharacter("兒", 2))
+        self.assertNotEqual(TonedCharacter("儿", 2), TonedCharacter("儿", 2, { "foo" : "bar" }))
+        self.assertNotEqual(TonedCharacter("儿", 2, { "color" : "moo" }), TonedCharacter("儿", 2, { "color" : "meh" }))
     
     def testEqDissimilar(self):
-        self.assertNotEquals(TonedCharacter(u"儿", 2), "TonedCharacter(u'儿', 2)")
-        self.assertNotEquals("TonedCharacter(u'儿', 2)", TonedCharacter(u"儿", 2))
+        self.assertNotEqual(TonedCharacter("儿", 2), "TonedCharacter(u'儿', 2)")
+        self.assertNotEqual("TonedCharacter(u'儿', 2)", TonedCharacter("儿", 2))
     
     def testIsEr(self):
-        self.assertTrue(TonedCharacter(u"儿", 5).iser)
-        self.assertTrue(TonedCharacter(u"兒", 5).iser)
-        self.assertFalse(TonedCharacter(u"化", 2).iser)
-        self.assertFalse(TonedCharacter(u"儿", 4).iser)
+        self.assertTrue(TonedCharacter("儿", 5).iser)
+        self.assertTrue(TonedCharacter("兒", 5).iser)
+        self.assertFalse(TonedCharacter("化", 2).iser)
+        self.assertFalse(TonedCharacter("儿", 4).iser)
 
 class TokenizeSpaceSeperatedTextTest(unittest.TestCase):
     def testFromSingleSpacedString(self):
-        self.assertEquals([Pinyin.parse(u"hen3")], tokenizespaceseperatedtext(u"hen3"))
+        self.assertEqual([Pinyin.parse("hen3")], tokenizespaceseperatedtext("hen3"))
 
     def testFromMultipleSpacedString(self):
-        self.assertEquals([Pinyin.parse(u"hen3"), Pinyin.parse(u"hao3")], tokenizespaceseperatedtext(u"hen3 hao3"))
+        self.assertEqual([Pinyin.parse("hen3"), Pinyin.parse("hao3")], tokenizespaceseperatedtext("hen3 hao3"))
 
     def testFromSpacedStringWithEnglish(self):
-        self.assertEquals([Text(u"T"), Pinyin.parse(u"xu4")], tokenizespaceseperatedtext(u"T xu4"))
+        self.assertEqual([Text("T"), Pinyin.parse("xu4")], tokenizespaceseperatedtext("T xu4"))
 
     def testFromSpacedStringWithPinyinlikeEnglish(self):
-        self.assertEquals([Text(u"USB"), Pinyin.parse(u"xu4")], tokenizespaceseperatedtext(u"USB xu4"))
+        self.assertEqual([Text("USB"), Pinyin.parse("xu4")], tokenizespaceseperatedtext("USB xu4"))
 
 class TokenizeTest(unittest.TestCase):
     def testTokenizeSimple(self):
-        self.assertEquals([Pinyin.parse(u"hen3"), Text(" "), Pinyin.parse(u"hao3")], tokenize(u"hen3 hao3"))
-        self.assertEquals([Pinyin.parse(u"hen3"), Text(","), Pinyin.parse(u"hao3")], tokenize(u"hen3,hao3"))
-        self.assertEquals([Pinyin.parse(u"hen3"), Text(" "), Pinyin.parse(u"hao3"), Text(", "), Text("my"), Text(" "), Pinyin.parse(u"xiǎo"), Text(" "), Text("one"), Text("!")],
-                          tokenize(u"hen3 hao3, my xiǎo one!"))
+        self.assertEqual([Pinyin.parse("hen3"), Text(" "), Pinyin.parse("hao3")], tokenize("hen3 hao3"))
+        self.assertEqual([Pinyin.parse("hen3"), Text(","), Pinyin.parse("hao3")], tokenize("hen3,hao3"))
+        self.assertEqual([Pinyin.parse("hen3"), Text(" "), Pinyin.parse("hao3"), Text(", "), Text("my"), Text(" "), Pinyin.parse("xiǎo"), Text(" "), Text("one"), Text("!")],
+                          tokenize("hen3 hao3, my xiǎo one!"))
     
     def testTokenizeUUmlaut(self):
-        self.assertEquals([Pinyin.parse(u"lu:3")], tokenize(u"lu:3"))
+        self.assertEqual([Pinyin.parse("lu:3")], tokenize("lu:3"))
     
     def testTokenizeErhua(self):
-        self.assertEquals([Pinyin.parse(u"wan4"), Pinyin(u"r", 5)], tokenize(u"wan4r"))
-        self.assertEquals([Text(u"color")], tokenize(u"color"))
+        self.assertEqual([Pinyin.parse("wan4"), Pinyin("r", 5)], tokenize("wan4r"))
+        self.assertEqual([Text("color")], tokenize("color"))
     
     def testTokenizeForceNumeric(self):
-        self.assertEquals([Pinyin.parse(u"hen3"), Text(" "), Pinyin.parse(u"hao3")], tokenize(u"hen3 hao3"))
-        self.assertEquals([Pinyin.parse(u"hen3"), Text(" "), Pinyin.parse(u"hao3"), Text(", "), Text("my"), Text(" "), Text(u"xiǎo"), Text(" "), Text("one"), Text("!")],
-                           tokenize(u"hen3 hao3, my xiǎo one!", forcenumeric=True))
+        self.assertEqual([Pinyin.parse("hen3"), Text(" "), Pinyin.parse("hao3")], tokenize("hen3 hao3"))
+        self.assertEqual([Pinyin.parse("hen3"), Text(" "), Pinyin.parse("hao3"), Text(", "), Text("my"), Text(" "), Text("xiǎo"), Text(" "), Text("one"), Text("!")],
+                           tokenize("hen3 hao3, my xiǎo one!", forcenumeric=True))
     
     def testTokenizeHTML(self):
-        self.assertEquals([Text(u'<b>'), Text("some"), Text(" "), Text("silly"), Text(" "), Text("text"), Text("</b>")],
-                          tokenize(u'<b>some silly text</b>'))
-        self.assertEquals([Text(u'<span style="">'), Pinyin(u'tou', 2, { "color" : "#123456" }), Text(u'</span>'), Text(u' '), Text(u'<span style="">'), Pinyin(u'er', 4, { "color" : "#123456" }), Text(u'</span>')],
-                          tokenize(u'<span style="color:#123456">tou2</span> <span style="color:#123456">er4</span>'))
+        self.assertEqual([Text('<b>'), Text("some"), Text(" "), Text("silly"), Text(" "), Text("text"), Text("</b>")],
+                          tokenize('<b>some silly text</b>'))
+        self.assertEqual([Text('<span style="">'), Pinyin('tou', 2, { "color" : "#123456" }), Text('</span>'), Text(' '), Text('<span style="">'), Pinyin('er', 4, { "color" : "#123456" }), Text('</span>')],
+                          tokenize('<span style="color:#123456">tou2</span> <span style="color:#123456">er4</span>'))
     
     def testTokenizeUnrecognisedHTML(self):
         # TODO: enable this test and make it pass somehow... SGMLParser doesn't support self-closing tags :-(
         #self.assertEquals([Text(u'<b />')], tokenize(u'<b />'))
-        self.assertEquals([Text(u'<span style="mehhhh!">'), Text("</span>")], tokenize(u'<span style="mehhhh!"></span>'))
+        self.assertEqual([Text('<span style="mehhhh!">'), Text("</span>")], tokenize('<span style="mehhhh!"></span>'))
         
 class PinyinTonifierTest(unittest.TestCase):
     def testEasy(self):
-        self.assertEquals(PinyinTonifier().tonify(u"Han4zi4 bu4 mie4, Zhong1guo2 bi4 wang2!"),
-                          u"Hànzì bù miè, Zhōngguó bì wáng!")
+        self.assertEqual(PinyinTonifier().tonify("Han4zi4 bu4 mie4, Zhong1guo2 bi4 wang2!"),
+                          "Hànzì bù miè, Zhōngguó bì wáng!")
 
     def testObscure(self):
-        self.assertEquals(PinyinTonifier().tonify(u"huai4"), u"huài")
+        self.assertEqual(PinyinTonifier().tonify("huai4"), "huài")
 
     def testUpperCase(self):
-        self.assertEquals(PinyinTonifier().tonify(u"Huai4"), u"Huài")
-        self.assertEquals(PinyinTonifier().tonify(u"An1 hui1 sheng3"), u"Ān huī shěng")
+        self.assertEqual(PinyinTonifier().tonify("Huai4"), "Huài")
+        self.assertEqual(PinyinTonifier().tonify("An1 hui1 sheng3"), "Ān huī shěng")
     
     def testGreeting(self):
-        self.assertEquals(PinyinTonifier().tonify(u"ni3 hao3, wo3 xi3 huan xue2 xi2 Han4 yu3. wo3 de Han4 yu3 shui3 ping2 hen3 di1."),
-                          u"nǐ hǎo, wǒ xǐ huan xué xí Hàn yǔ. wǒ de Hàn yǔ shuǐ píng hěn dī.")
+        self.assertEqual(PinyinTonifier().tonify("ni3 hao3, wo3 xi3 huan xue2 xi2 Han4 yu3. wo3 de Han4 yu3 shui3 ping2 hen3 di1."),
+                          "nǐ hǎo, wǒ xǐ huan xué xí Hàn yǔ. wǒ de Hàn yǔ shuǐ píng hěn dī.")
 
 class FlattenTest(unittest.TestCase):
     def testFlatten(self):
-        self.assertEquals(flatten([Word(Text(u'a ')), Word(Pinyin.parse(u"hen3"), Text(u' b')), Word(Text(u"junk")), Word(Pinyin.parse(u"ma5"))]),
-                          u"a hen3 bjunkma")
+        self.assertEqual(flatten([Word(Text('a ')), Word(Pinyin.parse("hen3"), Text(' b')), Word(Text("junk")), Word(Pinyin.parse("ma5"))]),
+                          "a hen3 bjunkma")
         
     def testFlattenTonified(self):
-        self.assertEquals(flatten([Word(Text(u'a ')), Word(Pinyin.parse(u"hen3"), Text(u' b')), Word(Text(u"junk")), Word(Pinyin.parse(u"ma5"))], tonify=True),
-                          u"a hěn bjunkma")
+        self.assertEqual(flatten([Word(Text('a ')), Word(Pinyin.parse("hen3"), Text(' b')), Word(Text("junk")), Word(Pinyin.parse("ma5"))], tonify=True),
+                          "a hěn bjunkma")
     
     def testUsesWrittenTone(self):
-        self.assertEquals(flatten([Word(Pinyin("hen", ToneInfo(written=2,spoken=3)))]), "hen2")
+        self.assertEqual(flatten([Word(Pinyin("hen", ToneInfo(written=2,spoken=3)))]), "hen2")
 
 class NeedsSpaceBeforeAppendTest(unittest.TestCase):
     def testEmptyDoesntNeedSpace(self):
@@ -365,22 +365,22 @@ class NeedsSpaceBeforeAppendTest(unittest.TestCase):
 
 class TonedCharactersFromReadingTest(unittest.TestCase):
     def testTonedTokens(self):
-        self.assertEquals(tonedcharactersfromreading(u"一个", [Pinyin.parse("yi1"), Pinyin.parse("ge4")]),
-                          [TonedCharacter(u"一", 1), TonedCharacter(u"个", 4)])
+        self.assertEqual(tonedcharactersfromreading("一个", [Pinyin.parse("yi1"), Pinyin.parse("ge4")]),
+                          [TonedCharacter("一", 1), TonedCharacter("个", 4)])
 
     def testTonedTokensWithoutTone(self):
-        self.assertEquals(tonedcharactersfromreading(u"T恤", [Text("T"), Pinyin.parse("zhi4")]),
-                          [Text(u"T"), TonedCharacter(u"恤", 4)])
+        self.assertEqual(tonedcharactersfromreading("T恤", [Text("T"), Pinyin.parse("zhi4")]),
+                          [Text("T"), TonedCharacter("恤", 4)])
 
     def testTonedTokenNumbers(self):
-        self.assertEquals(tonedcharactersfromreading(u"1994", [Pinyin.parse("yi1"), Pinyin.parse("jiu3"), Pinyin.parse("jiu3"), Pinyin.parse("si4")]),
-                          [Text(u"1"), Text(u"9"), Text(u"9"), Text(u"4")])
+        self.assertEqual(tonedcharactersfromreading("1994", [Pinyin.parse("yi1"), Pinyin.parse("jiu3"), Pinyin.parse("jiu3"), Pinyin.parse("si4")]),
+                          [Text("1"), Text("9"), Text("9"), Text("4")])
     
     def testTonesDontMatchChars(self):
-        self.assertEquals(tonedcharactersfromreading(u"ABCD", [Word(Pinyin.parse("yi1"), Pinyin.parse("shi2"), Pinyin.parse("jiu3"), Pinyin.parse("jiu3"), Pinyin.parse("shi2"), Pinyin.parse("si4"))]),
-                          [Text(u"ABCD")])
-        self.assertEquals(tonedcharactersfromreading(u"ABCD", [Word(Pinyin.parse("yi1"))]),
-                          [Text(u"ABCD")])
+        self.assertEqual(tonedcharactersfromreading("ABCD", [Word(Pinyin.parse("yi1"), Pinyin.parse("shi2"), Pinyin.parse("jiu3"), Pinyin.parse("jiu3"), Pinyin.parse("shi2"), Pinyin.parse("si4"))]),
+                          [Text("ABCD")])
+        self.assertEqual(tonedcharactersfromreading("ABCD", [Word(Pinyin.parse("yi1"))]),
+                          [Text("ABCD")])
 
 if __name__ == '__main__':
     unittest.main()

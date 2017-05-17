@@ -661,7 +661,7 @@ class TypesTest(TestBase, AssertsCompiledSQL):
         b = bindparam("foo", "hello world!")
         assert b.type.dialect_impl(dialect).get_dbapi_type(dbapi) == 'STRING'
 
-        b = bindparam("foo", u"hello world!")
+        b = bindparam("foo", "hello world!")
         assert b.type.dialect_impl(dialect).get_dbapi_type(dbapi) == 'STRING'
 
     @testing.fails_on('+zxjdbc', 'zxjdbc lacks the FIXED_CHAR dbapi type')
@@ -1000,7 +1000,7 @@ class TypesTest(TestBase, AssertsCompiledSQL):
             autoload=True, oracle_resolve_synonyms=True
             )
         for row in types_table.select().execute().fetchall():
-            [row[k] for k in row.keys()]
+            [row[k] for k in list(row.keys())]
 
     def test_raw_compile(self):
         self.assert_compile(oracle.RAW(), "RAW")
@@ -1036,11 +1036,11 @@ class TypesTest(TestBase, AssertsCompiledSQL):
                 t2.c.data.type.dialect_impl(testing.db.dialect), 
                 cx_oracle._OracleNVarChar)
 
-        data = u'm’a réveillé.'
+        data = 'm’a réveillé.'
         t2.insert().execute(data=data)
         res = t2.select().execute().first()['data']
         eq_(res, data)
-        assert isinstance(res, unicode)
+        assert isinstance(res, str)
 
     def test_char_length(self):
         self.assert_compile(VARCHAR(50),"VARCHAR(50 CHAR)")
@@ -1162,7 +1162,7 @@ class DontReflectIOTTest(TestBase):
         m = MetaData(testing.db)
         m.reflect()
         eq_(
-            set(t.name for t in m.tables.values()),
+            set(t.name for t in list(m.tables.values())),
             set(['admin_docindex'])
         )
 
@@ -1372,26 +1372,26 @@ class UnicodeSchemaTest(TestBase):
         metadata.create_all()
 
         table.insert().execute(
-            {'_underscorecolumn': u'’é'},
+            {'_underscorecolumn': '’é'},
         )
         result = testing.db.execute(
-            table.select().where(table.c._underscorecolumn==u'’é')
+            table.select().where(table.c._underscorecolumn=='’é')
         ).scalar()
-        eq_(result, u'’é')
+        eq_(result, '’é')
 
     @testing.provide_metadata
     def test_quoted_column_unicode(self):
         table=Table("atable", metadata,
-            Column(u"méil", Unicode(255), primary_key=True),
+            Column("méil", Unicode(255), primary_key=True),
         )
         metadata.create_all()
 
         table.insert().execute(
-            {u'méil': u'’é'},
+            {'méil': '’é'},
         )
         result = testing.db.execute(
-            table.select().where(table.c[u'méil']==u'’é')
+            table.select().where(table.c['méil']=='’é')
         ).scalar()
-        eq_(result, u'’é')
+        eq_(result, '’é')
 
 

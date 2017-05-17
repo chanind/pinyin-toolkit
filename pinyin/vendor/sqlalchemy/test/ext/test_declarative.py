@@ -107,14 +107,13 @@ class DeclarativeTest(DeclarativeTestBase):
         class BrokenMeta(type):
             def __getattribute__(self, attr):
                 if attr == 'xyzzy':
-                    raise AttributeError, 'xyzzy'
+                    raise AttributeError('xyzzy')
                 else:
                     return object.__getattribute__(self,attr)
 
         # even though this class has an xyzzy attribute, getattr(cls,"xyzzy")
         # fails
-        class BrokenParent(object):
-            __metaclass__ = BrokenMeta
+        class BrokenParent(object, metaclass=BrokenMeta):
             xyzzy = "magic"
 
         # _as_declarative() inspects obj.__class__.__bases__
@@ -1634,7 +1633,7 @@ class DeclarativeInheritanceTest(DeclarativeTestBase):
             primary_language = Column(String(50))
 
         assert Person.__table__.c.golf_swing is not None
-        assert not Person.__table__.c.has_key('primary_language')
+        assert 'primary_language' not in Person.__table__.c
         assert Engineer.__table__.c.primary_language is not None
         assert Engineer.primary_language is not None
         assert Manager.golf_swing is not None
@@ -1993,12 +1992,12 @@ def _produce_test(inline, stringbased):
 
         @classmethod
         def insert_data(cls):
-            params = [dict(zip(('id', 'name'), column_values))
+            params = [dict(list(zip(('id', 'name'), column_values)))
                       for column_values in [(7, 'jack'), (8, 'ed'), (9,
                       'fred'), (10, 'chuck')]]
             User.__table__.insert().execute(params)
-            Address.__table__.insert().execute([dict(zip(('id',
-                    'user_id', 'email'), column_values))
+            Address.__table__.insert().execute([dict(list(zip(('id',
+                    'user_id', 'email'), column_values)))
                     for column_values in [(1, 7, 'jack@bean.com'), (2,
                     8, 'ed@wood.com'), (3, 8, 'ed@bettyboop.com'), (4,
                     8, 'ed@lala.com'), (5, 9, 'fred@fred.com')]])
@@ -2027,7 +2026,7 @@ def _produce_test(inline, stringbased):
 for inline in True, False:
     for stringbased in True, False:
         testclass = _produce_test(inline, stringbased)
-        exec '%s = testclass' % testclass.__name__
+        exec('%s = testclass' % testclass.__name__)
         del testclass
 
 class DeclarativeReflectionTest(testing.TestBase):
@@ -2778,7 +2777,7 @@ class DeclarativeMixinTest(DeclarativeTestBase):
             __mapper_args__ = dict(polymorphic_identity='specific')
 
         assert Specific.__table__ is Generic.__table__
-        eq_(Generic.__table__.c.keys(), ['id', 'type', 'value'])
+        eq_(list(Generic.__table__.c.keys()), ['id', 'type', 'value'])
         assert class_mapper(Specific).polymorphic_on \
             is Generic.__table__.c.type
         eq_(class_mapper(Specific).polymorphic_identity, 'specific')
@@ -2807,9 +2806,9 @@ class DeclarativeMixinTest(DeclarativeTestBase):
 
         eq_(Generic.__table__.name, 'generic')
         eq_(Specific.__table__.name, 'specific')
-        eq_(Generic.__table__.c.keys(), ['timestamp', 'id',
+        eq_(list(Generic.__table__.c.keys()), ['timestamp', 'id',
             'python_type'])
-        eq_(Specific.__table__.c.keys(), ['timestamp', 'id'])
+        eq_(list(Specific.__table__.c.keys()), ['timestamp', 'id'])
         eq_(Generic.__table__.kwargs, {'mysql_engine': 'InnoDB'})
         eq_(Specific.__table__.kwargs, {'mysql_engine': 'InnoDB'})
 
@@ -2842,12 +2841,12 @@ class DeclarativeMixinTest(DeclarativeTestBase):
                         primary_key=True)
 
         eq_(BaseType.__table__.name, 'basetype')
-        eq_(BaseType.__table__.c.keys(), ['timestamp', 'type', 'id',
+        eq_(list(BaseType.__table__.c.keys()), ['timestamp', 'type', 'id',
             'value'])
         eq_(BaseType.__table__.kwargs, {'mysql_engine': 'InnoDB'})
         assert Single.__table__ is BaseType.__table__
         eq_(Joined.__table__.name, 'joined')
-        eq_(Joined.__table__.c.keys(), ['timestamp', 'id'])
+        eq_(list(Joined.__table__.c.keys()), ['timestamp', 'id'])
         eq_(Joined.__table__.kwargs, {'mysql_engine': 'InnoDB'})
 
     def test_non_propagating_mixin(self):
@@ -2872,7 +2871,7 @@ class DeclarativeMixinTest(DeclarativeTestBase):
             __mapper_args__ = dict(polymorphic_identity='specific')
 
         eq_(BaseType.__table__.name, 'basetype')
-        eq_(BaseType.__table__.c.keys(), ['type', 'id', 'value'])
+        eq_(list(BaseType.__table__.c.keys()), ['type', 'id', 'value'])
         assert Specific.__table__ is BaseType.__table__
         assert class_mapper(Specific).polymorphic_on \
             is BaseType.__table__.c.type
@@ -2903,9 +2902,9 @@ class DeclarativeMixinTest(DeclarativeTestBase):
                         primary_key=True)
 
         eq_(BaseType.__table__.name, 'basetype')
-        eq_(BaseType.__table__.c.keys(), ['type', 'id', 'value'])
+        eq_(list(BaseType.__table__.c.keys()), ['type', 'id', 'value'])
         eq_(Specific.__table__.name, 'specific')
-        eq_(Specific.__table__.c.keys(), ['id'])
+        eq_(list(Specific.__table__.c.keys()), ['id'])
 
     def test_single_back_propagate(self):
 
@@ -2924,7 +2923,7 @@ class DeclarativeMixinTest(DeclarativeTestBase):
 
             __mapper_args__ = dict(polymorphic_identity='specific')
 
-        eq_(BaseType.__table__.c.keys(), ['type', 'id', 'timestamp'])
+        eq_(list(BaseType.__table__.c.keys()), ['type', 'id', 'timestamp'])
 
     def test_table_in_model_and_same_column_in_mixin(self):
 
@@ -3020,7 +3019,7 @@ class DeclarativeMixinTest(DeclarativeTestBase):
             id = Column(Integer, primary_key=True)
             __tablename__ = 'model'
 
-        eq_(Model.__table__.c.keys(), ['col1', 'col3', 'col2', 'col4',
+        eq_(list(Model.__table__.c.keys()), ['col1', 'col3', 'col2', 'col4',
             'id'])
 
     def test_honor_class_mro_one(self):

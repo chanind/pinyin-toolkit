@@ -8,6 +8,7 @@ from sqlalchemy import exc, schema, topological, util, sql, types as sqltypes
 from sqlalchemy.sql import expression, operators, visitors
 from itertools import chain
 from collections import deque
+import collections
 
 """Utility functions that build upon SQL and Schema constructs."""
 
@@ -154,7 +155,7 @@ def bind_values(clause):
         value = bind.value
 
         # evaluate callables
-        if callable(value):
+        if isinstance(value, collections.Callable):
             value = value()
 
         v.append(value)
@@ -163,7 +164,7 @@ def bind_values(clause):
     return v
 
 def _quote_ddl_expr(element):
-    if isinstance(element, basestring):
+    if isinstance(element, str):
         element = element.replace("'", "''")
         return "'%s'" % element
     else:
@@ -372,11 +373,11 @@ class Annotated(object):
 # so that the resulting objects are pickleable.
 annotated_classes = {}
 
-for cls in expression.__dict__.values() + [schema.Column, schema.Table]:
+for cls in list(expression.__dict__.values()) + [schema.Column, schema.Table]:
     if isinstance(cls, type) and issubclass(cls, expression.ClauseElement):
-        exec "class Annotated%s(Annotated, cls):\n" \
-             "    pass" % (cls.__name__, ) in locals()
-        exec "annotated_classes[cls] = Annotated%s" % (cls.__name__)
+        exec("class Annotated%s(Annotated, cls):\n" \
+             "    pass" % (cls.__name__, ), locals())
+        exec("annotated_classes[cls] = Annotated%s" % (cls.__name__))
 
 def _deep_annotate(element, annotations, exclude=None):
     """Deep copy the given ClauseElement, annotating each element with the given annotations dictionary.
@@ -604,7 +605,7 @@ class AliasedRow(object):
         return self.row[self.map[key]]
 
     def keys(self):
-        return self.row.keys()
+        return list(self.row.keys())
 
 
 class ClauseAdapter(visitors.ReplacingCloningVisitor):

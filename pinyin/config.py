@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import copy
-import cPickle
+import pickle
 import os
 
-import dictionaryonline
-import utils
-from logger import log
+from . import dictionaryonline
+from . import utils
+from .logger import log
 
 
 # TODO: expose these things in the UI
@@ -83,14 +83,14 @@ defaultsettings = {
     "mandarinsoundsurl" : "http://www.chinese-lessons.com/sounds/Mandarin_sounds.zip",
     
     # The character to use for hanzi masking in meanings: ~ or [~] are obvious alternatives
-    "hanzimaskingcharacter" : u"㊥",
+    "hanzimaskingcharacter" : "㊥",
 
     "tonecolors" : [
-        u"#ff0000", # red
-        u"#ffaa00", # orange
-        u"#00aa00", # green
-        u"#0000ff", # blue
-        u"#545454", # grey
+        "#ff0000", # red
+        "#ffaa00", # orange
+        "#00aa00", # green
+        "#0000ff", # blue
+        "#545454", # grey
         # This should not be in in this array. This is for actual tones only:
         # u"#66CC66", # tone sandhi
       ],
@@ -98,9 +98,9 @@ defaultsettings = {
     "meaningnumberingcolor" : "#A4A4A4", # grey
 
     "extraquickaccesscolors" : [
-        u"#000000",  # black         (not the same as 'no color')
-        u"#00AAFF",  # light blue    (suggested alternative text color)
-        u"#55007F",  # yellow        (suggested highlighting color)
+        "#000000",  # black         (not the same as 'no color')
+        "#00AAFF",  # light blue    (suggested alternative text color)
+        "#55007F",  # yellow        (suggested highlighting color)
         # u"#32CD32",  # dark green    (candidate for future tone sandhi color) 
         # u"#C71585",  # violet        (randomly chosen default color)
         # u"#FF6347",  # tomato        (random chosen default color)
@@ -126,12 +126,12 @@ defaultsettings = {
       ('CEDICT',  'CC-CEDICT at MDBG',       'http://www.mdbg.net/chindict/chindict.php?page=worddictbasic&wdqb={searchTerms}'),
       ('Dict.cn', 'Dict.cn',                 'http://dict.cn/{searchTerms}'),
       ('Iciba',   'Iciba',                   'http://love.iciba.com//?{searchTerms}/?'),
-      (u'互动百科',   'Hudong',                  'http://www.hudong.com/wiki/{searchTerms}'),
+      ('互动百科',   'Hudong',                  'http://www.hudong.com/wiki/{searchTerms}'),
       ('Unihan',  'Unicode Unihan Database', 'http://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint={searchTerms}'),
       #('WikiD',   'Wiktionary',              'http://en.wiktionary.org/wiki/{searchTerms}'), # Not that good yet
       ('YellowB', 'Yellow Bridge',           'http://www.yellowbridge.com/chinese/charsearch.php?searchChinese=1&zi={searchTerms}'),
-      (u'有道',     'Youdao',                  'http://dict.youdao.com/search?q={searchTerms}&btnindex=&ue=utf8&keyfrom=dict.index'),
-      (u'雅虎',     'Zidian',                  'http://zidian.cn.yahoo.com/result_cn2en.html?p={searchTerms}')
+      ('有道',     'Youdao',                  'http://dict.youdao.com/search?q={searchTerms}&btnindex=&ue=utf8&keyfrom=dict.index'),
+      ('雅虎',     'Zidian',                  'http://zidian.cn.yahoo.com/result_cn2en.html?p={searchTerms}')
     ],
     
     # Only decks with these tags in them are processed
@@ -139,20 +139,20 @@ defaultsettings = {
 
     # Field names are listed in descending order of priority
     "candidateFieldNamesByKey" : utils.let(
-            ["MW", "Measure Word", "Classifier", "Classifiers", u"量词"],
-            ["Audio", "Sound", "Spoken", u"声音"],
+            ["MW", "Measure Word", "Classifier", "Classifiers", "量词"],
+            ["Audio", "Sound", "Spoken", "声音"],
             lambda mwfields, audiofields: {
-        'expression' : ["Expression", "Hanzi", "Chinese", "Character", "Characters", u"汉字", u"中文"],
-        'reading'    : ["Reading", "Pinyin", "PY", u"拼音"],
-        'meaning'    : ["Meaning", "Definition", "English", "German", "French", u"意思", u"翻译", u"英语", u"法语", u"德语"],
+        'expression' : ["Expression", "Hanzi", "Chinese", "Character", "Characters", "汉字", "中文"],
+        'reading'    : ["Reading", "Pinyin", "PY", "拼音"],
+        'meaning'    : ["Meaning", "Definition", "English", "German", "French", "意思", "翻译", "英语", "法语", "德语"],
         'audio'      : audiofields,
-        'color'      : ["Color", "Colour", "Colored Hanzi", u"彩色"],
+        'color'      : ["Color", "Colour", "Colored Hanzi", "彩色"],
         'mw'         : mwfields,
         'mwaudio'    : utils.concat(utils.concat([[[x + " " + y, x + y] for x in mwfields] for y in audiofields])),
         #'weblinks'   : ["Links", "Link", "LinksBar", "Links Bar", "Link Bar", "LinkBar", "Web", "Dictionary", "URL", "URLs"],
         #'pos'        : ["POS", "Part", "Type", "Cat", "Class", "Kind", "Grammar"] ,
-        'trad'       : ["Traditional", "Trad", "Traditional Chinese", "HK", u'繁体字', u'繁体', u"繁體字", u"繁體"],
-        'simp'       : ["Simplified", "Simp", "Simplified Chinese", u"简体字", u"简体"]
+        'trad'       : ["Traditional", "Trad", "Traditional Chinese", "HK", '繁体字', '繁体', "繁體字", "繁體"],
+        'simp'       : ["Simplified", "Simp", "Simplified Chinese", "简体字", "简体"]
       })
 }
 
@@ -181,13 +181,13 @@ meaningnumberingstringss = utils.let(
     # and are supplied in at least Arial Unicode MS.
     #
     # Annoyingly, this means that non-broken platforms like OS X get bad numbers above 20.
-    [u"⑪", u"⑫", u"⑬", u"⑭", u"⑮", u"⑯", u"⑰", u"⑱", u"⑲", u"⑳"],
+    ["⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱", "⑲", "⑳"],
     lambda elevenOnwards: {
     # Cute Chinese symbols for first 10, then english up from there
-    "circledChinese" : [u"㊀", u"㊁", u"㊂", u"㊃", u"㊄", u"㊅", u"㊆", u"㊇", u"㊈", u"㊉"] + elevenOnwards,
+    "circledChinese" : ["㊀", "㊁", "㊂", "㊃", "㊄", "㊅", "㊆", "㊇", "㊈", "㊉"] + elevenOnwards,
     # Cute Chinese symbols for first 10, then double symbols up to 20
     #"circledChinese" : [u"㊀", u"㊁", u"㊂", u"㊃", u"㊄", u"㊅", u"㊆", u"㊇", u"㊈", u"㊉㊀", u"㊉㊁", u"㊉㊂", u"㊉㊃", u"㊉㊄", u"㊉㊅", u"㊉㊆", u"㊉㊇", u"㊉㊈", u"㊁㊉"],
-    "circledArabic" : [u"①", u"②", u"③", u"④", u"⑤", u"⑥", u"⑦", u"⑧", u"⑨", u"⑩"] + elevenOnwards,
+    "circledArabic" : ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"] + elevenOnwards,
     "arabicParens" : [],
     "none" : None
   })
@@ -219,7 +219,7 @@ def incorporatepositionallist(incorporations):
 
 def incorporatebykeydict(incorporations):
     def inner(existing, new):
-        for key, value in new.items():
+        for key, value in list(new.items()):
             # This setting might have disappeared entirely or been renamed.
             # In that case, throw away the "new" data we've just sucked in
             if key not in existing:
@@ -245,7 +245,7 @@ sCONFIG = None
 
 def saveconfig():
     settingsFile = open(SETTINGS_FILE, "wb")
-    cPickle.dump(sCONFIG.settings, settingsFile)
+    pickle.dump(sCONFIG.settings, settingsFile)
     settingsFile.flush()
     settingsFile.close()
 
@@ -256,7 +256,7 @@ def getconfig():
     
     try: 
         settingsFile = open(SETTINGS_FILE, "rb")
-        settings = cPickle.load(settingsFile)
+        settings = pickle.load(settingsFile)
         settingsFile.close()
         config = Config(settings)
     except:
@@ -282,7 +282,7 @@ class Config(object):
         
         # Set all settings first by deep-copying the defaults. These are in an authoratitive
         # format and guaranteed to work with the current Toolkit version
-        for key, value in defaultsettings.items():
+        for key, value in list(defaultsettings.items()):
             settings[key] = copy.deepcopy(value)
         
         # Now incorporate any saved settings. Here we have to be careful, because the stuff

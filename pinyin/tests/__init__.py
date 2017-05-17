@@ -1,13 +1,13 @@
-import config
-import dictionary
-import dictionaryonline
-import factproxy
-import meanings
-import media
-import model
-import numberutils
-import model
-import statistics
-import transformations
-import updater
-import utils
+from . import config
+from . import dictionary
+from . import dictionaryonline
+from . import factproxy
+from . import meanings
+from . import media
+from . import model
+from . import numberutils
+from . import model
+from . import statistics
+from . import transformations
+from . import updater
+from . import utils

@@ -10,6 +10,7 @@ from sqlalchemy_nose import config
 from sqlalchemy.util import function_named, callable
 import re
 import warnings
+import collections
 
 class ConnectionKiller(object):
     def __init__(self):
@@ -20,17 +21,17 @@ class ConnectionKiller(object):
 
     def _apply_all(self, methods):
         # must copy keys atomically
-        for rec in self.proxy_refs.keys():
+        for rec in list(self.proxy_refs.keys()):
             if rec is not None and rec.is_valid:
                 try:
                     for name in methods:
-                        if callable(name):
+                        if isinstance(name, collections.Callable):
                             name(rec)
                         else:
                             getattr(rec, name)()
                 except (SystemExit, KeyboardInterrupt):
                     raise
-                except Exception, e:
+                except Exception as e:
                     warnings.warn("testing_reaper couldn't close connection: %s" % e)
 
     def rollback_all(self):

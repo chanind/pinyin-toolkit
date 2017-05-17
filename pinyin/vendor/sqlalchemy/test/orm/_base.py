@@ -127,13 +127,13 @@ class MappedTest(ORMTest):
             for table in reversed(self.metadata.sorted_tables):
                 try:
                     table.delete().execute().close()
-                except sa.exc.DBAPIError, ex:
-                    print >> sys.stderr, "Error emptying table %s: %r" % (
-                        table, ex)
+                except sa.exc.DBAPIError as ex:
+                    print("Error emptying table %s: %r" % (
+                        table, ex), file=sys.stderr)
 
     @classmethod
     def teardown_class(cls):
-        for cl in cls.classes.values():
+        for cl in list(cls.classes.values()):
             cls.unregister_class(cl)
         ORMTest.teardown_class()
         drop_all_tables(cls.metadata)
@@ -188,8 +188,8 @@ class MappedTest(ORMTest):
     @classmethod
     def _load_fixtures(cls):
         headers, rows = {}, {}
-        for table, data in cls.fixtures().iteritems():
-            if isinstance(table, basestring):
+        for table, data in cls.fixtures().items():
+            if isinstance(table, str):
                 table = cls.tables[table]
             headers[table] = data[0]
             rows[table] = data[1:]
@@ -198,7 +198,7 @@ class MappedTest(ORMTest):
                 continue
             table.bind.execute(
                 table.insert(),
-                [dict(zip(headers[table], column_values))
+                [dict(list(zip(headers[table], column_values)))
                  for column_values in rows[table]])
 
 

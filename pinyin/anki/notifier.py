@@ -27,4 +27,4 @@ class AnkiNotifier(object):
         if exception_info is None:
             exception_info = sys.exc_info()
         
-        showWarning(text + u"\r\nThe exception was:\r\n" + "".join(traceback.format_exception(*exception_info)))
+        showWarning(text + "\r\nThe exception was:\r\n" + "".join(traceback.format_exception(*exception_info)))

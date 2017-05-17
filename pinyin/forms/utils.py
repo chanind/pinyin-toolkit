@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtCore import QUrl
-from PyQt4.QtGui import QBrush, QDesktopServices, QFont, QImage, QKeySequence, QPalette, QPixmap
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QBrush, QDesktopServices, QFont, QImage, QKeySequence, QPalette, QPixmap
 
 
 # Substantially cribbed from Anki (main.py, onOpenPluginFolder):

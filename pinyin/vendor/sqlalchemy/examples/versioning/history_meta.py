@@ -49,7 +49,7 @@ def _history_mapper(local_mapper):
             cols.append(Column('version', Integer, primary_key=True))
 
         if super_fks:
-            cols.append(ForeignKeyConstraint(*zip(*super_fks)))
+            cols.append(ForeignKeyConstraint(*list(zip(*super_fks))))
 
         table = Table(local_mapper.local_table.name + '_history', local_mapper.local_table.metadata,
            *cols
@@ -163,7 +163,7 @@ def create_version(obj, session, deleted = False):
 
     attr['version'] = obj.version
     hist = history_cls()
-    for key, value in attr.iteritems():
+    for key, value in attr.items():
         setattr(hist, key, value)
     session.add(hist)
     obj.version += 1

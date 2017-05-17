@@ -121,7 +121,7 @@ class RegexSQL(SQLMatchRule):
 
             # do a positive compare only
             for param, received in zip(params, _received_parameters):
-                for k, v in param.iteritems():
+                for k, v in param.items():
                     if k not in received or received[k] != v:
                         equivalent = False
                         break
@@ -165,7 +165,7 @@ class CompiledSQL(SQLMatchRule):
             all_received = list(_received_parameters)
             while params:
                 param = dict(params.pop(0))
-                for k, v in context.compiled.params.iteritems():
+                for k, v in context.compiled.params.items():
                     param.setdefault(k, v)
 
                 if param not in _received_parameters:
@@ -233,7 +233,7 @@ class AllOf(AssertRule):
 def _process_engine_statement(query, context):
     if util.jython:
         # oracle+zxjdbc passes a PyStatement when returning into
-        query = unicode(query)
+        query = str(query)
     if context.engine.name == 'mssql' and query.endswith('; select scope_identity()'):
         query = query[:-25]
 

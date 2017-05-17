@@ -88,7 +88,7 @@ class DependencySortTest(TestBase):
         try:
             list(topological.sort(tuples, allitems))
             assert False
-        except exc.CircularDependencyError, err:
+        except exc.CircularDependencyError as err:
             eq_(err.cycles, set(['node1', 'node3', 'node2', 'node5',
                 'node4']))
             eq_(err.edges, set([('node3', 'node1'), ('node4', 'node1'),
@@ -111,7 +111,7 @@ class DependencySortTest(TestBase):
         try:
             list(topological.sort(tuples, allitems))
             assert False
-        except exc.CircularDependencyError, err:
+        except exc.CircularDependencyError as err:
             eq_(err.cycles, set(['node1', 'node3', 'node2']))
             eq_(err.edges, set([('node3', 'node1'), ('node2', 'node3'),
                 ('node3', 'node2'), ('node1', 'node2'), 

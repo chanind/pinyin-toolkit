@@ -515,7 +515,7 @@ class Session(object):
         self._query_cls = query_cls
         self._mapper_flush_opts = {}
         if binds is not None:
-            for mapperortable, bind in binds.iteritems():
+            for mapperortable, bind in binds.items():
                 if isinstance(mapperortable, (type, Mapper)):
                     self.bind_mapper(mapperortable, bind)
                 else:
@@ -748,7 +748,7 @@ class Session(object):
     def close_all(cls):
         """Close *all* sessions in memory."""
 
-        for sess in _sessions.values():
+        for sess in list(_sessions.values()):
             sess.close()
 
     def expunge_all(self):
@@ -883,7 +883,7 @@ class Session(object):
             self.flush()
 
     def _finalize_loaded(self, states):
-        for state, dict_ in states.items():
+        for state, dict_ in list(states.items()):
             state.commit_all(dict_, self.identity_map)
 
     def refresh(self, instance, attribute_names=None, lockmode=None):
@@ -1372,7 +1372,7 @@ class Session(object):
     def __iter__(self):
         """Iterate over all pending or persistent instances within this Session."""
 
-        return iter(list(self._new.values()) + self.identity_map.values())
+        return iter(list(self._new.values()) + list(self.identity_map.values()))
 
     def _contains_state(self, state):
         return state in self._new or self.identity_map.contains_state(state)
@@ -1620,13 +1620,13 @@ class Session(object):
     def deleted(self):
         "The set of all instances marked as 'deleted' within this ``Session``"
 
-        return util.IdentitySet(self._deleted.values())
+        return util.IdentitySet(list(self._deleted.values()))
 
     @property
     def new(self):
         "The set of all instances marked as 'new' within this ``Session``."
 
-        return util.IdentitySet(self._new.values())
+        return util.IdentitySet(list(self._new.values()))
 
 _expire_state = state.InstanceState.expire_attributes
 

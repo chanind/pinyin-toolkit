@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from history_meta import VersionedMeta, VersionedListener
+from .history_meta import VersionedMeta, VersionedListener
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import clear_mappers, compile_mappers, \
     sessionmaker, deferred, relationship
@@ -14,8 +14,7 @@ class TestVersioning(TestBase):
     def setup(self):
         global Base, Session, Versioned
         Base = declarative_base(bind=engine)
-        class Versioned(object):
-            __metaclass__ = VersionedMeta
+        class Versioned(object, metaclass=VersionedMeta):
             _decl_class_registry = Base._decl_class_registry
         Session = sessionmaker(extension=VersionedListener())
 
@@ -188,9 +187,9 @@ class TestVersioning(TestBase):
         eq_(
             sess.query(BaseClassHistory).order_by(BaseClassHistory.id).all(),
             [
-                SubClassSeparatePkHistory(id=1, name=u'sep1', type=u'sep', version=1), 
-                BaseClassHistory(id=2, name=u'base1', type=u'base', version=1), 
-                SubClassSamePkHistory(id=3, name=u'same1', type=u'same', version=1)
+                SubClassSeparatePkHistory(id=1, name='sep1', type='sep', version=1), 
+                BaseClassHistory(id=2, name='base1', type='base', version=1), 
+                SubClassSamePkHistory(id=3, name='same1', type='same', version=1)
             ]
         )
 
@@ -199,10 +198,10 @@ class TestVersioning(TestBase):
         eq_(
             sess.query(BaseClassHistory).order_by(BaseClassHistory.id, BaseClassHistory.version).all(),
             [
-                SubClassSeparatePkHistory(id=1, name=u'sep1', type=u'sep', version=1), 
-                BaseClassHistory(id=2, name=u'base1', type=u'base', version=1), 
-                SubClassSamePkHistory(id=3, name=u'same1', type=u'same', version=1), 
-                SubClassSamePkHistory(id=3, name=u'same1', type=u'same', version=2)
+                SubClassSeparatePkHistory(id=1, name='sep1', type='sep', version=1), 
+                BaseClassHistory(id=2, name='base1', type='base', version=1), 
+                SubClassSamePkHistory(id=3, name='same1', type='same', version=1), 
+                SubClassSamePkHistory(id=3, name='same1', type='same', version=2)
             ]
         )
 
@@ -210,11 +209,11 @@ class TestVersioning(TestBase):
         eq_(
             sess.query(BaseClassHistory).order_by(BaseClassHistory.id, BaseClassHistory.version).all(),
             [
-                SubClassSeparatePkHistory(id=1, name=u'sep1', type=u'sep', version=1), 
-                BaseClassHistory(id=2, name=u'base1', type=u'base', version=1), 
-                BaseClassHistory(id=2, name=u'base1mod', type=u'base', version=2), 
-                SubClassSamePkHistory(id=3, name=u'same1', type=u'same', version=1), 
-                SubClassSamePkHistory(id=3, name=u'same1', type=u'same', version=2)
+                SubClassSeparatePkHistory(id=1, name='sep1', type='sep', version=1), 
+                BaseClassHistory(id=2, name='base1', type='base', version=1), 
+                BaseClassHistory(id=2, name='base1mod', type='base', version=2), 
+                SubClassSamePkHistory(id=3, name='same1', type='same', version=1), 
+                SubClassSamePkHistory(id=3, name='same1', type='same', version=2)
             ]
         )
 
@@ -249,7 +248,7 @@ class TestVersioning(TestBase):
 
         eq_(
             sess.query(BaseClassHistory).order_by(BaseClassHistory.id, BaseClassHistory.version).all(),
-            [BaseClassHistory(id=1, name=u'b1', type=u'base', version=1)]
+            [BaseClassHistory(id=1, name='b1', type='base', version=1)]
         )
 
         sc.name ='s1modified'
@@ -258,9 +257,9 @@ class TestVersioning(TestBase):
         eq_(
             sess.query(BaseClassHistory).order_by(BaseClassHistory.id, BaseClassHistory.version).all(),
             [
-                BaseClassHistory(id=1, name=u'b1', type=u'base', version=1),
-                BaseClassHistory(id=1, name=u'b1modified', type=u'base', version=2),
-                SubClassHistory(id=2, name=u's1', type=u'sub', version=1)
+                BaseClassHistory(id=1, name='b1', type='base', version=1),
+                BaseClassHistory(id=1, name='b1modified', type='base', version=2),
+                SubClassHistory(id=2, name='s1', type='sub', version=1)
             ]
         )
 

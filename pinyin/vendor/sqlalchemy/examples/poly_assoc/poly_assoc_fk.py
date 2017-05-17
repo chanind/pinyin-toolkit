@@ -161,4 +161,4 @@ assert order.address.street == '444 park ave.'
 # query from Address to members
 
 for address in sess.query(Address).all():
-    print "Street", address.street, "Member", address.member
+    print("Street", address.street, "Member", address.member)

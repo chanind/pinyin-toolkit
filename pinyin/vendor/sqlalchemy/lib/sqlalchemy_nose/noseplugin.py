@@ -4,8 +4,8 @@ import re
 import sys
 import time
 import warnings
-import ConfigParser
-import StringIO
+import configparser
+import io
 
 import nose.case
 from nose.plugins import Plugin
@@ -68,8 +68,8 @@ class NoseSQLAlchemy(Plugin):
             help="Add a dialect-specific table option, key=value")
 
         global file_config
-        file_config = ConfigParser.ConfigParser()
-        file_config.readfp(StringIO.StringIO(base_config))
+        file_config = configparser.ConfigParser()
+        file_config.readfp(io.StringIO(base_config))
         file_config.read(['test.cfg', os.path.expanduser('~/.satest.cfg')])
         config.file_config = file_config
 
@@ -124,29 +124,29 @@ class NoseSQLAlchemy(Plugin):
         if cls.__unsupported_on__:
             spec = testing.db_spec(*cls.__unsupported_on__)
             if spec(testing.db):
-                print "'%s' unsupported on DB implementation '%s'" % (
-                     cls.__class__.__name__, testing.db.name)
+                print("'%s' unsupported on DB implementation '%s'" % (
+                     cls.__class__.__name__, testing.db.name))
                 return True
 
         if getattr(cls, '__only_on__', None):
             spec = testing.db_spec(*util.to_list(cls.__only_on__))
             if not spec(testing.db):
-                print "'%s' unsupported on DB implementation '%s'" % (
-                     cls.__class__.__name__, testing.db.name)
+                print("'%s' unsupported on DB implementation '%s'" % (
+                     cls.__class__.__name__, testing.db.name))
                 return True
 
         if getattr(cls, '__skip_if__', False):
             for c in getattr(cls, '__skip_if__'):
                 if c():
-                    print "'%s' skipped by %s" % (
-                        cls.__class__.__name__, c.__name__)
+                    print("'%s' skipped by %s" % (
+                        cls.__class__.__name__, c.__name__))
                     return True
 
         for rule in getattr(cls, '__excluded_on__', ()):
             if testing._is_excluded(*rule):
-                print "'%s' unsupported on DB %s version %s" % (
+                print("'%s' unsupported on DB %s version %s" % (
                     cls.__class__.__name__, testing.db.name,
-                    _server_version())
+                    _server_version()))
                 return True
         return False
 

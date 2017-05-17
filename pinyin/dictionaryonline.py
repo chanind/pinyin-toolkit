@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 import json
 
-from model import Text, Word
-from logger import log
-import utils
+from .model import Text, Word
+from .logger import log
+from . import utils
 
 # This module will takes a phrase and passes it to online services for translation
 # For now this modle provides support for google translate. In the future more dictionaries may be added.
@@ -23,20 +23,20 @@ def gTrans(query, destlanguage='en', prompterror=True):
     
     # No meanings if our query is blank after stripping HTML out
     query = utils.striphtml(query)
-    if query.strip() == u"":
+    if query.strip() == "":
         return None
 
     try:
         # Return the meanings (or lack of them) directly
         return lookup(query, destlanguage)
-    except urllib2.URLError, e:
+    except urllib.error.URLError as e:
         # The only 'meaning' should be an error telling the user that there was some problem
         log.exception("Error while trying to obtain Google response")
         if prompterror:
             return [[Word(Text('<span style="color:gray">[Internet Error]</span>'))]]
         else:
             return None
-    except ValueError, e:
+    except ValueError as e:
         # Not an internet problem
         log.exception("Error while interpreting translation response from Google")
         if prompterror:
@@ -48,9 +48,9 @@ def gTrans(query, destlanguage='en', prompterror=True):
 # It is used to determine connectivity for the Anki session (and thus whether Pinyin Toolkit should use online services or not)
 def gCheck(destlanguage='en'):
     try:
-        lookup(u"好", destlanguage)
+        lookup("好", destlanguage)
         return True
-    except urllib2.URLError:
+    except urllib.error.URLError:
         return False
     except ValueError:
         # Arguably could return True here, because it's not that the website is offline
@@ -60,14 +60,14 @@ def gCheck(destlanguage='en'):
 def lookup(query, destlanguage):
     # Set up URL
     url = "http://translate.google.com/translate_a/t?client=j&text=%s&sl=%s&tl=%s" % (utils.urlescape(query), 'zh-CN', destlanguage)
-    con = urllib2.Request(url, headers={'User-Agent':'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11'}, origin_req_host='http://translate.google.com')
+    con = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11'}, origin_req_host='http://translate.google.com')
     
     # Open the connection
     log.info("Issuing Google query for %s to %s", query, url)
-    req = urllib2.urlopen(con)
+    req = urllib.request.urlopen(con)
     
     # Build the result literal from the request
-    literal = u""
+    literal = ""
     for line in req:
         literal += line.decode('utf-8')
         
@@ -75,12 +75,12 @@ def lookup(query, destlanguage):
     try:
         log.info("Parsing response %r from Google", literal)
         result = parsegoogleresponse(literal)
-    except ValueError, e:
+    except ValueError as e:
         # Give the exception a more precise error message for debugging
         raise ValueError("Error while parsing translation response from Google: %s" % str(e))
     
     # What sort of result did we get?
-    if isinstance(result, basestring):
+    if isinstance(result, str):
         if result == query:
             # The result was, unhelpfully, what we queried. Give up:
             return None

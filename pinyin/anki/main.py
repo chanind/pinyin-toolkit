@@ -15,11 +15,11 @@ import pinyin.forms.builddb
 import pinyin.forms.builddbcontroller
 import pinyin.updater
 
-import hooks
-import mediamanager
-import notifier
+from . import hooks
+from . import mediamanager
+from . import notifier
 
-import statsandgraphs
+from . import statsandgraphs
 
 from pinyin.config import getconfig
 from pinyin.logger import log
@@ -149,19 +149,19 @@ class PinyinToolkit(object):
 
         def MandarinModel():
            m = Model(_("Mandarin"))
-           f = FieldModel(u'Expression')
+           f = FieldModel('Expression')
            f.quizFontSize = 72
            m.addFieldModel(f)
-           m.addFieldModel(FieldModel(u'Meaning', False, False))
-           m.addFieldModel(FieldModel(u'Reading', False, False))
-           m.addCardModel(CardModel(u"Recognition",
-                                    u"%(Expression)s",
-                                    u"%(Reading)s<br>%(Meaning)s"))
-           m.addCardModel(CardModel(u"Recall",
-                                    u"%(Meaning)s",
-                                    u"%(Expression)s<br>%(Reading)s",
+           m.addFieldModel(FieldModel('Meaning', False, False))
+           m.addFieldModel(FieldModel('Reading', False, False))
+           m.addCardModel(CardModel("Recognition",
+                                    "%(Expression)s",
+                                    "%(Reading)s<br>%(Meaning)s"))
+           m.addCardModel(CardModel("Recall",
+                                    "%(Meaning)s",
+                                    "%(Expression)s<br>%(Reading)s",
                                     active=False))
-           m.tags = u"Mandarin"
+           m.tags = "Mandarin"
            return m
 
         anki.stdmodels.models['Mandarin'] = MandarinModel

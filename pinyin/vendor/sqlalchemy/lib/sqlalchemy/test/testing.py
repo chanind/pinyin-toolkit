@@ -12,12 +12,12 @@ import re
 import sys
 import types
 import warnings
-from cStringIO import StringIO
+from io import StringIO
 
 from sqlalchemy_nose import config
 from sqlalchemy.test import assertsql, util as testutil
 from sqlalchemy.util import function_named, py3k
-from engines import drop_all_tables
+from .engines import drop_all_tables
 
 from sqlalchemy import exc as sa_exc, util, types as sqltypes, schema, pool, orm
 from sqlalchemy.engine import default
@@ -60,9 +60,9 @@ def fails_if(callable_, reason=None):
             else:
                 try:
                     fn(*args, **kw)
-                except Exception, ex:
-                    print ("'%s' failed as expected (condition: %s): %s " % (
-                        fn_name, description, str(ex)))
+                except Exception as ex:
+                    print(("'%s' failed as expected (condition: %s): %s " % (
+                        fn_name, description, str(ex))))
                     return True
                 else:
                     raise AssertionError(
@@ -82,9 +82,9 @@ def future(fn):
     def decorated(*args, **kw):
         try:
             fn(*args, **kw)
-        except Exception, ex:
-            print ("Future test '%s' failed as expected: %s " % (
-                fn_name, str(ex)))
+        except Exception as ex:
+            print(("Future test '%s' failed as expected: %s " % (
+                fn_name, str(ex))))
             return True
         else:
             raise AssertionError(
@@ -124,10 +124,10 @@ def fails_on(dbs, reason):
             else:
                 try:
                     fn(*args, **kw)
-                except Exception, ex:
-                    print ("'%s' failed as expected on DB implementation "
+                except Exception as ex:
+                    print(("'%s' failed as expected on DB implementation "
                             "'%s+%s': %s" % (
-                        fn_name, config.db.name, config.db.driver, reason))
+                        fn_name, config.db.name, config.db.driver, reason)))
                     return True
                 else:
                     raise AssertionError(
@@ -153,10 +153,10 @@ def fails_on_everything_except(*dbs):
             else:
                 try:
                     fn(*args, **kw)
-                except Exception, ex:
-                    print ("'%s' failed as expected on DB implementation "
+                except Exception as ex:
+                    print(("'%s' failed as expected on DB implementation "
                             "'%s+%s': %s" % (
-                        fn_name, config.db.name, config.db.driver, str(ex)))
+                        fn_name, config.db.name, config.db.driver, str(ex))))
                     return True
                 else:
                     raise AssertionError(
@@ -180,9 +180,9 @@ def crashes(db, reason):
             if spec(config.db):
                 msg = "'%s' unsupported on DB implementation '%s+%s': %s" % (
                     fn_name, config.db.name, config.db.driver, reason)
-                print msg
+                print(msg)
                 if carp:
-                    print >> sys.stderr, msg
+                    print(msg, file=sys.stderr)
                 return True
             else:
                 return fn(*args, **kw)
@@ -205,9 +205,9 @@ def _block_unconditionally(db, reason):
             if spec(config.db):
                 msg = "'%s' unsupported on DB implementation '%s+%s': %s" % (
                     fn_name, config.db.name, config.db.driver, reason)
-                print msg
+                print(msg)
                 if carp:
-                    print >> sys.stderr, msg
+                    print(msg, file=sys.stderr)
                 return True
             else:
                 return fn(*args, **kw)
@@ -225,9 +225,9 @@ def only_on(dbs, reason):
             else:
                 msg = "'%s' unsupported on DB implementation '%s+%s': %s" % (
                     fn_name, config.db.name, config.db.driver, reason)
-                print msg
+                print(msg)
                 if carp:
-                    print >> sys.stderr, msg
+                    print(msg, file=sys.stderr)
                 return True
         return function_named(maybe, fn_name)
     return decorate
@@ -252,9 +252,9 @@ def exclude(db, op, spec, reason):
             if _is_excluded(db, op, spec):
                 msg = "'%s' unsupported on DB %s version '%s': %s" % (
                     fn_name, config.db.name, _server_version(), reason)
-                print msg
+                print(msg)
                 if carp:
-                    print >> sys.stderr, msg
+                    print(msg, file=sys.stderr)
                 return True
             else:
                 return fn(*args, **kw)
@@ -323,9 +323,9 @@ def skip_if(predicate, reason=None):
             if predicate():
                 msg = "'%s' skipped on DB %s version '%s': %s" % (
                     fn_name, config.db.name, _server_version(), reason)
-                print msg
+                print(msg)
                 if carp:
-                    print >> sys.stderr, msg
+                    print(msg, file=sys.stderr)
                 return True
             else:
                 return fn(*args, **kw)
@@ -378,7 +378,7 @@ def emits_warning_on(db, *warnings):
 
     def decorate(fn):
         def maybe(*args, **kw):
-            if isinstance(db, basestring):
+            if isinstance(db, str):
                 if not spec(config.db):
                     return fn(*args, **kw)
                 else:
@@ -472,7 +472,7 @@ def against(*queries):
     """
 
     for query in queries:
-        if isinstance(query, basestring):
+        if isinstance(query, str):
             if db_spec(query)(config.db):
                 return True
         else:
@@ -527,7 +527,7 @@ def assert_raises(except_cls, callable_, *args, **kw):
     try:
         callable_(*args, **kw)
         success = False
-    except except_cls, e:
+    except except_cls as e:
         success = True
 
     # assert outside the block so it works for AssertionError too !
@@ -537,9 +537,9 @@ def assert_raises_message(except_cls, msg, callable_, *args, **kwargs):
     try:
         callable_(*args, **kwargs)
         assert False, "Callable did not raise an exception"
-    except except_cls, e:
+    except except_cls as e:
         assert re.search(msg, str(e)), "%r !~ %s" % (msg, e)
-        print str(e)
+        print(str(e))
 
 def fail(msg):
     assert False, msg
@@ -549,7 +549,7 @@ def fixture(table, columns, *rows):
     def onload(event, schema_item, connection):
         insert = table.insert()
         column_names = [col.key for col in columns]
-        connection.execute(insert, [dict(zip(column_names, column_values))
+        connection.execute(insert, [dict(list(zip(column_names, column_values)))
                                     for column_values in rows])
     table.append_ddl_listener('after-create', onload)
 
@@ -558,12 +558,12 @@ def provide_metadata(fn):
     drops it afterwards."""
     def maybe(*args, **kw):
         metadata = schema.MetaData(db)
-        context = dict(fn.func_globals)
+        context = dict(fn.__globals__)
         context['metadata'] = metadata
         # jython bug #1034
         rebound = types.FunctionType(
-            fn.func_code, context, fn.func_name, fn.func_defaults,
-            fn.func_closure)
+            fn.__code__, context, fn.__name__, fn.__defaults__,
+            fn.__closure__)
         try:
             return rebound(*args, **kw)
         finally:
@@ -587,15 +587,15 @@ def resolve_artifact_names(fn):
     # the func_globals.
     def resolved(*args, **kwargs):
         self = args[0]
-        context = dict(fn.func_globals)
+        context = dict(fn.__globals__)
         for source in self._artifact_registries:
             context.update(getattr(self, source))
         # jython bug #1034
         rebound = types.FunctionType(
-            fn.func_code, context, fn.func_name, fn.func_defaults,
-            fn.func_closure)
+            fn.__code__, context, fn.__name__, fn.__defaults__,
+            fn.__closure__)
         return rebound(*args, **kwargs)
-    return function_named(resolved, fn.func_name)
+    return function_named(resolved, fn.__name__)
 
 class adict(dict):
     """Dict keys available as attributes.  Shadows."""
@@ -647,7 +647,7 @@ class AssertsCompiledSQL(object):
 
         kw = {}
         if params is not None:
-            kw['column_keys'] = params.keys()
+            kw['column_keys'] = list(params.keys())
 
         if isinstance(clause, orm.Query):
             context = clause._compile_context()
@@ -660,7 +660,7 @@ class AssertsCompiledSQL(object):
         # Py3K
         #param_str = param_str.encode('utf-8').decode('ascii', 'ignore')
 
-        print "\nSQL String:\n" + str(c) + param_str
+        print("\nSQL String:\n" + str(c) + param_str)
 
         cc = re.sub(r'[\n\t]', '', str(c))
 
@@ -704,27 +704,27 @@ class ComparesTables(object):
 class AssertsExecutionResults(object):
     def assert_result(self, result, class_, *objects):
         result = list(result)
-        print repr(result)
+        print(repr(result))
         self.assert_list(result, class_, objects)
 
     def assert_list(self, result, class_, list):
-        self.assert_(len(result) == len(list),
+        self.assertTrue(len(result) == len(list),
                      "result list is not the same size as test list, " +
                      "for class " + class_.__name__)
         for i in range(0, len(list)):
             self.assert_row(class_, result[i], list[i])
 
     def assert_row(self, class_, rowobj, desc):
-        self.assert_(rowobj.__class__ is class_,
+        self.assertTrue(rowobj.__class__ is class_,
                      "item class is not " + repr(class_))
-        for key, value in desc.iteritems():
+        for key, value in desc.items():
             if isinstance(value, tuple):
                 if isinstance(value[1], list):
                     self.assert_list(getattr(rowobj, key), value[0], value[1])
                 else:
                     self.assert_row(value[0], getattr(rowobj, key), value[1])
             else:
-                self.assert_(getattr(rowobj, key) == value,
+                self.assertTrue(getattr(rowobj, key) == value,
                              "attribute %s value %s does not match %s" % (
                              key, getattr(rowobj, key), value))
 
@@ -742,7 +742,7 @@ class AssertsExecutionResults(object):
         found = util.IdentitySet(result)
         expected = set([frozendict(e) for e in expected])
 
-        for wrong in itertools.ifilterfalse(lambda o: type(o) == cls, found):
+        for wrong in itertools.filterfalse(lambda o: type(o) == cls, found):
             fail('Unexpected type "%s", expected "%s"' % (
                 type(wrong).__name__, cls.__name__))
 
@@ -752,7 +752,7 @@ class AssertsExecutionResults(object):
 
         NOVALUE = object()
         def _compare_item(obj, spec):
-            for key, value in spec.iteritems():
+            for key, value in spec.items():
                 if isinstance(value, tuple):
                     try:
                         self.assert_unordered_result(
@@ -793,7 +793,7 @@ class AssertsExecutionResults(object):
         for rule in rules:
             if isinstance(rule, dict):
                 newrule = assertsql.AllOf(*[
-                    assertsql.ExactSQL(k, v) for k, v in rule.iteritems()
+                    assertsql.ExactSQL(k, v) for k, v in rule.items()
                 ])
             else:
                 newrule = assertsql.ExactSQL(*rule)

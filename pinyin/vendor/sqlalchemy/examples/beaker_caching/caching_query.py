@@ -21,6 +21,7 @@ Beaker constructs.
 from sqlalchemy.orm.interfaces import MapperOption
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql import visitors
+import collections
 
 class CachingQuery(Query):
     """A Query subclass which optionally loads full results from a Beaker 
@@ -258,7 +259,7 @@ def _params_from_query(query):
         # lazyloader may dig a callable in here, intended
         # to late-evaluate params after autoflush is called.
         # convert to a scalar value.
-        if callable(value):
+        if isinstance(value, collections.Callable):
             value = value()
 
         v.append(value)

@@ -1004,7 +1004,7 @@ class RelationshipProperty(StrategizedProperty):
 
             try:
                 return join_condition(mapper.local_table, table)
-            except sa_exc.ArgumentError, e:
+            except sa_exc.ArgumentError as e:
                 return join_condition(mapper.mapped_table, table)
 
         try:
@@ -1019,7 +1019,7 @@ class RelationshipProperty(StrategizedProperty):
                 if self.primaryjoin is None:
                     self.primaryjoin = _search_for_join(self.parent,
                             self.target)
-        except sa_exc.ArgumentError, e:
+        except sa_exc.ArgumentError as e:
             raise sa_exc.ArgumentError("Could not determine join "
                     "condition between parent/child tables on "
                     "relationship %s.  Specify a 'primaryjoin' "
@@ -1316,7 +1316,7 @@ class RelationshipProperty(StrategizedProperty):
         if not self.is_primary():
             return
         if self.backref is not None and not self.back_populates:
-            if isinstance(self.backref, basestring):
+            if isinstance(self.backref, str):
                 backref_key, kwargs = self.backref, {}
             else:
                 backref_key, kwargs = self.backref

@@ -118,7 +118,7 @@ class CompileTest(_base.ORMTest):
         try:
             class_mapper(Product).compile()
             assert False
-        except sa_exc.ArgumentError, e:
+        except sa_exc.ArgumentError as e:
             assert str(e).index("Error creating backref ") > -1
 
     def testthree(self):
@@ -177,7 +177,7 @@ class CompileTest(_base.ORMTest):
         try:
             compile_mappers()
             assert False
-        except sa_exc.ArgumentError, e:
+        except sa_exc.ArgumentError as e:
             assert str(e).index("Error creating backref") > -1
 
 

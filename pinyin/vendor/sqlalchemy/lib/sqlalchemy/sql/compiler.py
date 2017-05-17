@@ -48,7 +48,7 @@ RESERVED_WORDS = set([
     'using', 'verbose', 'when', 'where'])
 
 LEGAL_CHARACTERS = re.compile(r'^[A-Z0-9_$]+$', re.I)
-ILLEGAL_INITIAL_CHARACTERS = set([str(x) for x in xrange(0, 10)]).union(['$'])
+ILLEGAL_INITIAL_CHARACTERS = set([str(x) for x in range(0, 10)]).union(['$'])
 
 BIND_PARAMS = re.compile(r'(?<![:\w\$\x5c]):([\w\$]+)(?![:\w\$])', re.UNICODE)
 BIND_PARAMS_ESC = re.compile(r'\x5c(:[\w\$]+)(?![:\w\$])', re.UNICODE)
@@ -263,7 +263,7 @@ class SQLCompiler(engine.Compiled):
 
         if params:
             pd = {}
-            for bindparam, name in self.bind_names.iteritems():
+            for bindparam, name in self.bind_names.items():
                 for paramname in (bindparam.key, name):
                     if paramname in params:
                         pd[name] = params[paramname]
@@ -387,7 +387,7 @@ class SQLCompiler(engine.Compiled):
 
     def visit_textclause(self, textclause, **kwargs):
         if textclause.typemap is not None:
-            for colname, type_ in textclause.typemap.iteritems():
+            for colname, type_ in textclause.typemap.items():
                 self.result_map[colname.lower()] = (colname, None, type_)
 
         def do_bindparam(m):
@@ -595,12 +595,12 @@ class SQLCompiler(engine.Compiled):
         of the DBAPI.
 
         """
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = value.replace("'", "''")
             return "'%s'" % value
         elif value is None:
             return "NULL"
-        elif isinstance(value, (float, int, long)):
+        elif isinstance(value, (float, int)):
             return repr(value)
         elif isinstance(value, decimal.Decimal):
             return str(value)
@@ -740,7 +740,7 @@ class SQLCompiler(engine.Compiled):
             byfrom = dict([
                             (from_, hinttext % {'name':self.process(from_, ashint=True)}) 
                             for (from_, dialect), hinttext in 
-                            select._hints.iteritems() 
+                            select._hints.items() 
                             if dialect in ('*', self.dialect.name)
                         ])
             hint_text = self.get_select_hint_text(byfrom)
@@ -964,7 +964,7 @@ class SQLCompiler(engine.Compiled):
                               if not stmt.parameters or key not in stmt.parameters)
 
         if stmt.parameters is not None:
-            for k, v in stmt.parameters.iteritems():
+            for k, v in stmt.parameters.items():
                 parameters.setdefault(sql._column_as_key(k), v)
 
         # create a list of column assignment clauses as tuples
@@ -1255,7 +1255,7 @@ class DDLCompiler(engine.Compiled):
 
     def get_column_default_string(self, column):
         if isinstance(column.server_default, schema.DefaultClause):
-            if isinstance(column.server_default.arg, basestring):
+            if isinstance(column.server_default.arg, str):
                 return "'%s'" % column.server_default.arg
             else:
                 return self.sql_compiler.process(column.server_default.arg)
@@ -1298,10 +1298,10 @@ class DDLCompiler(engine.Compiled):
         remote_table = list(constraint._elements.values())[0].column.table
         text += "FOREIGN KEY(%s) REFERENCES %s (%s)" % (
             ', '.join(preparer.quote(f.parent.name, f.parent.quote)
-                      for f in constraint._elements.values()),
+                      for f in list(constraint._elements.values())),
             self.define_constraint_remote_table(constraint, remote_table, preparer),
             ', '.join(preparer.quote(f.column.name, f.column.quote)
-                      for f in constraint._elements.values())
+                      for f in list(constraint._elements.values()))
         )
         text += self.define_constraint_cascades(constraint)
         text += self.define_constraint_deferrability(constraint)
@@ -1527,7 +1527,7 @@ class IdentifierPreparer(object):
         lc_value = value.lower()
         return (lc_value in self.reserved_words
                 or value[0] in self.illegal_initial_characters
-                or not self.legal_characters.match(unicode(value))
+                or not self.legal_characters.match(str(value))
                 or (lc_value != value))
 
     def quote_schema(self, schema, force):

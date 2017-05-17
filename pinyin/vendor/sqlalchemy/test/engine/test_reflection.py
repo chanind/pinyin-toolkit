@@ -1,5 +1,5 @@
 from sqlalchemy.test.testing import eq_, assert_raises, assert_raises_message
-import StringIO, unicodedata
+import io, unicodedata
 from sqlalchemy import types as sql_types
 from sqlalchemy import schema, Integer
 from sqlalchemy.engine.reflection import Inspector
@@ -217,9 +217,9 @@ class ReflectionTest(TestBase, ComparesTables):
                 Column('col2', sa.Unicode()),
                 Column('col4', sa.String(30)), autoload=True)
 
-            self.assert_(isinstance(table.c.col1.type, sa.Integer))
-            self.assert_(isinstance(table.c.col2.type, sa.Unicode))
-            self.assert_(isinstance(table.c.col4.type, sa.String))
+            self.assertTrue(isinstance(table.c.col1.type, sa.Integer))
+            self.assertTrue(isinstance(table.c.col2.type, sa.Unicode))
+            self.assertTrue(isinstance(table.c.col4.type, sa.String))
         finally:
             table.drop()
 
@@ -500,7 +500,7 @@ class ReflectionTest(TestBase, ComparesTables):
                 users = Table('users', meta2, Column('name',
                               sa.Unicode), autoload=True)
                 assert False
-            except sa.exc.InvalidRequestError, err:
+            except sa.exc.InvalidRequestError as err:
                 assert str(err) \
                     == "Table 'users' is already defined for this "\
                     "MetaData instance.  Specify 'useexisting=True' "\
@@ -611,7 +611,7 @@ class ReflectionTest(TestBase, ComparesTables):
             self.assert_tables_equal(multi, table)
             self.assert_tables_equal(multi2, table2)
             j = sa.join(table, table2)
-            self.assert_(sa.and_(table.c.multi_id == table2.c.foo,
+            self.assertTrue(sa.and_(table.c.multi_id == table2.c.foo,
                          table.c.multi_rev == table2.c.bar,
                          table.c.multi_hoho
                          == table2.c.lala).compare(j.onclause))
@@ -672,8 +672,8 @@ class ReflectionTest(TestBase, ComparesTables):
         nameset = set(names)
         for name in names:
             # be sure our starting environment is sane
-            self.assert_(name not in existing)
-        self.assert_('rt_f' not in existing)
+            self.assertTrue(name not in existing)
+        self.assertTrue('rt_f' not in existing)
 
         baseline = MetaData(testing.db)
         for name in names:
@@ -682,53 +682,53 @@ class ReflectionTest(TestBase, ComparesTables):
 
         try:
             m1 = MetaData(testing.db)
-            self.assert_(not m1.tables)
+            self.assertTrue(not m1.tables)
             m1.reflect()
-            self.assert_(nameset.issubset(set(m1.tables.keys())))
+            self.assertTrue(nameset.issubset(set(m1.tables.keys())))
 
             m2 = MetaData()
             m2.reflect(testing.db, only=['rt_a', 'rt_b'])
-            self.assert_(set(m2.tables.keys()) == set(['rt_a', 'rt_b']))
+            self.assertTrue(set(m2.tables.keys()) == set(['rt_a', 'rt_b']))
 
             m3 = MetaData()
             c = testing.db.connect()
             m3.reflect(bind=c, only=lambda name, meta: name == 'rt_c')
-            self.assert_(set(m3.tables.keys()) == set(['rt_c']))
+            self.assertTrue(set(m3.tables.keys()) == set(['rt_c']))
 
             m4 = MetaData(testing.db)
             try:
                 m4.reflect(only=['rt_a', 'rt_f'])
-                self.assert_(False)
-            except sa.exc.InvalidRequestError, e:
-                self.assert_(e.args[0].endswith('(rt_f)'))
+                self.assertTrue(False)
+            except sa.exc.InvalidRequestError as e:
+                self.assertTrue(e.args[0].endswith('(rt_f)'))
 
             m5 = MetaData(testing.db)
             m5.reflect(only=[])
-            self.assert_(not m5.tables)
+            self.assertTrue(not m5.tables)
 
             m6 = MetaData(testing.db)
             m6.reflect(only=lambda n, m: False)
-            self.assert_(not m6.tables)
+            self.assertTrue(not m6.tables)
 
             m7 = MetaData(testing.db, reflect=True)
-            self.assert_(nameset.issubset(set(m7.tables.keys())))
+            self.assertTrue(nameset.issubset(set(m7.tables.keys())))
 
             try:
                 m8 = MetaData(reflect=True)
-                self.assert_(False)
-            except sa.exc.ArgumentError, e:
-                self.assert_(e.args[0]
+                self.assertTrue(False)
+            except sa.exc.ArgumentError as e:
+                self.assertTrue(e.args[0]
                              == 'A bind must be supplied in '
                              'conjunction with reflect=True')
         finally:
             baseline.drop_all()
 
         if existing:
-            print "Other tables present in database, skipping some checks."
+            print("Other tables present in database, skipping some checks.")
         else:
             m9 = MetaData(testing.db)
             m9.reflect()
-            self.assert_(not m9.tables)
+            self.assertTrue(not m9.tables)
 
     def test_index_reflection(self):
         m1 = MetaData(testing.db)
@@ -791,15 +791,15 @@ class ReflectionTest(TestBase, ComparesTables):
             m2.reflect(views=False)
             eq_(
                 set(m2.tables), 
-                set([u'users', u'email_addresses'])
+                set(['users', 'email_addresses'])
             )
 
             m2 = MetaData(testing.db)
             m2.reflect(views=True)
             eq_(
                 set(m2.tables), 
-                set([u'email_addresses_v', u'users_v', 
-                            u'users', u'email_addresses'])
+                set(['email_addresses_v', 'users_v', 
+                            'users', 'email_addresses'])
             )
         finally:
             dropViews(metadata.bind)
@@ -885,7 +885,7 @@ class CreateDropTest(TestBase):
         # "extra" tables if there is a misconfigured template.  (*cough*
         # tsearch2 w/ the pg windows installer.)
 
-        self.assert_(not set(metadata.tables)
+        self.assertTrue(not set(metadata.tables)
                      - set(testing.db.table_names()))
         metadata.drop_all(bind=testing.db)
 
@@ -917,19 +917,19 @@ class UnicodeReflectionTest(TestBase):
         cls.metadata = metadata = MetaData()
 
         no_multibyte_period = set([
-            (u'plain', u'col_plain', u'ix_plain')
+            ('plain', 'col_plain', 'ix_plain')
         ])
         no_has_table = [
-            (u'no_has_table_1', u'col_Unit\u00e9ble', u'ix_Unit\u00e9ble'),
-            (u'no_has_table_2', u'col_\u6e2c\u8a66', u'ix_\u6e2c\u8a66'),
+            ('no_has_table_1', 'col_Unit\u00e9ble', 'ix_Unit\u00e9ble'),
+            ('no_has_table_2', 'col_\u6e2c\u8a66', 'ix_\u6e2c\u8a66'),
         ]
         no_case_sensitivity = [
-            (u'\u6e2c\u8a66', u'col_\u6e2c\u8a66', u'ix_\u6e2c\u8a66'),
-            (u'unit\u00e9ble', u'col_unit\u00e9ble', u'ix_unit\u00e9ble'),
+            ('\u6e2c\u8a66', 'col_\u6e2c\u8a66', 'ix_\u6e2c\u8a66'),
+            ('unit\u00e9ble', 'col_unit\u00e9ble', 'ix_unit\u00e9ble'),
         ]
         full = [
-            (u'Unit\u00e9ble', u'col_Unit\u00e9ble', u'ix_Unit\u00e9ble'),
-            (u'\u6e2c\u8a66', u'col_\u6e2c\u8a66', u'ix_\u6e2c\u8a66'),
+            ('Unit\u00e9ble', 'col_Unit\u00e9ble', 'ix_Unit\u00e9ble'),
+            ('\u6e2c\u8a66', 'col_\u6e2c\u8a66', 'ix_\u6e2c\u8a66'),
         ]
 
         # as you can see, our options for this kind of thing 
@@ -991,7 +991,7 @@ class UnicodeReflectionTest(TestBase):
             # on reflection.
 
             nfc = set([unicodedata.normalize('NFC', n) for n in names])
-            self.assert_(nfc == names)
+            self.assertTrue(nfc == names)
 
             # Yep.  But still ensure that bulk reflection and
             # create/drop work with either normalization.
@@ -1220,7 +1220,7 @@ class ComponentReflectionTest(TestBase):
     def test_get_schema_names(self):
         insp = Inspector(testing.db)
 
-        self.assert_('test_schema' in insp.get_schema_names())
+        self.assertTrue('test_schema' in insp.get_schema_names())
 
     def test_dialect_initialize(self):
         engine = engines.testing_engine()
@@ -1286,7 +1286,7 @@ class ComponentReflectionTest(TestBase):
                     addresses)):
                 schema_name = schema
                 cols = insp.get_columns(table_name, schema=schema_name)
-                self.assert_(len(cols) > 0, len(cols))
+                self.assertTrue(len(cols) > 0, len(cols))
 
                 # should be in order
 
@@ -1306,7 +1306,7 @@ class ComponentReflectionTest(TestBase):
                     # assert that the desired type and return type share
                     # a base within one of the generic types.
 
-                    self.assert_(len(set(ctype.__mro__).
+                    self.assertTrue(len(set(ctype.__mro__).
                         intersection(ctype_def.__mro__).intersection([
                         sql_types.Integer,
                         sql_types.Numeric,
@@ -1379,7 +1379,7 @@ class ComponentReflectionTest(TestBase):
             users_fkeys = insp.get_foreign_keys(users.name,
                                                 schema=schema)
             fkey1 = users_fkeys[0]
-            self.assert_(fkey1['name'] is not None)
+            self.assertTrue(fkey1['name'] is not None)
             eq_(fkey1['referred_schema'], expected_schema)
             eq_(fkey1['referred_table'], users.name)
             eq_(fkey1['referred_columns'], ['user_id', ])
@@ -1388,7 +1388,7 @@ class ComponentReflectionTest(TestBase):
             addr_fkeys = insp.get_foreign_keys(addresses.name,
                                                schema=schema)
             fkey1 = addr_fkeys[0]
-            self.assert_(fkey1['name'] is not None)
+            self.assertTrue(fkey1['name'] is not None)
             eq_(fkey1['referred_schema'], expected_schema)
             eq_(fkey1['referred_table'], users.name)
             eq_(fkey1['referred_columns'], ['user_id', ])
@@ -1446,9 +1446,9 @@ class ComponentReflectionTest(TestBase):
         try:
             insp = Inspector(meta.bind)
             v1 = insp.get_view_definition(view_name1, schema=schema)
-            self.assert_(v1)
+            self.assertTrue(v1)
             v2 = insp.get_view_definition(view_name2, schema=schema)
-            self.assert_(v2)
+            self.assertTrue(v2)
         finally:
             dropViews(meta.bind, schema)
             addresses.drop()
@@ -1469,7 +1469,7 @@ class ComponentReflectionTest(TestBase):
             try:
                 insp = create_inspector(meta.bind)
                 oid = insp.get_table_oid(table_name, schema)
-                self.assert_(isinstance(oid, (int, long)))
+                self.assertTrue(isinstance(oid, int))
             finally:
                 addresses.drop()
                 users.drop()

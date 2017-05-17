@@ -75,7 +75,7 @@ class TestTypes(TestBase, AssertsExecutionResults):
             eq_(row, (1, datetime.date(2010, 5, 10), 
             datetime.datetime( 2010, 5, 10, 12, 15, 25, )))
             r = engine.execute(func.current_date()).scalar()
-            assert isinstance(r, basestring)
+            assert isinstance(r, str)
         finally:
             t.drop(engine)
             engine.dispose()
@@ -95,8 +95,8 @@ class TestTypes(TestBase, AssertsExecutionResults):
             UnicodeText(),
             ):
             bindproc = t.dialect_impl(dialect).bind_processor(dialect)
-            assert not bindproc or isinstance(bindproc(u'some string'),
-                    unicode)
+            assert not bindproc or isinstance(bindproc('some string'),
+                    str)
 
     def test_type_reflection(self):
 
@@ -329,7 +329,7 @@ class DialectTest(TestBase, AssertsExecutionResults):
             eq_(inspector.get_indexes('foo'), [])
             eq_(inspector.get_indexes('foo',
                 include_auto_indexes=True), [{'unique': 1, 'name'
-                : u'sqlite_autoindex_foo_1', 'column_names': [u'bar']}])
+                : 'sqlite_autoindex_foo_1', 'column_names': ['bar']}])
         finally:
             meta.drop_all()
 
@@ -379,7 +379,7 @@ class SQLTest(TestBase, AssertsCompiledSQL):
             'dow': '%w',
             'week': '%W',
             }
-        for field, subst in mapping.items():
+        for field, subst in list(mapping.items()):
             self.assert_compile(select([extract(field, t.c.col1)]),
                                 "SELECT CAST(STRFTIME('%s', t.col1) AS "
                                 "INTEGER) AS anon_1 FROM t" % subst)

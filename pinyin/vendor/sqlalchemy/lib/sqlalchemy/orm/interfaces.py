@@ -697,10 +697,10 @@ def serialize_path(path):
     if path is None:
         return None
 
-    return zip(
+    return list(zip(
         [m.class_ for m in [path[i] for i in range(0, len(path), 2)]], 
         [path[i] for i in range(1, len(path), 2)] + [None]
-    )
+    ))
 
 def deserialize_path(path):
     if path is None:
@@ -824,12 +824,12 @@ class PropertyOption(MapperOption):
         current_path = list(query._current_path)
         tokens = []
         for key in util.to_list(self.key):
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 tokens += key.split('.')
             else:
                 tokens += [key]
         for token in tokens:
-            if isinstance(token, basestring):
+            if isinstance(token, str):
                 if not entity:
                     if current_path:
                         if current_path[1] == token:
@@ -962,7 +962,7 @@ def _reduce_path(path):
     return tuple([i % 2 != 0 and 
                     path[i] or 
                     getattr(path[i], 'base_mapper', path[i]) 
-                    for i in xrange(len(path))])
+                    for i in range(len(path))])
 
 class LoaderStrategy(object):
     """Describe the loading behavior of a StrategizedProperty object.

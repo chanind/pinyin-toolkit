@@ -1,45 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import dictionary
-import model
-import utils
+from . import dictionary
+from . import model
+from . import utils
 
 #
 # Raw data
 #
 
-hanzidigits = [u"零", u"一", u"二", u"三", u"四", u"五", u"六", u"七", u"八", u"九"]
-hanziquantitypinyin = map(lambda (c, p, t): model.Pinyin(p, t), [
-    (u"一", "yi", 1),
-    (u"两", "liang", 3),
-    (u"三", "san", 1),
-    (u"四", "si", 4),
-    (u"五", "wu", 3),
-    (u"六", "liu", 4),
-    (u"七", "qi", 1),
-    (u"八", "ba", 1),
-    (u"九", "jiu", 3),
-    (u"几", "ji", 3)
-  ])
+hanzidigits = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
+hanziquantitypinyin = [model.Pinyin(c_p_t[1], c_p_t[2]) for c_p_t in [
+    ("一", "yi", 1),
+    ("两", "liang", 3),
+    ("三", "san", 1),
+    ("四", "si", 4),
+    ("五", "wu", 3),
+    ("六", "liu", 4),
+    ("七", "qi", 1),
+    ("八", "ba", 1),
+    ("九", "jiu", 3),
+    ("几", "ji", 3)
+  ]]
 
 magnitudes = list(enumerate([
-    u"",     # units
-    u"十",    # tens
-    u"百",    # hundreds
-    u"千",    # thousands
-    u"万",    # ten-thousands
-    u"十万",   # hundred thousand
-    u"百万",   # 10^6
-    u"千万",   # 10^7
-    u"亿",    # 10^8
-    u"十亿",   # 10^9
-    u"百亿",   # 10^10
-    u"千亿",   # 10^11
-    u"兆",    # 10^12
-    u"十兆",   # 10^13
-    u"百兆",   # 10^14
-    u"千兆"    # 10^15
+    "",     # units
+    "十",    # tens
+    "百",    # hundreds
+    "千",    # thousands
+    "万",    # ten-thousands
+    "十万",   # hundred thousand
+    "百万",   # 10^6
+    "千万",   # 10^7
+    "亿",    # 10^8
+    "十亿",   # 10^9
+    "百亿",   # 10^10
+    "千亿",   # 10^11
+    "兆",    # 10^12
+    "十兆",   # 10^13
+    "百兆",   # 10^14
+    "千兆"    # 10^15
   ]))
 
 #
@@ -48,7 +48,7 @@ magnitudes = list(enumerate([
 #
 
 def skipcommas(whenparsingwhat):
-    skips = [",", u"，"]
+    skips = [",", "，"]
     
     def inner(text):
         # We want to keep stripping stuff until we can't any longer
@@ -106,7 +106,7 @@ def numberashanzi(n):
         # do this for all manifest digits.
         return hanzidigits[n]
     
-    hanzi = u""
+    hanzi = ""
     needling = False
     for power, text in reversed(magnitudes):
         tenpower = pow(10, power)
@@ -114,7 +114,7 @@ def numberashanzi(n):
         # This check will only have an effect the first time around the
         # loop: if the number turns out to be too big, return the Arabic
         if n >= 10 * tenpower:
-            return unicode(n)
+            return str(n)
         
         # NB: use floor division instead of ``true division'' here
         digit = n // tenpower
@@ -123,13 +123,13 @@ def numberashanzi(n):
         if digit == 0:
             # We record the fact that we need to insert a ling before the end
             # as long as there we already have some digits in the output
-            if hanzi != u"":
+            if hanzi != "":
                 needling = True
             
             # Don't display anything in the string right now
             continue
         
-        if digit == 1 and power < 3 and hanzi == u"":
+        if digit == 1 and power < 3 and hanzi == "":
             # We can omit the leading one for numbers on numbers 100 or less
             hanzi += text
             continue
@@ -150,8 +150,8 @@ def parsehanziasnumber(hanzi):
         return 0, hanzi[len(hanzidigits[0]):]
     
     # Special case for the irregular 'liang'
-    if hanzi.startswith(u"两"):
-        return 2, hanzi[len(u"两"):]
+    if hanzi.startswith("两"):
+        return 2, hanzi[len("两"):]
     
     # Main loop that parses the numeric text from the left
     number = 0
@@ -208,9 +208,9 @@ def parsewesternnumberlike(expression, integerhandler, decimalhandler, yearhandl
     
     # If that's followed by a decimal seperator and some digits we
     # can generate a Chinese decimal reading
-    if expression.startswith(".") or expression.startswith(u"。"):
+    if expression.startswith(".") or expression.startswith("。"):
         trailingdigits, expression = parsemany(parsedigit)(expression[1:])
-        if len(trailingdigits) == 0 or expression.strip() != u"":
+        if len(trailingdigits) == 0 or expression.strip() != "":
             # Something after the trailing digits that we don't understand
             # or we didn't get any digits after . at all
             return None
@@ -218,19 +218,19 @@ def parsewesternnumberlike(expression, integerhandler, decimalhandler, yearhandl
         return decimalhandler(leadingdigits, trailingdigits)
     
     # What suffixes the integer?
-    if expression == u"":
+    if expression == "":
         # No suffix, return as a straight number
         return integerhandler(leadingdigits)
-    elif expression == u"年":
+    elif expression == "年":
         # Followed by a nian, return as a year
         return yearhandler(leadingdigits)
-    elif expression in [u"%", u"％"]:
+    elif expression in ["%", "％"]:
         # Followed by a percentage symbol, return as a percentage
         return percenthandler(leadingdigits)
-    elif expression.startswith(u"/") or expression.startswith(u"\\"):
+    elif expression.startswith("/") or expression.startswith("\\"):
         # Followed by a slash, so could be a fraction
         trailingdigits, expression = parsedigitswithcommas(expression[1:])
-        if len(trailingdigits) == 0 or expression.strip() != u"":
+        if len(trailingdigits) == 0 or expression.strip() != "":
             # Something after the trailing digits that we don't understand
             # or we didn't get any digits after the slash at all
             return None
@@ -251,9 +251,9 @@ def parsechinesenumberlike(expression, integerhandler, decimalhandler, yearhandl
     
     # If that's followed by a decimal seperator and some digits we
     # can generate a Chinese decimal meaning
-    if trailingexpression.startswith(u"点"):
-        trailingdigits, trailingexpression = parsemany(parsehanzidigit)(trailingexpression[len(u"点"):])
-        if len(trailingdigits) == 0 or trailingexpression.strip() != u"":
+    if trailingexpression.startswith("点"):
+        trailingdigits, trailingexpression = parsemany(parsehanzidigit)(trailingexpression[len("点"):])
+        if len(trailingdigits) == 0 or trailingexpression.strip() != "":
             # Something after the trailing digits that we don't understand
             # or we didn't get any digits after . at all
             return None
@@ -261,16 +261,16 @@ def parsechinesenumberlike(expression, integerhandler, decimalhandler, yearhandl
         return decimalhandler(leadingwesterndigits, trailingdigits)
     
     # What suffixes the integer?
-    if trailingexpression == u"":
+    if trailingexpression == "":
         # No suffix, return as a straight number
         return integerhandler(leadingwesterndigits)
-    elif trailingexpression.startswith(u"分之"):
+    elif trailingexpression.startswith("分之"):
         # A fraction! Get the numerator
-        trailingnumber, trailingexpression = parsehanziasnumber(trailingexpression[len(u"分之"):])
+        trailingnumber, trailingexpression = parsehanziasnumber(trailingexpression[len("分之"):])
         trailingwesterndigits = list(str(trailingnumber))
     
         # Bail out if that didn't consume the whole input
-        if trailingexpression.strip() != u"":
+        if trailingexpression.strip() != "":
             return None
     
         if leadingnumber == 100:
@@ -282,7 +282,7 @@ def parsechinesenumberlike(expression, integerhandler, decimalhandler, yearhandl
     else:
         # Unknown suffix. We probably have to give up, but we MIGHT have had a year:
         leadingwesterndigits, trailingexpression = parsemany(parsehanzidigit)(expression)
-        if trailingexpression == u"年":
+        if trailingexpression == "年":
             # Followed by a nian, return as a year
             return yearhandler(leadingwesterndigits)
         else:
@@ -296,13 +296,13 @@ def readingfromnumberlike(expression, dictionary):
     # the way a Chinese person would say them
     return parsewesternnumberlike(expression,
             lambda digits: dictionary.reading(numberashanzi(intify(digits))),
-            lambda leadingdigits, trailingdigits: dictionary.reading(numberashanzi(intify(leadingdigits)) + u"点" + "".join([numberashanzi(int(digit)) for digit in trailingdigits])),
-            lambda digits: dictionary.reading("".join([numberashanzi(int(digit)) for digit in digits]) + u"年"),
-            lambda digits: dictionary.reading(u"百分之" + numberashanzi(intify(digits))),
-            lambda numdigits, denomdigits: dictionary.reading(numberashanzi(intify(denomdigits)) + u"分之" + numberashanzi(intify(numdigits))))
+            lambda leadingdigits, trailingdigits: dictionary.reading(numberashanzi(intify(leadingdigits)) + "点" + "".join([numberashanzi(int(digit)) for digit in trailingdigits])),
+            lambda digits: dictionary.reading("".join([numberashanzi(int(digit)) for digit in digits]) + "年"),
+            lambda digits: dictionary.reading("百分之" + numberashanzi(intify(digits))),
+            lambda numdigits, denomdigits: dictionary.reading(numberashanzi(intify(denomdigits)) + "分之" + numberashanzi(intify(numdigits))))
 
 def meaningfromnumberlike(expression, dictionary):
-    stringify = lambda digits: u"".join([unicode(digit) for digit in digits])
+    stringify = lambda digits: "".join([str(digit) for digit in digits])
     handlers = [
         lambda digits: stringify(digits),
         lambda leadingdigits, trailingdigits: stringify(leadingdigits) + "." + stringify(trailingdigits),

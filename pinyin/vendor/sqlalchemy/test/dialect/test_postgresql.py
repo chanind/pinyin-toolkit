@@ -366,21 +366,21 @@ class EnumTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         t1 = Table('table', metadata,
             Column('id', Integer, primary_key=True),
             Column('value', 
-                    Enum(u'réveillé', u'drôle', u'S’il',
+                    Enum('réveillé', 'drôle', 'S’il',
                             name='onetwothreetype'))
         )
 
         metadata.create_all()
         try:
-            t1.insert().execute(value=u'drôle')
-            t1.insert().execute(value=u'réveillé')
-            t1.insert().execute(value=u'S’il')
+            t1.insert().execute(value='drôle')
+            t1.insert().execute(value='réveillé')
+            t1.insert().execute(value='S’il')
             eq_(t1.select().order_by(t1.c.id).execute().fetchall(), 
-                [(1, u'drôle'), (2, u'réveillé'), (3, u'S’il')]
+                [(1, 'drôle'), (2, 'réveillé'), (3, 'S’il')]
             )
             m2 = MetaData(testing.db)
             t2 = Table('table', m2, autoload=True)
-            assert t2.c.value.type.enums == (u'réveillé', u'drôle', u'S’il')
+            assert t2.c.value.type.enums == ('réveillé', 'drôle', 'S’il')
         finally:
             metadata.drop_all()
 
@@ -989,7 +989,7 @@ class DomainReflectionTest(TestBase, AssertsExecutionResults):
             :
             try:
                 con.execute(ddl)
-            except exc.SQLError, e:
+            except exc.SQLError as e:
                 if not 'already exists' in str(e):
                     raise e
         con.execute('CREATE TABLE testtable (question integer, answer '
@@ -1158,8 +1158,8 @@ class MiscTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
             meta2 = MetaData(testing.db)
             subject = Table('subject', meta2, autoload=True)
             referer = Table('referer', meta2, autoload=True)
-            print str(subject.join(referer).onclause)
-            self.assert_((subject.c['id$']
+            print(str(subject.join(referer).onclause))
+            self.assertTrue((subject.c['id$']
                          == referer.c.ref).compare(
                             subject.join(referer).onclause))
         finally:
@@ -1275,11 +1275,11 @@ class MiscTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                               schema='test_schema')
             users = Table('users', meta2, mustexist=True,
                           schema='test_schema')
-            print users
-            print addresses
+            print(users)
+            print(addresses)
             j = join(users, addresses)
-            print str(j.onclause)
-            self.assert_((users.c.user_id
+            print(str(j.onclause))
+            self.assertTrue((users.c.user_id
                          == addresses.c.remote_user_id).compare(j.onclause))
         finally:
             meta1.drop_all()
@@ -1297,8 +1297,8 @@ class MiscTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
             subject = Table('subject', meta2, autoload=True)
             referer = Table('referer', meta2, schema='test_schema',
                             autoload=True)
-            print str(subject.join(referer).onclause)
-            self.assert_((subject.c.id
+            print(str(subject.join(referer).onclause))
+            self.assertTrue((subject.c.id
                          == referer.c.ref).compare(
                             subject.join(referer).onclause))
         finally:
@@ -1319,8 +1319,8 @@ class MiscTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
                             schema='test_schema_2')
             referer = Table('referer', meta2, schema='test_schema',
                             autoload=True)
-            print str(subject.join(referer).onclause)
-            self.assert_((subject.c.id
+            print(str(subject.join(referer).onclause))
+            self.assertTrue((subject.c.id
                          == referer.c.ref).compare(
                             subject.join(referer).onclause))
         finally:
@@ -1449,7 +1449,7 @@ class MiscTest(TestBase, AssertsExecutionResults, AssertsCompiledSQL):
         conn.execute("ALTER TABLE t RENAME COLUMN x to y")
 
         ind = testing.db.dialect.get_indexes(conn, "t", None)
-        eq_(ind, [{'unique': False, 'column_names': [u'y'], 'name': u'idx1'}])
+        eq_(ind, [{'unique': False, 'column_names': ['y'], 'name': 'idx1'}])
         conn.close()
 
     @testing.fails_on('postgresql+pypostgresql',
@@ -1650,8 +1650,8 @@ class ArrayTest(TestBase, AssertsExecutionResults):
     @testing.fails_on('postgresql+zxjdbc',
                       'zxjdbc has no support for PG arrays')
     def test_insert_array(self):
-        arrtable.insert().execute(intarr=[1, 2, 3], strarr=[u'abc',
-                                  u'def'])
+        arrtable.insert().execute(intarr=[1, 2, 3], strarr=['abc',
+                                  'def'])
         results = arrtable.select().execute().fetchall()
         eq_(len(results), 1)
         eq_(results[0]['intarr'], [1, 2, 3])
@@ -1662,9 +1662,9 @@ class ArrayTest(TestBase, AssertsExecutionResults):
     @testing.fails_on('postgresql+zxjdbc',
                       'zxjdbc has no support for PG arrays')
     def test_array_where(self):
-        arrtable.insert().execute(intarr=[1, 2, 3], strarr=[u'abc',
-                                  u'def'])
-        arrtable.insert().execute(intarr=[4, 5, 6], strarr=u'ABC')
+        arrtable.insert().execute(intarr=[1, 2, 3], strarr=['abc',
+                                  'def'])
+        arrtable.insert().execute(intarr=[4, 5, 6], strarr='ABC')
         results = arrtable.select().where(arrtable.c.intarr == [1, 2,
                 3]).execute().fetchall()
         eq_(len(results), 1)
@@ -1677,8 +1677,8 @@ class ArrayTest(TestBase, AssertsExecutionResults):
     @testing.fails_on('postgresql+zxjdbc',
                       'zxjdbc has no support for PG arrays')
     def test_array_concat(self):
-        arrtable.insert().execute(intarr=[1, 2, 3], strarr=[u'abc',
-                                  u'def'])
+        arrtable.insert().execute(intarr=[1, 2, 3], strarr=['abc',
+                                  'def'])
         results = select([arrtable.c.intarr + [4, 5,
                          6]]).execute().fetchall()
         eq_(len(results), 1)
@@ -1690,15 +1690,15 @@ class ArrayTest(TestBase, AssertsExecutionResults):
                       'zxjdbc has no support for PG arrays')
     def test_array_subtype_resultprocessor(self):
         arrtable.insert().execute(intarr=[4, 5, 6],
-                                  strarr=[[u'm\xe4\xe4'], [u'm\xf6\xf6'
+                                  strarr=[['m\xe4\xe4'], ['m\xf6\xf6'
                                   ]])
-        arrtable.insert().execute(intarr=[1, 2, 3], strarr=[u'm\xe4\xe4'
-                                  , u'm\xf6\xf6'])
+        arrtable.insert().execute(intarr=[1, 2, 3], strarr=['m\xe4\xe4'
+                                  , 'm\xf6\xf6'])
         results = \
             arrtable.select(order_by=[arrtable.c.intarr]).execute().fetchall()
         eq_(len(results), 2)
-        eq_(results[0]['strarr'], [u'm\xe4\xe4', u'm\xf6\xf6'])
-        eq_(results[1]['strarr'], [[u'm\xe4\xe4'], [u'm\xf6\xf6']])
+        eq_(results[0]['strarr'], ['m\xe4\xe4', 'm\xf6\xf6'])
+        eq_(results[1]['strarr'], [['m\xe4\xe4'], ['m\xf6\xf6']])
 
     @testing.fails_on('postgresql+pg8000',
                       'pg8000 has poor support for PG arrays')

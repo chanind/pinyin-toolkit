@@ -177,7 +177,7 @@ class DefaultDialect(base.Dialect):
     def _check_unicode_returns(self, connection):
         # Py2K
         if self.supports_unicode_statements:
-            cast_to = unicode
+            cast_to = str
         else:
             cast_to = str
         # end Py2K
@@ -197,7 +197,7 @@ class DefaultDialect(base.Dialect):
                 )
                 row = cursor.fetchone()
 
-                return isinstance(row[0], unicode)
+                return isinstance(row[0], str)
             finally:
                 cursor.close()
 
@@ -337,10 +337,10 @@ class DefaultExecutionContext(base.ExecutionContext):
                                                     )
 
             if not dialect.supports_unicode_statements:
-                self.unicode_statement = unicode(compiled)
+                self.unicode_statement = str(compiled)
                 self.statement = self.unicode_statement.encode(self.dialect.encoding)
             else:
-                self.statement = self.unicode_statement = unicode(compiled)
+                self.statement = self.unicode_statement = str(compiled)
 
             self.cursor = self.create_cursor()
             self.compiled_parameters = []
@@ -372,10 +372,10 @@ class DefaultExecutionContext(base.ExecutionContext):
             self.result_map = compiled.result_map
 
             if not dialect.supports_unicode_statements:
-                self.unicode_statement = unicode(compiled)
+                self.unicode_statement = str(compiled)
                 self.statement = self.unicode_statement.encode(self.dialect.encoding)
             else:
-                self.statement = self.unicode_statement = unicode(compiled)
+                self.statement = self.unicode_statement = str(compiled)
 
             self.isinsert = compiled.isinsert
             self.isupdate = compiled.isupdate
@@ -401,7 +401,7 @@ class DefaultExecutionContext(base.ExecutionContext):
             self.parameters = self.__encode_param_keys(parameters)
             self.executemany = len(parameters) > 1
 
-            if isinstance(statement, unicode) and not dialect.supports_unicode_statements:
+            if isinstance(statement, str) and not dialect.supports_unicode_statements:
                 self.unicode_statement = statement
                 self.statement = statement.encode(self.dialect.encoding)
             else:
@@ -460,7 +460,7 @@ class DefaultExecutionContext(base.ExecutionContext):
         """
 
         conn = self._connection
-        if isinstance(stmt, unicode) and not self.dialect.supports_unicode_statements:
+        if isinstance(stmt, str) and not self.dialect.supports_unicode_statements:
             stmt = stmt.encode(self.dialect.encoding)
         conn._cursor_execute(self.cursor, stmt, self._default_params)
         return self.cursor.fetchone()[0]
@@ -638,12 +638,12 @@ class DefaultExecutionContext(base.ExecutionContext):
                     inputsizes.append(dbtype)
             try:
                 self.cursor.setinputsizes(*inputsizes)
-            except Exception, e:
+            except Exception as e:
                 self._connection._handle_dbapi_exception(e, None, None, None, self)
                 raise
         else:
             inputsizes = {}
-            for key in self.compiled.bind_names.values():
+            for key in list(self.compiled.bind_names.values()):
                 typeengine = types[key]
                 dbtype = typeengine.dialect_impl(self.dialect).get_dbapi_type(self.dialect.dbapi)
                 if dbtype is not None and (not exclude_types or dbtype not in exclude_types):
@@ -652,7 +652,7 @@ class DefaultExecutionContext(base.ExecutionContext):
                     inputsizes[key.encode(self.dialect.encoding)] = dbtype
             try:
                 self.cursor.setinputsizes(**inputsizes)
-            except Exception, e:
+            except Exception as e:
                 self._connection._handle_dbapi_exception(e, None, None, None, self)
                 raise
 

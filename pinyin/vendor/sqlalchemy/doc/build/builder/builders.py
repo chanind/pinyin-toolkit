@@ -32,9 +32,9 @@ class MakoBridge(TemplateBridge):
         )
 
         if rtd:
-            import urllib2
+            import urllib.request, urllib.error, urllib.parse
             template_url = builder.config['site_base'] + "/docs_base.mako"
-            template = urllib2.urlopen(template_url).read()
+            template = urllib.request.urlopen(template_url).read()
             self.lookup.put_string("/rtd_base.mako", template)
 
     def render(self, template, context):

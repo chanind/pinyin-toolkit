@@ -1,7 +1,7 @@
 """MaxDB-specific tests."""
 
 from sqlalchemy.test.testing import eq_
-import StringIO, sys
+import io, sys
 from sqlalchemy import *
 from sqlalchemy import exc, sql
 from decimal import Decimal
@@ -32,7 +32,7 @@ class ReflectionTest(TestBase, AssertsExecutionResults):
 
         meta = MetaData(testing.db)
         try:
-            if isinstance(tabledef, basestring):
+            if isinstance(tabledef, str):
                 # run textual CREATE TABLE
                 testing.db.execute(tabledef)
             else:
@@ -42,12 +42,12 @@ class ReflectionTest(TestBase, AssertsExecutionResults):
 
             vals = [Decimal('2.2'), Decimal('23'), Decimal('2.4'), 25]
             cols = ['d1','d2','n1','i1']
-            t.insert().execute(dict(zip(cols,vals)))
+            t.insert().execute(dict(list(zip(cols,vals))))
             roundtrip = list(t.select().execute())
             eq_(roundtrip, [tuple([1] + vals)])
 
-            t.insert().execute(dict(zip(['id'] + cols,
-                                        [2] + list(roundtrip[0][1:]))))
+            t.insert().execute(dict(list(zip(['id'] + cols,
+                                        [2] + list(roundtrip[0][1:])))))
             roundtrip2 = list(t.select(order_by=t.c.id).execute())
             eq_(roundtrip2, [tuple([1] + vals),
                                            tuple([2] + vals)])
@@ -162,7 +162,7 @@ class ReflectionTest(TestBase, AssertsExecutionResults):
                         maxdb.MaxFloat,
                         maxdb.MaxChar,]
             for i, col in enumerate(table.columns):
-                self.assert_(isinstance(col.type, expected[i]))
+                self.assertTrue(isinstance(col.type, expected[i]))
         finally:
             try:
                 testing.db.execute("DROP TABLE assorted")
@@ -184,14 +184,14 @@ class DBAPITest(TestBase, AssertsExecutionResults):
         cr.execute('CREATE SEQUENCE busto START WITH 1 INCREMENT BY 1')
         try:
             vals = []
-            for i in xrange(3):
+            for i in range(3):
                 cr.execute('SELECT busto.NEXTVAL FROM DUAL')
                 vals.append(cr.first()[0])
 
             # should be 1,2,3, but no...
-            self.assert_(vals != [1,2,3])
+            self.assertTrue(vals != [1,2,3])
             # ...we get:
-            self.assert_(vals == [2,4,6])
+            self.assertTrue(vals == [2,4,6])
         finally:
             cr.execute('DROP SEQUENCE busto')
 
@@ -205,9 +205,9 @@ class DBAPITest(TestBase, AssertsExecutionResults):
         # Broken!
         try:
             cr.execute('SELECT MOD(3, ?) FROM DUAL', [2])
-            self.assert_(False)
+            self.assertTrue(False)
         except:
-            self.assert_(True)
+            self.assertTrue(True)
 
         # OK
         cr.execute('SELECT MOD(?, 2) FROM DUAL', [3])
@@ -224,13 +224,13 @@ class DBAPITest(TestBase, AssertsExecutionResults):
 
         # But this does the same thing.
         con = dialect.dbapi.connect(*cargs, **ckw)
-        self.assert_(con.close == con.__del__)
+        self.assertTrue(con.close == con.__del__)
         con.close()
         try:
             con.close()
-            self.assert_(False)
+            self.assertTrue(False)
         except dialect.dbapi.DatabaseError:
-            self.assert_(True)
+            self.assertTrue(True)
 
     def test_modulo_operator(self):
         st = str(select([sql.column('col') % 5]).compile(testing.db))

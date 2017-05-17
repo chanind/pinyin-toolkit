@@ -3,25 +3,25 @@ import os
 
 # Set up the path Python uses to look for import packages to
 # include the 3rd-party dependencies we have folded in
-import utils
+from . import utils
 
 # Sanity prevails from this point:
 sys.path.append(utils.toolkitdir("pinyin", "vendor", "python27"))
 sys.path.append(utils.toolkitdir("pinyin", "vendor", "cjklib"))
 sys.path.append(utils.toolkitdir("pinyin", "vendor", "sqlalchemy", "lib"))
 
-import config
-import db
-import dictionary
-import languages
-import logger
-import media
-import meanings
-import mocks
-import model
-import numberutils
-import statistics
-import transformations
+from . import config
+from . import db
+from . import dictionary
+from . import languages
+from . import logger
+from . import media
+from . import meanings
+from . import mocks
+from . import model
+from . import numberutils
+from . import statistics
+from . import transformations
 
 #import anki  # Don't import the anki submodule because it imports lots of anki stuff,
               # and if we're running from the command line it won't be available

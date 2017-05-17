@@ -141,28 +141,28 @@ for interval in intervals:
 session.commit()
 
 for Interval in (Interval1, Interval2):
-    print "Querying using interval class %s" % Interval.__name__
+    print("Querying using interval class %s" % Interval.__name__)
 
-    print
-    print '-- length less than 10'
-    print [(i, i.length) for i in 
-                session.query(Interval).filter(Interval.length < 10).all()]
+    print()
+    print('-- length less than 10')
+    print([(i, i.length) for i in 
+                session.query(Interval).filter(Interval.length < 10).all()])
 
-    print
-    print '-- contains 12'
-    print session.query(Interval).filter(Interval.contains(12)).all()
+    print()
+    print('-- contains 12')
+    print(session.query(Interval).filter(Interval.contains(12)).all())
 
-    print
-    print '-- intersects 2..10'
+    print()
+    print('-- intersects 2..10')
     other = Interval1(2,10)
     result = session.query(Interval).\
                     filter(Interval.intersects(other)).\
                     order_by(Interval.length).all()
-    print [(interval, interval.intersects(other)) for interval in result]
+    print([(interval, interval.intersects(other)) for interval in result])
 
-    print
-    print '-- longer length'
+    print()
+    print('-- longer length')
     interval_alias = aliased(Interval)
-    print session.query(Interval.length, 
+    print(session.query(Interval.length, 
                             interval_alias.length,
-                            Interval.max_length(interval_alias)).all()
+                            Interval.max_length(interval_alias)).all())

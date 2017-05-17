@@ -3,7 +3,8 @@
 import cjklib
 import sys
 
-from aqt.qt import QThread, QDialog, SIGNAL
+from aqt.qt import QThread, QDialog, pyqtSignal
+
 from pinyin.logger import log
 
 
@@ -39,6 +40,7 @@ updateddatabasemessage = makerichtext([
     ''
   ])
 
+
 class BuildDBController(object):
     def __init__(self, view, notifier, dbbuilder, compulsory):
         # Reflect the initial setting values into the controls
@@ -47,13 +49,16 @@ class BuildDBController(object):
         
         # Create and run a thread that just constructs the database
         class Worker(QThread):
+            buildSuccessSignal = pyqtSignal()
+            buildFailureSignal = pyqtSignal([tuple])
+
             def run(self):
                 try:
                     dbbuilder.build()
-                    self.emit(SIGNAL("buildsuccess()"))
-                except Exception, e:
+                    self.buildSuccessSignal.emit()
+                except Exception as e:
                     log.exception("Suppressed exception in database build process")
-                    self.emit(SIGNAL("buildfailure(PyQt_PyObject)"), sys.exc_info())
+                    self.buildFailureSignal.emit(sys.exc_info())
         
         # NB: there is an EXTREMELY NASTY garbage collection bug lurking here. We need to
         # ensure that the QThread is not garbage collected or else we will get a segmentation
@@ -66,8 +71,8 @@ class BuildDBController(object):
             notifier.exception("There was an error while building the Pinyin Toolkit database!", e)
             view.done(QDialog.Rejected)
         
-        view.connect(self.thread, SIGNAL("buildsuccess()"), lambda: view.done(QDialog.Accepted))
-        view.connect(self.thread, SIGNAL("buildfailure(PyQt_PyObject)"), lambda e: buildFailure(e))
+        self.thread.buildSuccessSignal.connect(lambda: view.done(QDialog.Accepted))
+        self.thread.buildFailureSignal.connect(lambda e: buildFailure(e))
         
         # GO!
         self.thread.start()

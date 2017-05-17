@@ -1042,7 +1042,7 @@ func = _FunctionGenerator()
 # TODO: use UnaryExpression for this instead ?
 modifier = _FunctionGenerator(group=False)
 
-class _generated_label(unicode):
+class _generated_label(str):
     """A unicode subclass used to identify dynamically generated names."""
 
 def _escape_for_generated(x):
@@ -1052,7 +1052,7 @@ def _escape_for_generated(x):
         return x.replace('%', '%%')
 
 def _string_or_unprintable(element):
-    if isinstance(element, basestring):
+    if isinstance(element, str):
         return element
     else:
         try:
@@ -1103,7 +1103,7 @@ def _labeled(element):
         return element
 
 def _column_as_key(element):
-    if isinstance(element, basestring):
+    if isinstance(element, str):
         return element
     if hasattr(element, '__clause_element__'):
         element = element.__clause_element__()
@@ -1113,7 +1113,7 @@ def _literal_as_text(element):
     if hasattr(element, '__clause_element__'):
         return element.__clause_element__()
     elif not isinstance(element, Visitable):
-        return _TextClause(unicode(element))
+        return _TextClause(str(element))
     else:
         return element
 
@@ -1499,7 +1499,7 @@ class ClauseElement(Visitable):
         # Py3K
         #return unicode(self.compile())
         # Py2K
-        return unicode(self.compile()).encode('ascii', 'backslashreplace')
+        return str(self.compile()).encode('ascii', 'backslashreplace')
         # end Py2K
 
     def __and__(self, other):
@@ -1511,7 +1511,7 @@ class ClauseElement(Visitable):
     def __invert__(self):
         return self._negate()
 
-    def __nonzero__(self):
+    def __bool__(self):
        raise TypeError("Boolean value of this clause is not defined")
 
     def _negate(self):
@@ -2141,7 +2141,7 @@ class ColumnCollection(util.OrderedProperties):
         return and_(*l)
 
     def __contains__(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, str):
             raise exc.ArgumentError("__contains__ requires a string argument")
         return util.OrderedProperties.__contains__(self, other)
 
@@ -2659,7 +2659,7 @@ class _TextClause(Executable, ClauseElement):
                 self._execution_options.union({'autocommit'
                     : autocommit})
         if typemap is not None:
-            for key in typemap.keys():
+            for key in list(typemap.keys()):
                 typemap[key] = sqltypes.to_instance(typemap[key])
 
         def repl(m):
@@ -2689,10 +2689,10 @@ class _TextClause(Executable, ClauseElement):
 
     def _copy_internals(self, clone=_clone):
         self.bindparams = dict((b.key, clone(b))
-                               for b in self.bindparams.values())
+                               for b in list(self.bindparams.values()))
 
     def get_children(self, **kwargs):
-        return self.bindparams.values()
+        return list(self.bindparams.values())
 
 
 class _Null(ColumnElement):
@@ -3058,7 +3058,7 @@ class _BinaryExpression(ColumnElement):
         else:
             self.modifiers = modifiers
 
-    def __nonzero__(self):
+    def __bool__(self):
         try:
             return self.operator(hash(self.left), hash(self.right))
         except:

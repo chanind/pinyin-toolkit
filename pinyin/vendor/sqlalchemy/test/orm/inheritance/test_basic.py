@@ -68,10 +68,10 @@ class O2MTest(_base.MappedTest):
         l = sess.query(Blub).all()
         result = ','.join([repr(l[0]), repr(l[1]),
                           repr(l[0].parent_foo), repr(l[1].parent_foo)])
-        print compare
-        print result
-        self.assert_(compare == result)
-        self.assert_(l[0].parent_foo.data == 'foo #1'
+        print(compare)
+        print(result)
+        self.assertTrue(compare == result)
+        self.assertTrue(l[0].parent_foo.data == 'foo #1'
                      and l[1].parent_foo.data == 'foo #1')
 
 class PolymorphicOnNotLocalTest(_base.MappedTest):
@@ -464,8 +464,8 @@ class EagerLazyTest(_base.MappedTest):
 
         sess = create_session()
         q = sess.query(Bar)
-        self.assert_(len(q.first().lazy) == 1)
-        self.assert_(len(q.first().eager) == 1)
+        self.assertTrue(len(q.first().lazy) == 1)
+        self.assertTrue(len(q.first().eager) == 1)
 
 class EagerTargetingTest(_base.MappedTest):
     """test a scenario where joined table inheritance might be 
@@ -844,7 +844,7 @@ class SyncCompileTest(_base.MappedTest):
     def _do_test(self, j1, j2):
         class A(object):
            def __init__(self, **kwargs):
-               for key, value in kwargs.items():
+               for key, value in list(kwargs.items()):
                     setattr(self, key, value)
 
         class B(A):
@@ -1336,7 +1336,7 @@ class OptimizedLoadTest(_base.MappedTest):
                     "subsub.counter2 AS subsub_counter2 FROM base "
                     "JOIN sub ON base.id = sub.id JOIN "
                     "subsub ON sub.id = subsub.id WHERE base.id = :param_1",
-                    lambda ctx:{u'param_1': s1.id}
+                    lambda ctx:{'param_1': s1.id}
                 ),
                 CompiledSQL(
                     "INSERT INTO subsub (id) VALUES (:id)",

@@ -12,7 +12,7 @@ class FactProxy(object):
         
         # NB: the fieldnames dictionary IS part of the interface of this class
         self.fieldnames = {}
-        for key, candidateFieldNames in candidateFieldNamesByKey.items():
+        for key, candidateFieldNames in list(candidateFieldNamesByKey.items()):
             # Don't add a key into the dictionary if we can't find a field, or we end
             # up reporting that we the contain the field but die during access
             fieldname = chooseField(candidateFieldNames, fact)
@@ -31,7 +31,7 @@ class FactProxy(object):
 def chooseField(candidateFieldNames, fact):
     # Find the first field that is present in the fact
     for candidateField in candidateFieldNames:
-        for factfieldname in [factfieldname for factfieldname in fact.keys() if factfieldname.lower() == candidateField.lower()]:
+        for factfieldname in [factfieldname for factfieldname in list(fact.keys()) if factfieldname.lower() == candidateField.lower()]:
             log.info("Choose %s as a field name from the fact for %s", factfieldname, candidateField)
             return factfieldname
     

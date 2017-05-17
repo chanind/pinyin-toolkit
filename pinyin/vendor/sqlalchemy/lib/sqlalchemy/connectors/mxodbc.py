@@ -50,7 +50,7 @@ class MxODBCConnector(Connector):
         elif platform == 'darwin':
             from mx.ODBC import iODBC as module
         else:
-            raise ImportError, "Unrecognized platform for mxODBC import"
+            raise ImportError("Unrecognized platform for mxODBC import")
         return module
 
     @classmethod
@@ -84,7 +84,7 @@ class MxODBCConnector(Connector):
                           category=errorclass,
                           stacklevel=2)
             else:
-                raise errorclass, errorvalue
+                raise errorclass(errorvalue)
         return error_handler
 
     def create_connect_args(self, url):

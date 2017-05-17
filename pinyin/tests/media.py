@@ -11,13 +11,13 @@ class MediaDownloaderTest(unittest.TestCase):
             # Initial download: should be prompted about the time usage
             gotprompt, downloaded = self.download(path, "Example Name", "http://www.google.com")
             self.assertTrue(gotprompt)
-            self.assertEquals(downloaded.name, "Example Name")
+            self.assertEqual(downloaded.name, "Example Name")
             
             # Second download: should NOT be prompted due to getting the same file again
             gotprompt, downloadedagain = self.download(path, "Example Name", "http://www.google.com")
             self.assertFalse(gotprompt)
-            self.assertEquals(downloadedagain.name, "Example Name")
-            self.assertEquals(downloadedagain.zippath, downloaded.zippath)
+            self.assertEqual(downloadedagain.name, "Example Name")
+            self.assertEqual(downloadedagain.zippath, downloaded.zippath)
         
         utils.withtempdir(do)
     
@@ -39,13 +39,13 @@ class MediaDownloaderTest(unittest.TestCase):
             # Initial download: should be prompted about the time usage
             gotprompt, downloaded = self.download(path, "Example Name", "http://www.google.com")
             self.assertTrue(gotprompt)
-            self.assertEquals(downloaded.name, "Example Name")
+            self.assertEqual(downloaded.name, "Example Name")
         
             # Second download: SHOULD be prompted because we couldn't cache the file last time
             gotprompt, downloadedagain = self.download(path, "Example Name", "http://www.google.com")
             self.assertTrue(gotprompt)
-            self.assertEquals(downloadedagain.name, "Example Name")
-            self.assertNotEquals(downloadedagain.zippath, downloaded.zippath)
+            self.assertEqual(downloadedagain.name, "Example Name")
+            self.assertNotEqual(downloadedagain.zippath, downloaded.zippath)
         
         utils.withtempdir(do)
     
@@ -67,14 +67,14 @@ class DownloadedMediaTest(unittest.TestCase):
             
             # Verify the basic file system layout
             packpath = os.path.join(path, "Example Pack")
-            self.assertEquals(sorted(os.listdir(packpath)), ["a.mp3", "b.mp3", "binary", "nested"])
-            self.assertEquals(os.listdir(os.path.join(packpath, "nested")), ["c.mp3"])
+            self.assertEqual(sorted(os.listdir(packpath)), ["a.mp3", "b.mp3", "binary", "nested"])
+            self.assertEqual(os.listdir(os.path.join(packpath, "nested")), ["c.mp3"])
             
             # Verify file contents
-            self.assertEquals(utils.filecontents(os.path.join(packpath, "a.mp3")), "hello!")
-            self.assertEquals(utils.filecontents(os.path.join(packpath, "b.mp3")), "world!")
-            self.assertEquals(utils.filecontents(os.path.join(packpath, "binary")), self.binarycontents)
-            self.assertEquals(utils.filecontents(os.path.join(packpath, "nested", "c.mp3")), "^_^")
+            self.assertEqual(utils.filecontents(os.path.join(packpath, "a.mp3")), "hello!")
+            self.assertEqual(utils.filecontents(os.path.join(packpath, "b.mp3")), "world!")
+            self.assertEqual(utils.filecontents(os.path.join(packpath, "binary")), self.binarycontents)
+            self.assertEqual(utils.filecontents(os.path.join(packpath, "nested", "c.mp3")), "^_^")
         
         utils.withtempdir(do)
     
@@ -106,39 +106,39 @@ class DownloadedMediaTest(unittest.TestCase):
 
 class MediaPackTest(unittest.TestCase):
     def testNormalizeCase(self):
-        self.assertEquals(MediaPack("Manual", {"A" : "b"}), MediaPack("Manual", {"a" : "b"}))
-        self.assertNotEquals(MediaPack("Manual", {"A" : "b"}), MediaPack("Manual", {"A" : "B"}))
+        self.assertEqual(MediaPack("Manual", {"A" : "b"}), MediaPack("Manual", {"a" : "b"}))
+        self.assertNotEqual(MediaPack("Manual", {"A" : "b"}), MediaPack("Manual", {"A" : "B"}))
     
     def testName(self):
-        self.assertEquals(MediaPack(os.path.join("foo", "bar"), {}).name, "bar")
+        self.assertEqual(MediaPack(os.path.join("foo", "bar"), {}).name, "bar")
     
     def testSummarize(self):
         pack = MediaPack("Example", { "a": "a.mp3", "b" : "b.mP3", "c" : "c.oGG" })
-        self.assertEquals(pack.summarize([".mp3", ".ogg"]), "Example (2 .mp3 files, 1 .ogg file)")
-        self.assertEquals(pack.summarize([".mp3"]), "Example (2 .mp3 files)")
-        self.assertEquals(pack.summarize([".junk"]), "Example")
+        self.assertEqual(pack.summarize([".mp3", ".ogg"]), "Example (2 .mp3 files, 1 .ogg file)")
+        self.assertEqual(pack.summarize([".mp3"]), "Example (2 .mp3 files)")
+        self.assertEqual(pack.summarize([".junk"]), "Example")
     
     def testMediaForCase(self):
         pack = MediaPack("Example", {"fOo.mP3" : "REsuLT"})
-        self.assertEquals(pack.mediafor("foo", [".mp3"]), "REsuLT")
-        self.assertEquals(pack.mediafor("fOo", [".mp3"]), "REsuLT")
-        self.assertEquals(pack.mediafor("foo", [".mP3"]), "REsuLT")
+        self.assertEqual(pack.mediafor("foo", [".mp3"]), "REsuLT")
+        self.assertEqual(pack.mediafor("fOo", [".mp3"]), "REsuLT")
+        self.assertEqual(pack.mediafor("foo", [".mP3"]), "REsuLT")
     
     def testMediaForExtensionSearch(self):
         pack = MediaPack("Example", {"foo.mp3" : "MP3RESULTFOO"})
-        self.assertEquals(pack.mediafor("foo", [".mp3"]), "MP3RESULTFOO")
-        self.assertEquals(pack.mediafor("foo", [".ogg", ".mp3"]), "MP3RESULTFOO")
-        self.assertEquals(pack.mediafor("foo", [".junk", ".mp3"]), "MP3RESULTFOO")
+        self.assertEqual(pack.mediafor("foo", [".mp3"]), "MP3RESULTFOO")
+        self.assertEqual(pack.mediafor("foo", [".ogg", ".mp3"]), "MP3RESULTFOO")
+        self.assertEqual(pack.mediafor("foo", [".junk", ".mp3"]), "MP3RESULTFOO")
     
     def testMediaForExtensionPriority(self):
         pack = MediaPack("Example", {"bar.mp3" : "MP3RESULTBAR", "bar.ogg" : "OGGRESULTBAR"})
-        self.assertEquals(pack.mediafor("bar", [".mp3"]), "MP3RESULTBAR")
-        self.assertEquals(pack.mediafor("bar", [".ogg"]), "OGGRESULTBAR")
-        self.assertEquals(pack.mediafor("bar", [".ogg", ".mp3"]), "OGGRESULTBAR")
-        self.assertEquals(pack.mediafor("bar", [".mp3", ".ogg"]), "MP3RESULTBAR")
+        self.assertEqual(pack.mediafor("bar", [".mp3"]), "MP3RESULTBAR")
+        self.assertEqual(pack.mediafor("bar", [".ogg"]), "OGGRESULTBAR")
+        self.assertEqual(pack.mediafor("bar", [".ogg", ".mp3"]), "OGGRESULTBAR")
+        self.assertEqual(pack.mediafor("bar", [".mp3", ".ogg"]), "MP3RESULTBAR")
 
     def testMediaForMissing(self):
-        self.assertEquals(MediaPack("Example", {}).mediafor("hi", [".mp3"]), None)
+        self.assertEqual(MediaPack("Example", {}).mediafor("hi", [".mp3"]), None)
     
     def testFromPath(self):
         def do(path):
@@ -152,36 +152,36 @@ class MediaPackTest(unittest.TestCase):
             
             # Ensure that we have a sane pack
             pack = MediaPack.frompath(packpath)
-            self.assertEquals(pack.name, "My Pack")
-            self.assertEquals(pack.packpath, packpath)
-            self.assertEquals(pack.mediafor("test", [".mp3"]), os.path.join(packpath, "test.mp3"))
-            self.assertEquals(pack.mediafor("BaZ", [".mp3"]), os.path.join(packpath, "BaZ.mP3"))
-            self.assertEquals(pack.mediafor("nonsense", [".mp3"]), None)
+            self.assertEqual(pack.name, "My Pack")
+            self.assertEqual(pack.packpath, packpath)
+            self.assertEqual(pack.mediafor("test", [".mp3"]), os.path.join(packpath, "test.mp3"))
+            self.assertEqual(pack.mediafor("BaZ", [".mp3"]), os.path.join(packpath, "BaZ.mP3"))
+            self.assertEqual(pack.mediafor("nonsense", [".mp3"]), None)
         
         # Create a temporary directory with which to do our test
         utils.withtempdir(do)
     
 class LegacyMediaTest(unittest.TestCase):
     def testDiscoverNothing(self):
-        self.assertEquals(discoverlegacymedia(None, []), None)
+        self.assertEqual(discoverlegacymedia(None, []), None)
     
     def testAllLegacy(self):
-        self.assertEquals(discoverlegacymedia(["hello.mp3", "world.ogg"], []), ["hello.mp3", "world.ogg"])
+        self.assertEqual(discoverlegacymedia(["hello.mp3", "world.ogg"], []), ["hello.mp3", "world.ogg"])
     
     def testDontMessWithCase(self):
-        self.assertEquals(discoverlegacymedia(["hElLLo.mp3", "world.oGg"], []), ["hElLLo.mp3", "world.oGg"])
+        self.assertEqual(discoverlegacymedia(["hElLLo.mp3", "world.oGg"], []), ["hElLLo.mp3", "world.oGg"])
 
     def testNotLegacy(self):
-        self.assertEquals(discoverlegacymedia(["HASH1.mp3", "HASH2.ogg"], [("hello.mp3", "HASH1.mp3"), ("world.ogg", "HASH2.ogg")]), [])
+        self.assertEqual(discoverlegacymedia(["HASH1.mp3", "HASH2.ogg"], [("hello.mp3", "HASH1.mp3"), ("world.ogg", "HASH2.ogg")]), [])
     
     def testNotLegacyImportedFromDirectory(self):
-        self.assertEquals(discoverlegacymedia(["HASH1.mp3", "HASH2.ogg"], [(os.path.join("foo", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
+        self.assertEqual(discoverlegacymedia(["HASH1.mp3", "HASH2.ogg"], [(os.path.join("foo", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
     
     def testNotLegacyImportedFromSeveralDirectories(self):
-        self.assertEquals(discoverlegacymedia(["HASH1.mp3", "HASH2.ogg"], [(os.path.join("bar", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
+        self.assertEqual(discoverlegacymedia(["HASH1.mp3", "HASH2.ogg"], [(os.path.join("bar", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
     
     def testDiscardInvalidImportedFiles(self):
-        self.assertEquals(discoverlegacymedia(["HASH1.mp3"], [(os.path.join("foo", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
+        self.assertEqual(discoverlegacymedia(["HASH1.mp3"], [(os.path.join("foo", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
 
 if __name__ == '__main__':
     unittest.main()

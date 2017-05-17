@@ -3,9 +3,9 @@
 
 import re
 
-from logger import log
-from model import *
-import utils
+from .logger import log
+from .model import *
+from . import utils
 
 class MeaningFormatter(object):
     embeddedchineseregex = re.compile(r"(?:(?:([^\|\[\s]+)\|([^\|\[\s]+)(?:\s*\[([^\]]*)\])?)|(?:([^\|\[\s]+)\s*\[([^\]]*)\]))")

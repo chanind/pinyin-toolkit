@@ -117,141 +117,141 @@ class _CollectionOperations(TestBase):
 
         p1 = Parent('P1')
 
-        self.assert_(not p1._children)
-        self.assert_(not p1.children)
+        self.assertTrue(not p1._children)
+        self.assertTrue(not p1.children)
 
         ch = Child('regular')
         p1._children.append(ch)
 
-        self.assert_(ch in p1._children)
-        self.assert_(len(p1._children) == 1)
+        self.assertTrue(ch in p1._children)
+        self.assertTrue(len(p1._children) == 1)
 
-        self.assert_(p1.children)
-        self.assert_(len(p1.children) == 1)
-        self.assert_(ch not in p1.children)
-        self.assert_('regular' in p1.children)
+        self.assertTrue(p1.children)
+        self.assertTrue(len(p1.children) == 1)
+        self.assertTrue(ch not in p1.children)
+        self.assertTrue('regular' in p1.children)
 
         p1.children.append('proxied')
 
-        self.assert_('proxied' in p1.children)
-        self.assert_('proxied' not in p1._children)
-        self.assert_(len(p1.children) == 2)
-        self.assert_(len(p1._children) == 2)
+        self.assertTrue('proxied' in p1.children)
+        self.assertTrue('proxied' not in p1._children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(len(p1._children) == 2)
 
-        self.assert_(p1._children[0].name == 'regular')
-        self.assert_(p1._children[1].name == 'proxied')
+        self.assertTrue(p1._children[0].name == 'regular')
+        self.assertTrue(p1._children[1].name == 'proxied')
 
         del p1._children[1]
 
-        self.assert_(len(p1._children) == 1)
-        self.assert_(len(p1.children) == 1)
-        self.assert_(p1._children[0] == ch)
+        self.assertTrue(len(p1._children) == 1)
+        self.assertTrue(len(p1.children) == 1)
+        self.assertTrue(p1._children[0] == ch)
 
         del p1.children[0]
 
-        self.assert_(len(p1._children) == 0)
-        self.assert_(len(p1.children) == 0)
+        self.assertTrue(len(p1._children) == 0)
+        self.assertTrue(len(p1.children) == 0)
 
         p1.children = ['a','b','c']
-        self.assert_(len(p1._children) == 3)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1._children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
         del ch
         p1 = self.roundtrip(p1)
 
-        self.assert_(len(p1._children) == 3)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1._children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
         popped = p1.children.pop()
-        self.assert_(len(p1.children) == 2)
-        self.assert_(popped not in p1.children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(popped not in p1.children)
         p1 = self.roundtrip(p1)
-        self.assert_(len(p1.children) == 2)
-        self.assert_(popped not in p1.children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(popped not in p1.children)
 
         p1.children[1] = 'changed-in-place'
-        self.assert_(p1.children[1] == 'changed-in-place')
+        self.assertTrue(p1.children[1] == 'changed-in-place')
         inplace_id = p1._children[1].id
         p1 = self.roundtrip(p1)
-        self.assert_(p1.children[1] == 'changed-in-place')
+        self.assertTrue(p1.children[1] == 'changed-in-place')
         assert p1._children[1].id == inplace_id
 
         p1.children.append('changed-in-place')
-        self.assert_(p1.children.count('changed-in-place') == 2)
+        self.assertTrue(p1.children.count('changed-in-place') == 2)
 
         p1.children.remove('changed-in-place')
-        self.assert_(p1.children.count('changed-in-place') == 1)
+        self.assertTrue(p1.children.count('changed-in-place') == 1)
 
         p1 = self.roundtrip(p1)
-        self.assert_(p1.children.count('changed-in-place') == 1)
+        self.assertTrue(p1.children.count('changed-in-place') == 1)
 
         p1._children = []
-        self.assert_(len(p1.children) == 0)
+        self.assertTrue(len(p1.children) == 0)
 
         after = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
         p1.children = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
-        self.assert_(len(p1.children) == 10)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(len(p1.children) == 10)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children[2:6] = ['x'] * 4
         after = ['a', 'b', 'x', 'x', 'x', 'x', 'g', 'h', 'i', 'j']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children[2:6] = ['y']
         after = ['a', 'b', 'y', 'g', 'h', 'i', 'j']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children[2:3] = ['z'] * 4
         after = ['a', 'b', 'z', 'z', 'z', 'z', 'g', 'h', 'i', 'j']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children[2::2] = ['O'] * 4
         after = ['a', 'b', 'O', 'z', 'O', 'z', 'O', 'h', 'O', 'j']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         assert_raises(TypeError, set, [p1.children])
 
         p1.children *= 0
         after = []
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children += ['a', 'b']
         after = ['a', 'b']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children += ['c']
         after = ['a', 'b', 'c']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children *= 1
         after = ['a', 'b', 'c']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children *= 2
         after = ['a', 'b', 'c', 'a', 'b', 'c']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
         p1.children = ['a']
         after = ['a']
-        self.assert_(p1.children == after)
-        self.assert_([c.name for c in p1._children] == after)
+        self.assertTrue(p1.children == after)
+        self.assertTrue([c.name for c in p1._children] == after)
 
-        self.assert_((p1.children * 2) == ['a', 'a'])
-        self.assert_((2 * p1.children) == ['a', 'a'])
-        self.assert_((p1.children * 0) == [])
-        self.assert_((0 * p1.children) == [])
+        self.assertTrue((p1.children * 2) == ['a', 'a'])
+        self.assertTrue((2 * p1.children) == ['a', 'a'])
+        self.assertTrue((p1.children * 0) == [])
+        self.assertTrue((0 * p1.children) == [])
 
-        self.assert_((p1.children + ['b']) == ['a', 'b'])
-        self.assert_((['b'] + p1.children) == ['b', 'a'])
+        self.assertTrue((p1.children + ['b']) == ['a', 'b'])
+        self.assertTrue((['b'] + p1.children) == ['b', 'a'])
 
         try:
             p1.children + 123
@@ -295,76 +295,76 @@ class CustomDictTest(DictTest):
 
         p1 = Parent('P1')
 
-        self.assert_(not p1._children)
-        self.assert_(not p1.children)
+        self.assertTrue(not p1._children)
+        self.assertTrue(not p1.children)
 
         ch = Child('a', 'regular')
         p1._children.append(ch)
 
-        self.assert_(ch in p1._children.values())
-        self.assert_(len(p1._children) == 1)
+        self.assertTrue(ch in list(p1._children.values()))
+        self.assertTrue(len(p1._children) == 1)
 
-        self.assert_(p1.children)
-        self.assert_(len(p1.children) == 1)
-        self.assert_(ch not in p1.children)
-        self.assert_('a' in p1.children)
-        self.assert_(p1.children['a'] == 'regular')
-        self.assert_(p1._children['a'] == ch)
+        self.assertTrue(p1.children)
+        self.assertTrue(len(p1.children) == 1)
+        self.assertTrue(ch not in p1.children)
+        self.assertTrue('a' in p1.children)
+        self.assertTrue(p1.children['a'] == 'regular')
+        self.assertTrue(p1._children['a'] == ch)
 
         p1.children['b'] = 'proxied'
 
-        self.assert_('proxied' in p1.children.values())
-        self.assert_('b' in p1.children)
-        self.assert_('proxied' not in p1._children)
-        self.assert_(len(p1.children) == 2)
-        self.assert_(len(p1._children) == 2)
+        self.assertTrue('proxied' in list(p1.children.values()))
+        self.assertTrue('b' in p1.children)
+        self.assertTrue('proxied' not in p1._children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(len(p1._children) == 2)
 
-        self.assert_(p1._children['a'].name == 'regular')
-        self.assert_(p1._children['b'].name == 'proxied')
+        self.assertTrue(p1._children['a'].name == 'regular')
+        self.assertTrue(p1._children['b'].name == 'proxied')
 
         del p1._children['b']
 
-        self.assert_(len(p1._children) == 1)
-        self.assert_(len(p1.children) == 1)
-        self.assert_(p1._children['a'] == ch)
+        self.assertTrue(len(p1._children) == 1)
+        self.assertTrue(len(p1.children) == 1)
+        self.assertTrue(p1._children['a'] == ch)
 
         del p1.children['a']
 
-        self.assert_(len(p1._children) == 0)
-        self.assert_(len(p1.children) == 0)
+        self.assertTrue(len(p1._children) == 0)
+        self.assertTrue(len(p1.children) == 0)
 
         p1.children = {'d': 'v d', 'e': 'v e', 'f': 'v f'}
-        self.assert_(len(p1._children) == 3)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1._children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
-        self.assert_(set(p1.children) == set(['d','e','f']))
+        self.assertTrue(set(p1.children) == set(['d','e','f']))
 
         del ch
         p1 = self.roundtrip(p1)
-        self.assert_(len(p1._children) == 3)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1._children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
         p1.children['e'] = 'changed-in-place'
-        self.assert_(p1.children['e'] == 'changed-in-place')
+        self.assertTrue(p1.children['e'] == 'changed-in-place')
         inplace_id = p1._children['e'].id
         p1 = self.roundtrip(p1)
-        self.assert_(p1.children['e'] == 'changed-in-place')
-        self.assert_(p1._children['e'].id == inplace_id)
+        self.assertTrue(p1.children['e'] == 'changed-in-place')
+        self.assertTrue(p1._children['e'].id == inplace_id)
 
         p1._children = {}
-        self.assert_(len(p1.children) == 0)
+        self.assertTrue(len(p1.children) == 0)
 
         try:
             p1._children = []
-            self.assert_(False)
+            self.assertTrue(False)
         except TypeError:
-            self.assert_(True)
+            self.assertTrue(True)
 
         try:
             p1._children = None
-            self.assert_(False)
+            self.assertTrue(False)
         except TypeError:
-            self.assert_(True)
+            self.assertTrue(True)
 
         assert_raises(TypeError, set, [p1.children])
 
@@ -379,28 +379,28 @@ class SetTest(_CollectionOperations):
 
         p1 = Parent('P1')
 
-        self.assert_(not p1._children)
-        self.assert_(not p1.children)
+        self.assertTrue(not p1._children)
+        self.assertTrue(not p1.children)
 
         ch1 = Child('regular')
         p1._children.add(ch1)
 
-        self.assert_(ch1 in p1._children)
-        self.assert_(len(p1._children) == 1)
+        self.assertTrue(ch1 in p1._children)
+        self.assertTrue(len(p1._children) == 1)
 
-        self.assert_(p1.children)
-        self.assert_(len(p1.children) == 1)
-        self.assert_(ch1 not in p1.children)
-        self.assert_('regular' in p1.children)
+        self.assertTrue(p1.children)
+        self.assertTrue(len(p1.children) == 1)
+        self.assertTrue(ch1 not in p1.children)
+        self.assertTrue('regular' in p1.children)
 
         p1.children.add('proxied')
 
-        self.assert_('proxied' in p1.children)
-        self.assert_('proxied' not in p1._children)
-        self.assert_(len(p1.children) == 2)
-        self.assert_(len(p1._children) == 2)
+        self.assertTrue('proxied' in p1.children)
+        self.assertTrue('proxied' not in p1._children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(len(p1._children) == 2)
 
-        self.assert_(set([o.name for o in p1._children]) ==
+        self.assertTrue(set([o.name for o in p1._children]) ==
                      set(['regular', 'proxied']))
 
         ch2 = None
@@ -411,30 +411,30 @@ class SetTest(_CollectionOperations):
 
         p1._children.remove(ch2)
 
-        self.assert_(len(p1._children) == 1)
-        self.assert_(len(p1.children) == 1)
-        self.assert_(p1._children == set([ch1]))
+        self.assertTrue(len(p1._children) == 1)
+        self.assertTrue(len(p1.children) == 1)
+        self.assertTrue(p1._children == set([ch1]))
 
         p1.children.remove('regular')
 
-        self.assert_(len(p1._children) == 0)
-        self.assert_(len(p1.children) == 0)
+        self.assertTrue(len(p1._children) == 0)
+        self.assertTrue(len(p1.children) == 0)
 
         p1.children = ['a','b','c']
-        self.assert_(len(p1._children) == 3)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1._children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
         del ch1
         p1 = self.roundtrip(p1)
 
-        self.assert_(len(p1._children) == 3)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1._children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
-        self.assert_('a' in p1.children)
-        self.assert_('b' in p1.children)
-        self.assert_('d' not in p1.children)
+        self.assertTrue('a' in p1.children)
+        self.assertTrue('b' in p1.children)
+        self.assertTrue('d' not in p1.children)
 
-        self.assert_(p1.children == set(['a','b','c']))
+        self.assertTrue(p1.children == set(['a','b','c']))
 
         try:
             p1.children.remove('d')
@@ -442,45 +442,45 @@ class SetTest(_CollectionOperations):
         except KeyError:
             pass
 
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1.children) == 3)
         p1.children.discard('d')
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1.children) == 3)
         p1 = self.roundtrip(p1)
-        self.assert_(len(p1.children) == 3)
+        self.assertTrue(len(p1.children) == 3)
 
         popped = p1.children.pop()
-        self.assert_(len(p1.children) == 2)
-        self.assert_(popped not in p1.children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(popped not in p1.children)
         p1 = self.roundtrip(p1)
-        self.assert_(len(p1.children) == 2)
-        self.assert_(popped not in p1.children)
+        self.assertTrue(len(p1.children) == 2)
+        self.assertTrue(popped not in p1.children)
 
         p1.children = ['a','b','c']
         p1 = self.roundtrip(p1)
-        self.assert_(p1.children == set(['a','b','c']))
+        self.assertTrue(p1.children == set(['a','b','c']))
 
         p1.children.discard('b')
         p1 = self.roundtrip(p1)
-        self.assert_(p1.children == set(['a', 'c']))
+        self.assertTrue(p1.children == set(['a', 'c']))
 
         p1.children.remove('a')
         p1 = self.roundtrip(p1)
-        self.assert_(p1.children == set(['c']))
+        self.assertTrue(p1.children == set(['c']))
 
         p1._children = set()
-        self.assert_(len(p1.children) == 0)
+        self.assertTrue(len(p1.children) == 0)
 
         try:
             p1._children = []
-            self.assert_(False)
+            self.assertTrue(False)
         except TypeError:
-            self.assert_(True)
+            self.assertTrue(True)
 
         try:
             p1._children = None
-            self.assert_(False)
+            self.assertTrue(False)
         except TypeError:
-            self.assert_(True)
+            self.assertTrue(True)
 
         assert_raises(TypeError, set, [p1.children])
 
@@ -512,12 +512,12 @@ class SetTest(_CollectionOperations):
             eq_(p1.children.issuperset(other),
                              control.issuperset(other))
 
-            self.assert_((p1.children == other)  ==  (control == other))
-            self.assert_((p1.children != other)  ==  (control != other))
-            self.assert_((p1.children < other)   ==  (control < other))
-            self.assert_((p1.children <= other)  ==  (control <= other))
-            self.assert_((p1.children > other)   ==  (control > other))
-            self.assert_((p1.children >= other)  ==  (control >= other))
+            self.assertTrue((p1.children == other)  ==  (control == other))
+            self.assertTrue((p1.children != other)  ==  (control != other))
+            self.assertTrue((p1.children < other)   ==  (control < other))
+            self.assertTrue((p1.children <= other)  ==  (control <= other))
+            self.assertTrue((p1.children > other)   ==  (control > other))
+            self.assertTrue((p1.children >= other)  ==  (control >= other))
 
     def test_set_mutation(self):
         Parent, Child = self.Parent, self.Child
@@ -537,21 +537,21 @@ class SetTest(_CollectionOperations):
                     getattr(p.children, op)(other)
                     getattr(control, op)(other)
                     try:
-                        self.assert_(p.children == control)
+                        self.assertTrue(p.children == control)
                     except:
-                        print 'Test %s.%s(%s):' % (set(base), op, other)
-                        print 'want', repr(control)
-                        print 'got', repr(p.children)
+                        print('Test %s.%s(%s):' % (set(base), op, other))
+                        print('want', repr(control))
+                        print('got', repr(p.children))
                         raise
 
                     p = self.roundtrip(p)
 
                     try:
-                        self.assert_(p.children == control)
+                        self.assertTrue(p.children == control)
                     except:
-                        print 'Test %s.%s(%s):' % (base, op, other)
-                        print 'want', repr(control)
-                        print 'got', repr(p.children)
+                        print('Test %s.%s(%s):' % (base, op, other))
+                        print('want', repr(control))
+                        print('got', repr(p.children))
                         raise
 
         # in-place mutations
@@ -566,25 +566,25 @@ class SetTest(_CollectionOperations):
                     p.children = base[:]
                     control = set(base[:])
 
-                    exec "p.children %s other" % op
-                    exec "control %s other" % op
+                    exec("p.children %s other" % op)
+                    exec("control %s other" % op)
 
                     try:
-                        self.assert_(p.children == control)
+                        self.assertTrue(p.children == control)
                     except:
-                        print 'Test %s %s %s:' % (set(base), op, other)
-                        print 'want', repr(control)
-                        print 'got', repr(p.children)
+                        print('Test %s %s %s:' % (set(base), op, other))
+                        print('want', repr(control))
+                        print('got', repr(p.children))
                         raise
 
                     p = self.roundtrip(p)
 
                     try:
-                        self.assert_(p.children == control)
+                        self.assertTrue(p.children == control)
                     except:
-                        print 'Test %s %s %s:' % (base, op, other)
-                        print 'want', repr(control)
-                        print 'got', repr(p.children)
+                        print('Test %s %s %s:' % (base, op, other))
+                        print('want', repr(control))
+                        print('got', repr(p.children))
                         raise
 
 
@@ -602,13 +602,13 @@ class CustomObjectTest(_CollectionOperations):
         Parent, Child = self.Parent, self.Child
 
         p = Parent('p1')
-        self.assert_(len(list(p.children)) == 0)
+        self.assertTrue(len(list(p.children)) == 0)
 
         p.children.append('child')
-        self.assert_(len(list(p.children)) == 1)
+        self.assertTrue(len(list(p.children)) == 1)
 
         p = self.roundtrip(p)
-        self.assert_(len(list(p.children)) == 1)
+        self.assertTrue(len(list(p.children)) == 1)
 
         # We didn't provide an alternate _AssociationList implementation
         # for our ObjectCollection, so indexing will fail.
@@ -740,20 +740,20 @@ class ScalarTest(TestBase):
 
         p.child = Child(foo='a', bar='b', baz='c')
 
-        self.assert_(p.foo == 'a')
-        self.assert_(p.bar == 'b')
-        self.assert_(p.baz == 'c')
+        self.assertTrue(p.foo == 'a')
+        self.assertTrue(p.bar == 'b')
+        self.assertTrue(p.baz == 'c')
 
         p.bar = 'x'
-        self.assert_(p.foo == 'a')
-        self.assert_(p.bar == 'x')
-        self.assert_(p.baz == 'c')
+        self.assertTrue(p.foo == 'a')
+        self.assertTrue(p.bar == 'x')
+        self.assertTrue(p.baz == 'c')
 
         p = roundtrip(p)
 
-        self.assert_(p.foo == 'a')
-        self.assert_(p.bar == 'x')
-        self.assert_(p.baz == 'c')
+        self.assertTrue(p.foo == 'a')
+        self.assertTrue(p.bar == 'x')
+        self.assertTrue(p.baz == 'c')
 
         p.child = None
 
@@ -773,27 +773,27 @@ class ScalarTest(TestBase):
 
         p.bar = 'yyy'
 
-        self.assert_(p.foo is None)
-        self.assert_(p.bar == 'yyy')
-        self.assert_(p.baz is None)
+        self.assertTrue(p.foo is None)
+        self.assertTrue(p.bar == 'yyy')
+        self.assertTrue(p.baz is None)
 
         del p.child
 
         p = roundtrip(p)
 
-        self.assert_(p.child is None)
+        self.assertTrue(p.child is None)
 
         p.baz = 'xxx'
 
-        self.assert_(p.foo is None)
-        self.assert_(p.bar is None)
-        self.assert_(p.baz == 'xxx')
+        self.assertTrue(p.foo is None)
+        self.assertTrue(p.bar is None)
+        self.assertTrue(p.baz == 'xxx')
 
         p = roundtrip(p)
 
-        self.assert_(p.foo is None)
-        self.assert_(p.bar is None)
-        self.assert_(p.baz == 'xxx')
+        self.assertTrue(p.foo is None)
+        self.assertTrue(p.bar is None)
+        self.assertTrue(p.baz == 'xxx')
 
         # Ensure an immediate __set__ works.
         p2 = Parent('p2')
@@ -859,9 +859,9 @@ class LazyLoadTest(TestBase):
 
         # Is there a better way to ensure that the association_proxy
         # didn't convert a lazy load to an eager load?  This does work though.
-        self.assert_('_children' not in p.__dict__)
-        self.assert_(len(p._children) == 3)
-        self.assert_('_children' in p.__dict__)
+        self.assertTrue('_children' not in p.__dict__)
+        self.assertTrue(len(p._children) == 3)
+        self.assertTrue('_children' in p.__dict__)
 
     def test_eager_list(self):
         Parent, Child = self.Parent, self.Child
@@ -875,8 +875,8 @@ class LazyLoadTest(TestBase):
 
         p = self.roundtrip(p)
 
-        self.assert_('_children' in p.__dict__)
-        self.assert_(len(p._children) == 3)
+        self.assertTrue('_children' in p.__dict__)
+        self.assertTrue(len(p._children) == 3)
 
     def test_lazy_scalar(self):
         Parent, Child = self.Parent, self.Child
@@ -890,8 +890,8 @@ class LazyLoadTest(TestBase):
 
         p = self.roundtrip(p)
 
-        self.assert_('_children' not in p.__dict__)
-        self.assert_(p._children is not None)
+        self.assertTrue('_children' not in p.__dict__)
+        self.assertTrue(p._children is not None)
 
     def test_eager_scalar(self):
         Parent, Child = self.Parent, self.Child
@@ -905,8 +905,8 @@ class LazyLoadTest(TestBase):
 
         p = self.roundtrip(p)
 
-        self.assert_('_children' in p.__dict__)
-        self.assert_(p._children is not None)
+        self.assertTrue('_children' in p.__dict__)
+        self.assertTrue(p._children is not None)
 
 
 class ReconstitutionTest(TestBase):

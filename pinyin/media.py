@@ -3,13 +3,13 @@
 
 import os
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import shutil
 import tempfile
 import zipfile
 
-from logger import log
-import utils
+from .logger import log
+from . import utils
 
 
 def downloadAndInstallMandarinSounds(notifier, mediamanager, config):
@@ -20,14 +20,14 @@ def downloadAndInstallMandarinSounds(notifier, mediamanager, config):
         downloader = MediaDownloader(mediamanager.mediadir())
         the_media = downloader.download("Chinese-Lessons.com Mandarin Sounds", config.mandarinsoundsurl,
                                         lambda: notifier.info("Downloading the sounds - this might take a while!"))
-    except IOError, e:
+    except IOError as e:
         notifier.exception("Error while downloading the sound pack: are you connected to the internet?")
         return
 
     try:
         # Install each file from the ZIP into our media folder
         the_media.installpack(mediamanager.mediadir())
-    except zipfile.BadZipfile, e:
+    except zipfile.BadZipfile as e:
         notifier.exception("The downloaded sound pack appeared to be corrupt")
         return
 
@@ -65,7 +65,7 @@ class MediaDownloader(object):
         # Actually do the download and return the result
         if downloadprompt is not None:
             downloadprompt()
-        urllib.urlretrieve(zipurl, downloadto)
+        urllib.request.urlretrieve(zipurl, downloadto)
         return DownloadedMedia(name, downloadto)
     
     def urlcachepath(self, url):
@@ -100,7 +100,7 @@ class MediaPack(object):
         self.packpath = packpath
         
         # Normalize capitalisation for ease of lookup
-        self.media = dict([(name.lower(), filename) for name, filename in media.items()])
+        self.media = dict([(name.lower(), filename) for name, filename in list(media.items())])
     
     def __str__(self):
         return self.name
@@ -121,7 +121,7 @@ class MediaPack(object):
     
     def summarize(self, audioextensions):
         # Summarize the counts of files per extension
-        extensioncounts = [(extension, len([() for filename in self.media.values() if os.path.splitext(filename)[1].lower() == extension.lower()])) for extension in audioextensions]
+        extensioncounts = [(extension, len([() for filename in list(self.media.values()) if os.path.splitext(filename)[1].lower() == extension.lower()])) for extension in audioextensions]
         formattedcounts = [str(count) + " " + extension + " " + utils.pluralize("file", count) for extension, count in extensioncounts if count > 0]
         
         if len(formattedcounts) > 0:
@@ -176,43 +176,3 @@ def discoverlegacymedia(mediadircontents, mediaindex):
     
     # Return the remaining files
     return mediadircontents
-
-"""
-# initial work on an importer for the SWAC audio files
-# This might be useful: http://polyglotte.tuxfamily.org/autres/anki_swac_en.html
-
-def SWACimport(dir):
-    swacurl="http://download.shtooka.net/cmn-balm-hsk1_ogg.tar"
-    
-    # 1 - Download te zip file 
-
-    # 2 - unzip to media dir
-    
-    # 3 - open the index file
-    
-    packdir="C:\Nick\Language\Mandarin Sound Files\Swac" # testdir
-    tagfile = "index.tags.txt"
-    fullpath = os.path.join(packdir, tagfile)
-    
-    
-    # 4 - scan through the index file and put the file names and piniyn into variables
-    
-    # regex should match the filename and put it into group(1)
-    # and output pinyin to group(3)
-    lineregex = re.compile(r"[[](.+)[]].+SWAC_ALPHAIDX=(.+)", re.MULTILINE)
-    
-    #open file for reading
-    file = codecs.open(fullpath, "r", encoding='utf-8')
-   
-    matches = re.search(file)
-    matches.group(1)
-    matches.group(3)
-
-    file.close()    
-    
-    # 4 - remove tones from pinin variable
-    
-    # 5 - rename & move the files to the main directory 
-    
-    os.rename(tagfull, pinyinname)
-"""

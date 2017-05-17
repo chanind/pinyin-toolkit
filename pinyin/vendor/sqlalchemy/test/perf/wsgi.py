@@ -3,7 +3,7 @@
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
-import thread
+import _thread
 from sqlalchemy.test import *
 
 port = 8000
@@ -34,10 +34,10 @@ def serve(environ, start_response):
     start_response("200 OK", [('Content-type', 'text/plain')])
     sess = create_session()
     l = sess.query(Foo).select()
-    threadids.add(thread.get_ident())
+    threadids.add(_thread.get_ident())
 
-    print ("sending response on thread", thread.get_ident(),
-           " total threads ", len(threadids))
+    print(("sending response on thread", _thread.get_ident(),
+           " total threads ", len(threadids)))
     return [str("\n".join([x.data for x in l]))]
 
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     try:
         prep()
         server = simple_server.make_server('localhost', port, serve)
-        print "Server listening on port %d" % port
+        print("Server listening on port %d" % port)
         server.serve_forever()
     finally:
         meta.drop_all()

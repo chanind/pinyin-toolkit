@@ -55,8 +55,8 @@ class DynamicTest(_fixtures.FixtureTest, AssertsCompiledSQL):
         u = sess.query(User).get(8)
         eq_(
             list(u.addresses.order_by(desc(Address.email_address))),
-             [Address(email_address=u'ed@wood.com'), Address(email_address=u'ed@lala.com'), 
-              Address(email_address=u'ed@bettyboop.com')]
+             [Address(email_address='ed@wood.com'), Address(email_address='ed@lala.com'), 
+              Address(email_address='ed@bettyboop.com')]
             )
 
     @testing.resolve_artifact_names
@@ -66,18 +66,18 @@ class DynamicTest(_fixtures.FixtureTest, AssertsCompiledSQL):
         })
         sess = create_session()
         u = sess.query(User).get(8)
-        eq_(list(u.addresses), [Address(email_address=u'ed@wood.com'), Address(email_address=u'ed@lala.com'), Address(email_address=u'ed@bettyboop.com')])
+        eq_(list(u.addresses), [Address(email_address='ed@wood.com'), Address(email_address='ed@lala.com'), Address(email_address='ed@bettyboop.com')])
 
         # test cancellation of None, replacement with something else
         eq_(
             list(u.addresses.order_by(None).order_by(Address.email_address)),
-            [Address(email_address=u'ed@bettyboop.com'), Address(email_address=u'ed@lala.com'), Address(email_address=u'ed@wood.com')]
+            [Address(email_address='ed@bettyboop.com'), Address(email_address='ed@lala.com'), Address(email_address='ed@wood.com')]
         )
 
         # test cancellation of None, replacement with nothing
         eq_(
             set(u.addresses.order_by(None)),
-            set([Address(email_address=u'ed@bettyboop.com'), Address(email_address=u'ed@lala.com'), Address(email_address=u'ed@wood.com')])
+            set([Address(email_address='ed@bettyboop.com'), Address(email_address='ed@lala.com'), Address(email_address='ed@wood.com')])
         )
 
     @testing.resolve_artifact_names
@@ -366,7 +366,7 @@ class SessionTest(_fixtures.FixtureTest):
         })
         u1 = User(name='jack')
 
-        assert 'addresses' not in u1.__dict__.keys()
+        assert 'addresses' not in list(u1.__dict__.keys())
         u1.addresses = [Address(email_address='test')]
         assert 'addresses' in dir(u1)
 
@@ -507,7 +507,7 @@ class SessionTest(_fixtures.FixtureTest):
         try:
             del u.addresses[3]
             assert False
-        except TypeError, e:
+        except TypeError as e:
             assert "doesn't support item deletion" in str(e), str(e)
 
         for a in u.addresses.filter(Address.email_address.in_(['c', 'e', 'f'])):

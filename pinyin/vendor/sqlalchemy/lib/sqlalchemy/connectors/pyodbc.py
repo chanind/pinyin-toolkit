@@ -9,7 +9,7 @@ from sqlalchemy.util import asbool
 
 import sys
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import decimal
 
 class PyODBCConnector(Connector):
@@ -47,7 +47,7 @@ class PyODBCConnector(Connector):
                 connect_args[param] = asbool(keys.pop(param))
 
         if 'odbc_connect' in keys:
-            connectors = [urllib.unquote_plus(keys.pop('odbc_connect'))]
+            connectors = [urllib.parse.unquote_plus(keys.pop('odbc_connect'))]
         else:
             dsn_connection = 'dsn' in keys or \
                             ('host' in keys and 'database' not in keys)
@@ -79,7 +79,7 @@ class PyODBCConnector(Connector):
                 connectors.append("AutoTranslate=%s" %
                                     keys.pop("odbc_autotranslate"))
 
-            connectors.extend(['%s=%s' % (k,v) for k,v in keys.iteritems()])
+            connectors.extend(['%s=%s' % (k,v) for k,v in keys.items()])
         return [[";".join (connectors)], connect_args]
 
     def is_disconnect(self, e):

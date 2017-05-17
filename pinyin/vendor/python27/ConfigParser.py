@@ -239,7 +239,7 @@ class RawConfigParser:
         else:
             self._optcre = self.OPTCRE
         if defaults:
-            for key, value in defaults.items():
+            for key, value in list(defaults.items()):
                 self._defaults[self.optionxform(key)] = value
 
     def defaults(self):
@@ -248,7 +248,7 @@ class RawConfigParser:
     def sections(self):
         """Return a list of section names, excluding [DEFAULT]"""
         # self._sections will never have [DEFAULT] in it
-        return self._sections.keys()
+        return list(self._sections.keys())
 
     def add_section(self, section):
         """Create a new section in the configuration.
@@ -258,7 +258,7 @@ class RawConfigParser:
         case-insensitive variants.
         """
         if section.lower() == "default":
-            raise ValueError, 'Invalid section name: %s' % section
+            raise ValueError('Invalid section name: %s' % section)
 
         if section in self._sections:
             raise DuplicateSectionError(section)
@@ -280,7 +280,7 @@ class RawConfigParser:
         opts.update(self._defaults)
         if '__name__' in opts:
             del opts['__name__']
-        return opts.keys()
+        return list(opts.keys())
 
     def read(self, filenames):
         """Read and parse a filename or a list of filenames.
@@ -294,7 +294,7 @@ class RawConfigParser:
 
         Return list of successfully read files.
         """
-        if isinstance(filenames, basestring):
+        if isinstance(filenames, str):
             filenames = [filenames]
         read_ok = []
         for filename in filenames:
@@ -350,7 +350,7 @@ class RawConfigParser:
         d.update(d2)
         if "__name__" in d:
             del d["__name__"]
-        return d.items()
+        return list(d.items())
 
     def _get(self, section, conv, option):
         return conv(self.get(section, option))
@@ -367,7 +367,7 @@ class RawConfigParser:
     def getboolean(self, section, option):
         v = self.get(section, option)
         if v.lower() not in self._boolean_states:
-            raise ValueError, 'Not a boolean: %s' % v
+            raise ValueError('Not a boolean: %s' % v)
         return self._boolean_states[v.lower()]
 
     def optionxform(self, optionstr):
@@ -400,12 +400,12 @@ class RawConfigParser:
         """Write an .ini-format representation of the configuration state."""
         if self._defaults:
             fp.write("[%s]\n" % DEFAULTSECT)
-            for (key, value) in self._defaults.items():
+            for (key, value) in list(self._defaults.items()):
                 fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
         for section in self._sections:
             fp.write("[%s]\n" % section)
-            for (key, value) in self._sections[section].items():
+            for (key, value) in list(self._sections[section].items()):
                 if key == "__name__":
                     continue
                 if (value is not None) or (self._optcre == self.OPTCRE):
@@ -547,9 +547,9 @@ class RawConfigParser:
 
         # join the multi-line values collected while reading
         all_sections = [self._defaults]
-        all_sections.extend(self._sections.values())
+        all_sections.extend(list(self._sections.values()))
         for options in all_sections:
-            for name, val in options.items():
+            for name, val in list(options.items()):
                 if isinstance(val, list):
                     options[name] = '\n'.join(val)
 
@@ -608,7 +608,7 @@ class ConfigParser(RawConfigParser):
         # Update with the entry specific variables
         vardict = {}
         if vars:
-            for key, value in vars.items():
+            for key, value in list(vars.items()):
                 vardict[self.optionxform(key)] = value
         d = _Chainmap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
@@ -642,9 +642,9 @@ class ConfigParser(RawConfigParser):
                 raise NoSectionError(section)
         # Update with the entry specific variables
         if vars:
-            for key, value in vars.items():
+            for key, value in list(vars.items()):
                 d[self.optionxform(key)] = value
-        options = d.keys()
+        options = list(d.keys())
         if "__name__" in options:
             options.remove("__name__")
         if raw:
@@ -664,7 +664,7 @@ class ConfigParser(RawConfigParser):
                 value = self._KEYCRE.sub(self._interpolation_replace, value)
                 try:
                     value = value % vars
-                except KeyError, e:
+                except KeyError as e:
                     raise InterpolationMissingOptionError(
                         option, section, rawval, e.args[0])
             else:
@@ -739,7 +739,7 @@ class SafeConfigParser(ConfigParser):
         # - we do not allow valueless options, or
         # - we allow valueless options but the value is not None
         if self._optcre is self.OPTCRE or value:
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 raise TypeError("option values must be strings")
         if value is not None:
             # check for bad percent signs:

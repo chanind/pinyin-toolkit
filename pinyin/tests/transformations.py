@@ -13,30 +13,30 @@ englishdict = pinyin.dictionary.PinyinDictionary.loadall()('en')
 
 # Default tone color list for tests
 colorlist = [
-    u"#ff0000",
-    u"#ffaa00",
-    u"#00aa00",
-    u"#0000ff",
-    u"#545454"
+    "#ff0000",
+    "#ffaa00",
+    "#00aa00",
+    "#0000ff",
+    "#545454"
   ]
 
 class PinyinColorizerTest(unittest.TestCase):
     def testRSuffix(self):
-        self.assertEqual(self.colorize(u"哪兒"), '<span style="color:#00aa00">na3</span><span style="color:#545454">r</span>')
+        self.assertEqual(self.colorize("哪兒"), '<span style="color:#00aa00">na3</span><span style="color:#545454">r</span>')
     
     def testColorize(self):
         # Need to call .lower() here because we have a dictionary entry for this character with Ma3
-        self.assertEqual(self.colorize(u"妈麻马骂吗").lower(),
+        self.assertEqual(self.colorize("妈麻马骂吗").lower(),
             '<span style="color:#ff0000">ma1</span> <span style="color:#ffaa00">ma2</span> ' +
             '<span style="color:#00aa00">ma3</span> <span style="color:#0000ff">ma4</span> ' +
             '<span style="color:#545454">ma</span>')
 
     def testMixedEnglishChinese(self):
-        self.assertEqual(self.colorize(u'Small 小 - Horse'),
+        self.assertEqual(self.colorize('Small 小 - Horse'),
             'Small <span style="color:#00aa00">xiao3</span> - Horse')
     
     def testPunctuation(self):
-        self.assertEqual(self.colorize(u'小小!'),
+        self.assertEqual(self.colorize('小小!'),
             '<span style="color:#00aa00">xiao3</span> <span style="color:#00aa00">xiao3</span>!')
 
     def testUseSpokenToneRatherThanWrittenOne(self):
@@ -49,22 +49,22 @@ class PinyinColorizerTest(unittest.TestCase):
 
 class CharacterColorizerTest(unittest.TestCase):
     def testColorize(self):
-        self.assertEqual(self.colorize(u"妈麻马骂吗"),
-            u'<span style="color:#ff0000">妈</span><span style="color:#ffaa00">麻</span>' +
-            u'<span style="color:#00aa00">马</span><span style="color:#0000ff">骂</span>' +
-            u'<span style="color:#545454">吗</span>')
+        self.assertEqual(self.colorize("妈麻马骂吗"),
+            '<span style="color:#ff0000">妈</span><span style="color:#ffaa00">麻</span>' +
+            '<span style="color:#00aa00">马</span><span style="color:#0000ff">骂</span>' +
+            '<span style="color:#545454">吗</span>')
 
     def testMixedEnglishChinese(self):
-        self.assertEqual(self.colorize(u'Small 小 - Horse'),
-            u'Small <span style="color:#00aa00">小</span> - Horse')
+        self.assertEqual(self.colorize('Small 小 - Horse'),
+            'Small <span style="color:#00aa00">小</span> - Horse')
     
     def testPunctuation(self):
-        self.assertEqual(self.colorize(u'小小!'),
-            u'<span style="color:#00aa00">小</span><span style="color:#00aa00">小</span>!')
+        self.assertEqual(self.colorize('小小!'),
+            '<span style="color:#00aa00">小</span><span style="color:#00aa00">小</span>!')
 
     def testUseSpokenToneRatherThanWrittenOne(self):
-        self.assertEqual(flatten(colorize(colorlist, [Word(TonedCharacter(u"小", ToneInfo(written=3, spoken=2)))])),
-            u'<span style="color:#66cc66">小</span>')
+        self.assertEqual(flatten(colorize(colorlist, [Word(TonedCharacter("小", ToneInfo(written=3, spoken=2)))])),
+            '<span style="color:#66cc66">小</span>')
 
     # Test helpers
     def colorize(self, what):
@@ -75,65 +75,65 @@ class PinyinAudioReadingsTest(unittest.TestCase):
                                    "wu3.mp3", "nin2.mp3", "ni3.ogg", "hao3.ogg", "gen1.ogg", "gen1.mp3"]
     
     def testRSuffix(self):
-        self.assertHasReading(u"哪兒", ["na3.mp3"])
-        self.assertHasReading(u"哪儿", ["na3.mp3"])
+        self.assertHasReading("哪兒", ["na3.mp3"])
+        self.assertHasReading("哪儿", ["na3.mp3"])
     
     def testFifthTone(self):
-        self.assertHasReading(u"的", ["de5.mp3"], raw_available_media=["de5.mp3", "de.mp3", "de4.mp3"])
-        self.assertHasReading(u"了", ["le.mp3"], raw_available_media=["le4.mp3", "le.mp3"])
-        self.assertHasReading(u"吗", ["ma4.mp3"], raw_available_media=["ma4.mp3"])
+        self.assertHasReading("的", ["de5.mp3"], raw_available_media=["de5.mp3", "de.mp3", "de4.mp3"])
+        self.assertHasReading("了", ["le.mp3"], raw_available_media=["le4.mp3", "le.mp3"])
+        self.assertHasReading("吗", ["ma4.mp3"], raw_available_media=["ma4.mp3"])
     
     def testNv(self):
-        self.assertHasReading(u"女", ["nu:3.mp3"], raw_available_media=["nu:3.mp3", "nu3.mp3"])
-        self.assertHasReading(u"女", ["nv3.mp3"], raw_available_media=["nu3.mp3", "nu:3.mp3", "nv3.mp3"])
-        self.assertMediaMissing(u"女", raw_available_media=["nu3.mp3"])
+        self.assertHasReading("女", ["nu:3.mp3"], raw_available_media=["nu:3.mp3", "nu3.mp3"])
+        self.assertHasReading("女", ["nv3.mp3"], raw_available_media=["nu3.mp3", "nu:3.mp3", "nv3.mp3"])
+        self.assertMediaMissing("女", raw_available_media=["nu3.mp3"])
         
     def testLv(self):
-        self.assertHasReading(u"侣", ["lv3.mp3"], raw_available_media=["lv3.mp3"])
-        self.assertMediaMissing(u"侣", raw_available_media=["lu3.mp3"])
-        self.assertHasReading(u"掠", ["lve4.mp3"], raw_available_media=["lve4.mp3"])
-        self.assertMediaMissing(u"掠", raw_available_media=["lue4.mp3"])
+        self.assertHasReading("侣", ["lv3.mp3"], raw_available_media=["lv3.mp3"])
+        self.assertMediaMissing("侣", raw_available_media=["lu3.mp3"])
+        self.assertHasReading("掠", ["lve4.mp3"], raw_available_media=["lve4.mp3"])
+        self.assertMediaMissing("掠", raw_available_media=["lue4.mp3"])
     
     def testJunkSkipping(self):
         # NB: NOT a partial reading, because none of the tokens here are Pinyin it doesn't know about
-        self.assertHasReading(u"Washington ! ! !", [])
+        self.assertHasReading("Washington ! ! !", [])
     
     def testMultipleCharacters(self):
-        self.assertHasReading(u"小马词典", ["xiao3.mp3", "ma3.mp3", "ci2.mp3","dian3.mp3"])
+        self.assertHasReading("小马词典", ["xiao3.mp3", "ma3.mp3", "ci2.mp3","dian3.mp3"])
     
     def testMixedEnglishChinese(self):
-        self.assertHasReading(u"啎 The Small 马 Dictionary", ["wu3.mp3", "ma3.mp3"])
+        self.assertHasReading("啎 The Small 马 Dictionary", ["wu3.mp3", "ma3.mp3"])
     
     def testPunctuation(self):
-        self.assertHasReading(u"您 (pr.)", ["nin2.mp3"])
+        self.assertHasReading("您 (pr.)", ["nin2.mp3"])
     
     def testSecondaryExtension(self):
-        self.assertHasReading(u"你好", ["ni3.ogg", "hao3.ogg"])
+        self.assertHasReading("你好", ["ni3.ogg", "hao3.ogg"])
 
     def testMixedExtensions(self):
-        self.assertHasReading(u"你马", ["ni3.ogg", "ma3.mp3"])
+        self.assertHasReading("你马", ["ni3.ogg", "ma3.mp3"])
 
     def testPriority(self):
-        self.assertHasReading(u"根", ["gen1.mp3"])
+        self.assertHasReading("根", ["gen1.mp3"])
 
     def testMediaMissing(self):
-        self.assertMediaMissing(u"根", raw_available_media=[".mp3"])
+        self.assertMediaMissing("根", raw_available_media=[".mp3"])
 
     def testCaptializationInPinyin(self):
         # NB: 上海 is in the dictionary with capitalized pinyin (Shang4 hai3)
-        self.assertHasReading(u"上海", ["shang4.mp3", "hai3.mp3"], raw_available_media=["shang4.mp3", "hai3.mp3"])
+        self.assertHasReading("上海", ["shang4.mp3", "hai3.mp3"], raw_available_media=["shang4.mp3", "hai3.mp3"])
     
     def testCapitializationInFilesystem(self):
-        self.assertHasReading(u"根", ["GeN1.mP3"], available_media={"GeN1.mP3" : "GeN1.mP3" })
+        self.assertHasReading("根", ["GeN1.mP3"], available_media={"GeN1.mP3" : "GeN1.mP3" })
 
     def testDontMixPacks(self):
         packs = [MediaPack("Foo", {"ni3.mp3" : "ni3.mp3", "ma3.mp3" : "ma3.mp3"}), MediaPack("Bar", {"hao3.mp3" : "hao3.mp3"})]
-        self.assertHasPartialReading(u"你好马", ["ni3.mp3", "ma3.mp3"], bestpackshouldbe=packs[0], mediapacks=packs)
+        self.assertHasPartialReading("你好马", ["ni3.mp3", "ma3.mp3"], bestpackshouldbe=packs[0], mediapacks=packs)
 
     def testUseBestPack(self):
         packs = [MediaPack("Foo", {"xiao3.mp3" : "xiao3.mp3", "ma3.mp3" : "ma3.mp3"}),
                  MediaPack("Bar", {"ma3.mp3" : "ma3.mp3", "ci2.mp3" : "ci2.mp3", "dian3.mp3" : "dian3.mp3"})]
-        self.assertHasPartialReading(u"小马词典", ["ma3.mp3", "ci2.mp3", "dian3.mp3"], bestpackshouldbe=packs[1], mediapacks=packs)
+        self.assertHasPartialReading("小马词典", ["ma3.mp3", "ci2.mp3", "dian3.mp3"], bestpackshouldbe=packs[1], mediapacks=packs)
 
     def testRandomizeBestPackOnTie(self):
         pack1 = MediaPack("Foo", {"ni3.mp3" : "PACK1.mp3"})
@@ -141,7 +141,7 @@ class PinyinAudioReadingsTest(unittest.TestCase):
 
         gotpacks = []
         for n in range(1, 10):
-            gotpack, _, _ = PinyinAudioReadings([pack1, pack2], [".mp3", ".ogg"]).audioreading(englishdict.reading(u"你"))
+            gotpack, _, _ = PinyinAudioReadings([pack1, pack2], [".mp3", ".ogg"]).audioreading(englishdict.reading("你"))
             gotpacks.append(gotpack)
         
         # This test will nondeterministically fail (1/2)^10 = 0.01% of the time
@@ -151,21 +151,21 @@ class PinyinAudioReadingsTest(unittest.TestCase):
     def testUseSpokenToneRatherThanWrittenOne(self):
         mediapacks = [MediaPack("Foo", { "ma2.mp3" : "ma2.mp3", "ma3.mp3" : "ma3.mp3" })]
         mediapack, output, mediamissing = PinyinAudioReadings(mediapacks, [".mp3"]).audioreading([Word(Pinyin("ma", ToneInfo(written=2, spoken=3)))])
-        self.assertEquals(mediapack, mediapacks[0])
+        self.assertEqual(mediapack, mediapacks[0])
         self.assertFalse(mediamissing)
-        self.assertEquals(output, ["ma3.mp3"])
+        self.assertEqual(output, ["ma3.mp3"])
 
     # Test helpers
     def assertHasReading(self, what, shouldbe, **kwargs):
         bestpackshouldbe, mediapack, output, mediamissing = self.audioreading(what, **kwargs)
-        self.assertEquals(bestpackshouldbe, mediapack)
-        self.assertEquals(output, shouldbe)
+        self.assertEqual(bestpackshouldbe, mediapack)
+        self.assertEqual(output, shouldbe)
         self.assertFalse(mediamissing)
     
     def assertHasPartialReading(self, what, shouldbe, **kwargs):
         bestpackshouldbe, mediapack, output, mediamissing = self.audioreading(what, **kwargs)
-        self.assertEquals(bestpackshouldbe, mediapack)
-        self.assertEquals(output, shouldbe)
+        self.assertEqual(bestpackshouldbe, mediapack)
+        self.assertEqual(output, shouldbe)
         self.assertTrue(mediamissing)
         
     def assertMediaMissing(self, what, **kwargs):
@@ -189,7 +189,7 @@ class PinyinAudioReadingsTest(unittest.TestCase):
 
 class ToneSandhiTest(unittest.TestCase):
     def testDoesntAffectWrittenTones(self):
-        self.assertEquals(flatten(tonesandhi([Word(Pinyin.parse("hen3")), Word(Pinyin.parse("hao3"))])), "hen3hao3")
+        self.assertEqual(flatten(tonesandhi([Word(Pinyin.parse("hen3")), Word(Pinyin.parse("hao3"))])), "hen3hao3")
     
     def testText(self):
         self.assertSandhi(Word(Text("howdy")), "howdy")
@@ -213,12 +213,12 @@ class ToneSandhiTest(unittest.TestCase):
     
     def testBugWithWordContour(self):
         # The original bug:
-        self.assertSandhi(Word(Pinyin(u'jiu', ToneInfo(written=3, spoken=3))), Word(Text(u' ')), Word(Pinyin(u'shui', ToneInfo(written=3, spoken=3))), Word(Text(u' ')),
-                          Word(Pinyin(u'yin', ToneInfo(written=3, spoken=3)), Text(u' '), Pinyin(u'liao', ToneInfo(written=4, spoken=4))),
+        self.assertSandhi(Word(Pinyin('jiu', ToneInfo(written=3, spoken=3))), Word(Text(' ')), Word(Pinyin('shui', ToneInfo(written=3, spoken=3))), Word(Text(' ')),
+                          Word(Pinyin('yin', ToneInfo(written=3, spoken=3)), Text(' '), Pinyin('liao', ToneInfo(written=4, spoken=4))),
                           "jiu2 shui3 yin3 liao4")
         # A test that used to find it, before the dictionary was updated with the
         # compound 饮料 - modified to take the new information into account:
-        self.assertSandhi(*(englishdict.reading(u"酒水饮料") + ["jiu2 shui2 yin3 liao4"]))
+        self.assertSandhi(*(englishdict.reading("酒水饮料") + ["jiu2 shui2 yin3 liao4"]))
     
     # TODO: improve tone sandhi such that the following tests pass:
     #
@@ -244,7 +244,7 @@ class ToneSandhiTest(unittest.TestCase):
     
     # Test helpers
     def assertSandhi(self, *args):
-        self.assertEquals(flatten(self.copySpokenToWritten(tonesandhi(args[:-1]))), args[-1])
+        self.assertEqual(flatten(self.copySpokenToWritten(tonesandhi(args[:-1]))), args[-1])
     
     def copySpokenToWritten(self, words):
         class CopySpokenToWrittenVisitor(TokenVisitor):
@@ -255,47 +255,47 @@ class ToneSandhiTest(unittest.TestCase):
                 return Pinyin(pinyin.word, ToneInfo(written=pinyin.toneinfo.spoken))
             
             def visitTonedCharacter(self, tonedcharacter):
-                return TonedCharacter(unicode(tonedcharacter), ToneInfo(written=tonedcharacter.toneinfo.spoken))
+                return TonedCharacter(str(tonedcharacter), ToneInfo(written=tonedcharacter.toneinfo.spoken))
         
         return [word.map(CopySpokenToWrittenVisitor()) for word in words]
 
 class TrimErhuaTest(unittest.TestCase):
     def testTrimErhuaEmpty(self):
-        self.assertEquals(flatten(trimerhua([])), u'')
+        self.assertEqual(flatten(trimerhua([])), '')
 
     def testTrimErhuaCharacters(self):
-        self.assertEquals(flatten(trimerhua([Word(TonedCharacter(u"一", 1), TonedCharacter(u"瓶", 2), TonedCharacter(u"儿", 5))])), u"一瓶")
+        self.assertEqual(flatten(trimerhua([Word(TonedCharacter("一", 1), TonedCharacter("瓶", 2), TonedCharacter("儿", 5))])), "一瓶")
 
     def testTrimErhuaPinyin(self):
-        self.assertEquals(flatten(trimerhua([Word(Pinyin.parse(u"yi1"), Pinyin.parse(u"ping2"), Pinyin.parse(u"r5"))])), u"yi1ping2")
-        self.assertEquals(flatten(trimerhua([Word(Pinyin.parse(u"yi1")), Word(Pinyin.parse(u"ping2"), Pinyin.parse(u"r5"))])), u"yi1ping2")
+        self.assertEqual(flatten(trimerhua([Word(Pinyin.parse("yi1"), Pinyin.parse("ping2"), Pinyin.parse("r5"))])), "yi1ping2")
+        self.assertEqual(flatten(trimerhua([Word(Pinyin.parse("yi1")), Word(Pinyin.parse("ping2"), Pinyin.parse("r5"))])), "yi1ping2")
 
     def testDontTrimNonErhua(self):
-        self.assertEquals(flatten(trimerhua([Word(TonedCharacter(u"一", 1), TonedCharacter(u"瓶", 2))])), u"一瓶")
+        self.assertEqual(flatten(trimerhua([Word(TonedCharacter("一", 1), TonedCharacter("瓶", 2))])), "一瓶")
 
     def testTrimSingleErHua(self):
-        self.assertEquals(flatten(trimerhua([Word(Pinyin.parse(u'r5'))])), u'')
-        self.assertEquals(flatten(trimerhua([Word(TonedCharacter(u'儿', 5))])), u'')
-        self.assertEquals(flatten(trimerhua([Word(Pinyin.parse(u'r5'))])), u'')
-        self.assertEquals(flatten(trimerhua([Word(TonedCharacter(u'儿', 5))])), u'')
-        self.assertEquals(flatten(trimerhua([Word(Pinyin.parse(u'r5'))])), u'')
-        self.assertEquals(flatten(trimerhua([Word(TonedCharacter(u'儿', 5))])), u'')
+        self.assertEqual(flatten(trimerhua([Word(Pinyin.parse('r5'))])), '')
+        self.assertEqual(flatten(trimerhua([Word(TonedCharacter('儿', 5))])), '')
+        self.assertEqual(flatten(trimerhua([Word(Pinyin.parse('r5'))])), '')
+        self.assertEqual(flatten(trimerhua([Word(TonedCharacter('儿', 5))])), '')
+        self.assertEqual(flatten(trimerhua([Word(Pinyin.parse('r5'))])), '')
+        self.assertEqual(flatten(trimerhua([Word(TonedCharacter('儿', 5))])), '')
 
 class MaskHanziTest(unittest.TestCase):
     def testMaskText(self):
-        self.assertEquals(maskhanzi(u"爱", "mask", [Word(Text("World")), Word(Text(u"H爱!")), Word(Text(" "), Text(u"J爱"))]),
+        self.assertEqual(maskhanzi("爱", "mask", [Word(Text("World")), Word(Text("H爱!")), Word(Text(" "), Text("J爱"))]),
                           [Word(Text("World")), Word(Text("Hmask!")), Word(Text(" "), Text("Jmask"))])
     
     def testMaskCharacter(self):
-        self.assertEquals(maskhanzi(u"狠", "chicken", [Word(Pinyin.parse("hen3")), Word(TonedCharacter(u"狠", 3)), Word(TonedCharacter("mhh", 2))]),
+        self.assertEqual(maskhanzi("狠", "chicken", [Word(Pinyin.parse("hen3")), Word(TonedCharacter("狠", 3)), Word(TonedCharacter("mhh", 2))]),
                           [Word(Pinyin.parse("hen3")), Word(Text("chicken")), Word(TonedCharacter("mhh", 2))])
 
     def testMaskMultiCharacter(self):
-        self.assertEquals(maskhanzi(u"没有", "XXX", [Word(TonedCharacter(u"没", 2)), Word(TonedCharacter(u"没", 2)), Word(TonedCharacter(u"有", 2)), Word(TonedCharacter(u"有", 2)), Word(Text(u"没有 le he said 有 to me! 没有!"))]),
+        self.assertEqual(maskhanzi("没有", "XXX", [Word(TonedCharacter("没", 2)), Word(TonedCharacter("没", 2)), Word(TonedCharacter("有", 2)), Word(TonedCharacter("有", 2)), Word(Text("没有 le he said 有 to me! 没有!"))]),
                           [Word(Text("XXX")), Word(Text("XXX")), Word(Text("XXX")), Word(Text("XXX")), Word(Text("XXX le he said XXX to me! XXX!"))])
 
     def testDontMaskWesternForms(self):
-        self.assertEquals(maskhanzi("1000AD", "XXX", [Word(Text(u"In 1000AD..."))]), [Word(Text(u"In 1000AD..."))])
+        self.assertEqual(maskhanzi("1000AD", "XXX", [Word(Text("In 1000AD..."))]), [Word(Text("In 1000AD..."))])
 
 if __name__ == '__main__':
     unittest.main()

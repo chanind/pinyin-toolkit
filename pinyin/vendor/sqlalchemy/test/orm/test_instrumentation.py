@@ -18,7 +18,7 @@ def modifies_instrumentation_finders(fn):
         finally:
             del attributes.instrumentation_finders[:]
             attributes.instrumentation_finders.extend(pristine)
-    return function_named(decorated, fn.func_name)
+    return function_named(decorated, fn.__name__)
 
 def with_lookup_strategy(strategy):
     def decorate(fn):
@@ -28,7 +28,7 @@ def with_lookup_strategy(strategy):
                 return fn(*args, **kw)
             finally:
                 attributes._install_lookup_strategy(sa.util.symbol('native'))
-        return function_named(wrapped, fn.func_name)
+        return function_named(wrapped, fn.__name__)
     return decorate
 
 

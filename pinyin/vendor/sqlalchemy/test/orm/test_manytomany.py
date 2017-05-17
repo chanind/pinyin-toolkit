@@ -138,9 +138,9 @@ class M2MTest(_base.MappedTest):
 
         for p in l:
             pp = p.places
-            print "Place " + str(p) +" places " + repr(pp)
+            print("Place " + str(p) +" places " + repr(pp))
 
-        [sess.delete(p) for p in p1,p2,p3,p4,p5,p6,p7]
+        [sess.delete(p) for p in (p1,p2,p3,p4,p5,p6,p7)]
         sess.flush()
 
     @testing.resolve_artifact_names
@@ -313,16 +313,16 @@ class M2MTest2(_base.MappedTest):
         s1.courses.append(c1)
         s1.courses.append(c2)
         c3.students.append(s1)
-        self.assert_(len(s1.courses) == 3)
-        self.assert_(len(c1.students) == 1)
+        self.assertTrue(len(s1.courses) == 3)
+        self.assertTrue(len(c1.students) == 1)
         sess.add(s1)
         sess.flush()
         sess.expunge_all()
         s = sess.query(Student).filter_by(name='Student1').one()
         c = sess.query(Course).filter_by(name='Course3').one()
-        self.assert_(len(s.courses) == 3)
+        self.assertTrue(len(s.courses) == 3)
         del s.courses[1]
-        self.assert_(len(s.courses) == 2)
+        self.assertTrue(len(s.courses) == 2)
 
     @testing.resolve_artifact_names
     def test_dupliates_raise(self):

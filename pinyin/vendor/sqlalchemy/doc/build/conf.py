@@ -54,8 +54,8 @@ template_bridge = "builder.builders.MakoBridge"
 master_doc = 'contents'
 
 # General information about the project.
-project = u'SQLAlchemy'
-copyright = u'2007-2011, the SQLAlchemy authors and contributors'
+project = 'SQLAlchemy'
+copyright = '2007-2011, the SQLAlchemy authors and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -209,8 +209,8 @@ htmlhelp_basename = 'SQLAlchemydoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('contents', 'sqlalchemy_%s.tex' % release.replace('.', '_'), ur'SQLAlchemy Documentation',
-   ur'Mike Bayer', 'manual'),
+  ('contents', 'sqlalchemy_%s.tex' % release.replace('.', '_'), r'SQLAlchemy Documentation',
+   r'Mike Bayer', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -247,18 +247,18 @@ latex_preamble = '\setcounter{tocdepth}{3}'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'sqlalchemy', u'SQLAlchemy Documentation',
-     [u'SQLAlchemy authors'], 1)
+    ('index', 'sqlalchemy', 'SQLAlchemy Documentation',
+     ['SQLAlchemy authors'], 1)
 ]
 
 
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'SQLAlchemy'
-epub_author = u'SQLAlchemy authors'
-epub_publisher = u'SQLAlchemy authors'
-epub_copyright = u'2011, SQLAlchemy authors'
+epub_title = 'SQLAlchemy'
+epub_author = 'SQLAlchemy authors'
+epub_publisher = 'SQLAlchemy authors'
+epub_copyright = '2011, SQLAlchemy authors'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
