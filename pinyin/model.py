@@ -6,6 +6,7 @@ import re
 from bs4 import BeautifulSoup, Tag
 import sqlalchemy
 import unicodedata
+from unidecode import unidecode
 
 from . import utils
 from .db import database
@@ -121,8 +122,9 @@ class Pinyin(object):
     # NB: we only need to consider the ü versions because the regex is used to check *after* we have normalised to ü
     validpinyin = utils.Thunk(lambda: set(["r"] + [substituteForUUmlaut(pinyin[0]).lower() for pinyin in database.selectRows(sqlalchemy.select([sqlalchemy.Table("PinyinSyllables", database.metadata, autoload=True).c.Pinyin]))]))
     
-    def __init__(self, word, toneinfo, htmlattrs=None):
+    def __init__(self, word, toneinfo, htmlattrs=None, overridecolor=False):
         self.word = word
+        self.overridecolor = overridecolor
         
         if isinstance(toneinfo, int):
             # Convenience constructor: build a ToneInfo from a simple number
@@ -172,7 +174,7 @@ class Pinyin(object):
     hen3
     """
     @classmethod
-    def parse(cls, text, forcenumeric=False):
+    def parse(cls, text, forcenumeric=False, overridecolor=False):
         # Normalise u: and v: into umlauted version:
         # NB: might think about doing lower() here, as some dictionary words have upper case (e.g. proper names)
         text = substituteForUUmlaut(text)
@@ -220,7 +222,7 @@ class Pinyin(object):
             raise ValueError("The proposed pinyin '%s' doesn't look like pinyin after all" % text)
         
         # We now have a word and tone info, whichever route we took
-        return Pinyin(word, toneinfo)
+        return Pinyin(word, toneinfo, overridecolor=overridecolor)
 
 """
 Represents a Chinese character with tone information in the system.
@@ -307,6 +309,12 @@ def tokenizeonewitherhua(possible_token, forcenumeric=False):
         except ValueError:
             pass
     
+    # Check if the user is trying to override the tone by adding a number to the end
+    try:
+        return [Pinyin.parse(unidecode(possible_token), forcenumeric=forcenumeric, overridecolor=True)]
+    except ValueError:
+        pass
+
     # Nope, we're just going to have to fail :(
     return [Text(possible_token)]
 
@@ -393,13 +401,15 @@ def tokenize(html, forcenumeric=False):
         return go
         
     def contextify(attributesstack, what):
+
         # Get the most recent attributes to apply at this point in time
         current_attrs = {}
         for attrs in attributesstack:
             current_attrs.update(attrs)
         
         for k, v in list(current_attrs.items()):
-            what.htmlattrs[k] = v
+            if k != 'color' or not what.overridecolor:
+                what.htmlattrs[k] = v
         
         return what
     
@@ -415,7 +425,7 @@ def tokenize(html, forcenumeric=False):
                 if child.name.lower() == "span":
                     # It's more convenient if we can see the attributes as a dictionary,
                     # although we might e.g. drop duplicates
-                    attrsdict = dict([(k.lower(), v) for k, v in child.attrs])
+                    attrsdict = dict([(k.lower(), v) for k, v in child.attrs.items()])
     
                     # This is why we're even at this party: we want to grab the style stuff out
                     thisattributesstack = attributesstack + [extract_attr_maybe(attrsdict, "style", "color", take_style_val("color"))]
@@ -426,13 +436,16 @@ def tokenize(html, forcenumeric=False):
                 else:
                     thisattributesstack = attributesstack
                     thisattrs = child.attrs
-            
-                tokens.append(Text("<%s%s>" % (child.name, "".join([' %s="%s"' % (key, value) for key, value in thisattrs]))))
+                
+                is_blank = child.name.lower() == "span" and thisattrs == [('style', '')]                    
+                if not is_blank:
+                    tokens.append(Text("<%s%s>" % (child.name, "".join([' %s="%s"' % (key, value) for key, value in thisattrs]))))
                 recurse(thisattributesstack, child)
-                tokens.append(Text("</%s>" % child.name))
+                if not is_blank:
+                    tokens.append(Text("</%s>" % child.name))
     
     # This is it, chaps: let's munge that HTML!
-    recurse([], BeautifulSoup(html))
+    recurse([], BeautifulSoup(html, 'lxml'))
     return tokens
 
 """
